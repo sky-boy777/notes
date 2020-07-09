@@ -1,0 +1,22 @@
+<!--头部模板-->
+    {% extends "learning_logs/base.html" %}
+	
+	{% block header %}
+	  <div class="jumbotron">
+	    <h1>Track your learning.(跟踪你的学习)</h1>
+	  </div>
+	{% endblock header %}
+	
+	<!--内容-->
+	{% block content %}
+		<h2>
+		  <a href="{% url 'users:register' %}">Register an account.(注册帐户)</a>
+		  to make your own LearningLog, and list the topics you'are learning about.
+		  (制作你自己的学习日志，列出你正在学习的主题。)
+		</h2>
+		<h2>
+		  Whenever you learn something new about a topic, make an entry summarizing what
+		  you've learned.(当你对一个话题有新的了解时，就做一个总结你所学内容的条目。)
+		</h2>
+	{% endblock content %}
+

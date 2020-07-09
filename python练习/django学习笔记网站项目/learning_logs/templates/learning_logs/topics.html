@@ -1,0 +1,26 @@
+<!--头部模板-->
+{% extends "learning_logs/base.html" %}
+
+{% block header %}
+  <h1>Topics（主题）</h1>
+{% endblock header %}
+	
+<!--内容-->
+{% block content %}
+	
+	<ul>
+		{% for topic in topics %}		
+			<li>
+			  <h3>
+				<a href="{% url 'learning_logs:topic' topic.id %}">{{topic}}</a>
+			  </h3>
+			</li>
+			{% empty %}
+				<li>No topics have been added yet.(尚未添加主题。)</li>
+			{% endfor %}
+	</ul>
+	
+	<h3><a href="{% url 'learning_logs:new_topic' %}">Add a new topic(添加一个新主题)</a></h3>
+
+{% endblock content %}
+

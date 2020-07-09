@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>照片墙</title>
+</head>
+<style>
+	.body{
+		background:url(../img/bg1.jpg)no-repeat top center fixed;
+		 background-size:100%auto;}
+	.content{width:900px; height:1000px; overflow; overflow:hidden; margin: 100px auto;
+			 position:relative;}
+	.content img{
+		z-index: 1; width:20%;
+		height:auto; position: absolute;
+		padding:10px 10px 15px 10px; background:#ffffff;
+		border:1px solid #ccc;
+		-moz-transition:0.5s;
+		-webkit-transition:0.5s; transition:0.5s;
+	}
+	.content img:hover{
+	          z-index:2;
+			  transform:scale(1.5);
+			  -moz-transform:scale(1.5);
+			  -webkit-transfrom:scale(1.5);
+			  box-shadow:-10px 10px 20px #000000;
+			  -webkit-box-shadow:-10px 10px 20px #000000;
+	}
+	.pic1{left:100px; top:50px; -webkit-transfrom:rotate(20deg);
+		  -moz-transform:rotate(20deg); transform:rotate(20deg);}
+		  
+	.pic2{left:240px; top:40px; -webkit-transfrom:rotate(-10deg);
+		  -moz-transform:rotate(-10deg); transform:rotate(-10deg);}	  
+		  
+	.pic3{left:350px; top:400px; -webkit-transfrom:rotate(20deg);
+		  -moz-transform:rotate(20deg); transform:rotate(20deg);}
+		  
+	.pic4{left:500px; top:150px; -webkit-transfrom:rotate(-10deg);
+		  -moz-transform:rotate(-10deg); transform:rotate(-10deg);}	 
+		  
+	.pic5{left:600px; top:20px; -webkit-transfrom:rotate(30deg);
+		  -moz-transform:rotate(30deg); transform:rotate(30deg);}
+		  
+	.pic6{left:280px; top:200px; -webkit-transfrom:rotate(50deg);
+		  -moz-transform:rotate(50deg); transform:rotate(50deg);}	
+		  
+	.pic7{left:400px; top:60px; -webkit-transfrom:rotate(20deg);
+		  -moz-transform:rotate(20deg); transform:rotate(20deg);}
+		  	  
+</style>
+<body class="body">
+<div class="content">
+	<img class="pic1" src="p1.jpg" />
+	<img class="pic2" src="p2.png" />
+	<img class="pic3" src="p3.gif" />
+	<img class="pic4" src="p4.jpg" />
+	<img class="pic5" src="p5.jpg" />
+	<img class="pic6" src="p6.jpg" />
+	<img class="pic7" src="p7.gif" />
+	
+</div>
+</body>
+
+</html>

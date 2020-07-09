@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>加入购物车</title>
+
+	<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+
+			$(function(){
+
+				var $btn = $('.btn');  //加入购物车
+				var $dot = $('.dot');  //圆点
+				var $sp = $('.sp');  //购物车
+				var $a = $('.sp a');
+
+				$btn.click(function(){
+					$btn_pos = $btn.offset();   //获取加入购物车位置
+					$sp_pos = $sp.offset();  //获取购物车位置
+
+					$dot.css({'left':$btn_pos.left+40,'top':$btn_pos.top+15});
+					$dot.show();
+
+					$dot.stop().animate({'left':$sp_pos.left+40,'top':$sp_pos.top+17},500,function(){
+																	$dot.hide();
+																	$a.html(parseInt($a.html())+1);
+																});
+				})
+			});
+
+	</script>
+</head>
+<style type="text/css">
+
+	.btn{
+		position: relative;
+		top: 100px;
+		width: 100px;
+		height: 50px;
+		color: #fff;
+		background-color: green;
+		border: 0;
+	}
+
+	.sp{
+		position: relative;
+		top: 500px;
+		right: 500px;
+		width: 100px;
+		height: 50px;
+		border: 2px solid #000;
+		line-height: 50px;
+		text-align: center;
+		float: right;
+	}
+
+	.sp a{
+		color: red;
+	}
+
+	.dot{
+		width: 20px;
+		height: 20px;
+		background-color: red;
+		border-radius: 50%;
+		z-index: 999;
+		position: fixed;
+		left: 0px;
+		top: 0px;
+		display: none;
+		
+	}
+</style>
+<body>
+	<input type="button" class="btn" value="加入购物车">
+	<div class="sp">购物车<a>0</a></div>
+	<div class="dot"></div>
+</body>
+</html>

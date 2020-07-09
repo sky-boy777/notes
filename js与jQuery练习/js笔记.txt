@@ -1,0 +1,13 @@
+    document.getElementById();通过id获取元素
+	document.getElementTagName();通过标签获取元素
+	document.referrer(); 获取上一个跳转页面的地址（需要服务器环境）
+	
+	window.location.href  获取或者重定url地址
+	window.location.search  获取地址参数部分
+	window.location.hash  获取页面锚点或者哈希值
+	
+	定时器（做动画）
+	setTimeout(事件);一次
+	slearTimeout(事件);关闭
+	setInterval(事件，毫秒);反复
+	clearInterval(事件);关闭反复 

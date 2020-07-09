@@ -1,0 +1,10 @@
+1、新建项目文件
+2、创建虚拟环境 ：python -m venv 虚拟环境名字
+3、激活虚拟环境： cd  Scripts，   然后 ：.\activate
+3、创建Django项目： django-admin startproject 项目名 
+4、退出虚拟环境：deactivate
+5、创建应用：python manage.py startapp 应用名字
+6、运行：python manage.py runserver
+7、生成迁移数据库文件： python manage.py  makemigrations
+8、生成数据库表： python manage.py  migrate
+

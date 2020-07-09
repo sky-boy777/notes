@@ -1,0 +1,18 @@
+@charset "utf-8";
+/* CSS Document */
+	.box1{
+		width:300px;
+		height: 300px;
+		border-radius: 300px;
+		background:url(../img/2.png);
+		background-size: cover;
+		margin:30px auto;
+	}
+	.box2{
+		width:300px;
+		height:300px;
+		border-radius: 300px;
+		background:url(../img/3.png);
+		background-size: cover;
+		margin:30px auto;
+	}

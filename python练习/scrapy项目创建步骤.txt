@@ -1,0 +1,12 @@
+创建
+scrapy  startproject  项目名称
+
+生成
+cd  项目名称
+scrapy  genspider  爬虫代码文件名（不用加.py后缀）  请求范围（如 baidu.com）
+
+或
+scrapy genspider -t crawl 爬虫代码文件名（不用加.py后缀）  请求范围（如 baidu.com）
+
+启动
+scrapy crawl 爬虫代码文件名（不用加.py后缀）

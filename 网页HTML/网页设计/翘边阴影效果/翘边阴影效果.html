@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>翘边阴影</title>
+	<style>
+		.box dt{
+			
+			position:relative; padding:5px; margin-right:25px;
+			float:left; width:250px; height: 200px;background: #fff;
+			box-shadow:0 0px 4px rgba(0,0,0,0.3),0 0 60px rgba(0,0,0,0.1)inset;
+		}
+		.box dt:before{
+			position:absolute; counter:''; width:90%; height:80%;
+			left:18px; bottom:11px; z-index: -2;
+			background: transparent;
+			box-shadow:0 8px 20px rgba(0,0,0,0.6);
+			transform: skew(-12deg)rotate(-5deg);
+		}
+		.box dt:after{
+			position:absolute;content:''; width: 90%; height: 80%; right: 18px;
+			bottom:11px; z-index:-2; background: transparent;
+			box-shadow:0 8px 20px rgba(0,0,0,0.6);
+			transform: skew(12deg)rotate(5deg);
+		}
+	</style>
+</head>
+
+<body>
+	<dl class="box">
+	   <dt><img src="./tp.PNG"></dt>
+		<dt><img src="./tp.PNG"></dt>
+		<dt><img src="./tp.PNG"></dt>
+		<dt><img src="./tp.PNG"></dt>
+	</dl>
+</body>
+</html>

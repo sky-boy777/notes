@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+			$(function(){
+				var $nav = $('.nav');
+
+				$(window).scroll(function(){
+
+					var $iNum = $(document).scrollTop();
+					
+					if($iNum>300)
+					{
+						$('.aa').show();
+						$nav.css({
+							'position':'fixed',
+							'top':0,
+
+							'left':'50%',  //左上角居中
+							'margin-left':-500  //整体居中，菜单的一半长度
+
+						})
+					}
+					else
+					{
+						$('.aa').hide();
+						$nav.css({
+							'position':'static',  //改为不定位
+							'marginLeft':'auto'
+						})
+					}
+				})
+				
+				
+			});
+
+
+	</script>
+	
+	<style type="text/css">
+		.top{
+			width: 900px;
+			height: 300px;
+			background-color:gold;
+			margin: 0 auto;
+		
+		}
+
+		.nav{
+			width: 1000px;
+			height: 50px;
+			background-color: green;
+			margin: 0 auto;
+		}
+
+		.aa{
+			width: 1000px;
+			height: 50px;
+			margin: 0 auto;
+			display: none;
+		}
+
+
+	</style>
+
+
+</head>
+<body>
+	<div class="top"></div>
+	<div class="nav">菜单</div>
+	<div class="aa"></div>
+	
+	
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<h1>内容</h1>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+</body>
+</html>

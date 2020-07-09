@@ -1,0 +1,8 @@
+                    地址         请求头                  使用代理data = {"http":"http://10.145.21.4:80"}
+requests.get(url, headers = headers, proxies = data)
+
+
+登录后才能访问的网页先设置session，里面有Cooke数据
+session = requests.session()
+                                                                                            session或Cooke字典数据
+session.get(url, headers = headers, proxies = proxies, data = data)

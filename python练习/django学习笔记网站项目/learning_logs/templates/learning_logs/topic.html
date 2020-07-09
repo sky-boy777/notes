@@ -1,0 +1,35 @@
+<!--头部模板-->
+{% extends "learning_logs/base.html" %}
+
+{% block header %}
+  <h2>{{ topic }}</h2>
+{% endblock header %}
+	
+	
+<!--内容-->
+{% block content %}
+
+	<p>
+		<a href="{% url 'learning_logs:new_entry' topic.id %}">add new entry(添加新条目)</a>
+	</p>
+		
+	{% for entry in entries %}
+	  <div class="panel panel-default">
+	    <div class="panel-heading">
+		  <h3>
+		    {{ entry.date_added|date:'M d, Y H:i' }}
+			<small>
+			  <a href="{% url 'learning_logs:edit_entry' entry.id %}">edit entry(编辑条目)</a>
+			</small>
+		  </h3>
+		</div>
+        <div class="panel-body">
+	      {{ entry.text|linebreaks }}
+	    </div>
+      </div><!--panel(面板)-->		
+	{% empty %}
+		There are no entries for this topic yet.(此主题还没有条目。)		
+	{% endfor %}
+
+{% endblock content %}
+

@@ -1,0 +1,337 @@
+@charset "utf-8";
+/* CSS Document */
+	*{
+		margin:0px;
+	}
+	body{
+		background:#EDEDED;
+	}
+	.nav{
+		width:100%;
+		height:150px;
+		background:url(../img/top.jpg);
+		border:0px solid ;
+		
+	}
+	.zj{
+		background:#EDEDED;
+	}
+	.nav a{
+		font-size:50px;
+		color:#FFF;
+		line-height:150px;
+		font-family:"方正粗黑宋简体";
+		background:url('') no-repeat;padding-left:60px;
+	}
+     li {
+         list-style: none;
+     }
+     .head-nav {
+         width: 100%;
+         height: 60px;
+         background: #09C;
+     }
+     .head-nav-con {
+         width: 1200px;
+         height: 60px;
+         margin: auto;
+     }
+     .head-nav-con ul li {
+         width: 170px;
+         float: left;
+         font-size: 20px;
+         text-align: center;
+     }
+     .head-nav-con ul li:hover {
+         background: #03C;
+     }
+     .head-nav-con ul a {
+         display: block;
+         text-decoration: none;
+         text-align: center;
+         line-height: 60px;
+         color: white;
+		 font-family:"楷体";
+     }
+     .head-nav-con .drop-down {
+         position: relative;
+     }
+    .head-nav-con .drop-down-content {
+        padding: 0;
+        display: none;
+        position: absolute;
+        z-index: 1;
+        background: #09C;
+    }
+    .head-nav-con .drop-down-content li:hover > a {
+		font-family:"楷体";
+        background-color: #06C;
+    }
+    .head-nav-con .drop-down:hover .drop-down-content {
+        display: block;
+    }
+	.box{
+        width: 270px;
+        margin: 10px auto;
+        font-family: 'Microsoft YaHei';
+        font-size: 20px;
+		float:right;
+    }
+    .input{
+        width: 150px;
+        border: 1px solid #e2e2e2;
+        height: 39px;
+        float: left;
+        background-repeat: no-repeat;
+        padding:0 0 0 40px;
+    }
+    .search{
+        width: 78px;
+        height: 40px;
+        float: right;
+        background:#06C;
+        color: white;
+        text-align: center;
+        line-height: 40px;
+        cursor: pointer;
+    }
+	.search a:hover{
+		width: 78px;
+        height: 40px;
+        float: right;
+        background:#069;
+	}
+	.h2{
+		width:79.5%;
+		height:50px;
+		background-color:#FFF;
+		margin:auto;
+		border-left:10px solid #06c;
+		background-image:linear-gradient(to right,#09C,#EDEDED);
+	}   
+	.h2 h2{
+		line-height:50px;
+	}
+	.left{
+		width:80%;
+		height:400px;
+		background-color:#fff;
+		margin:auto;
+	}
+	.left1{
+		width:47%;
+		height:390px;
+		background:#fff;
+		float:left;
+		background-size: cover;
+		
+	}
+	.news{
+		width:50%;
+		height:400px;
+		border:1px solid #000;
+		float:right;
+	}
+	.title{
+		height:40px;
+		line-height:40px;
+		border-bottom:2px solid #025483;
+	}
+	.title h2{
+		height:40px;
+		float:left;
+		font-size:18px;
+		color:#000;
+		margin:0;
+	}
+	.title .more{
+		float:right;
+		height:22px;
+		padding-right:10px;
+	}
+	.more a{
+		font-size:14px;
+		text-decoration:none;
+		color:#666;
+	}
+	.list_one{
+		min-height:250px;
+		margin-top:10px;
+	}
+	.list_one li{
+		line-height:30px;
+		height:30px;
+		color:#333;
+		font-size:14px;
+		padding-left:2px;
+		text-align:right;
+		white-space:nowrap;
+		overflow:hidden;
+		list-style-type:none;
+	}
+	.list_one li a{
+		color:#000;
+		font-weight:bold;
+		float:left;
+		text-decoration:none;
+	}
+	.list_one li b{
+		font-weight :normal;
+	}
+	#flash{
+		width:100%;
+		height: 1080px;
+		margin: 0px auto;
+		position: relative;
+	}
+	#flash #play{
+		width:100%;
+		height: 1080px;
+		list-style: none;
+		position:absolute;
+		top:0px;
+		left:0px;
+	}
+	#flash #play li{
+		display: none;
+		position:absolute;
+		top:0px;
+		left:0px;
+	}
+	#flash #play li img{
+		float: left;
+	}
+	#button{
+		position: absolute;
+		bottom:20px;
+		left:45%;
+		list-style: none;
+	}
+	#button li{
+		margin-left: 10px;
+		float: left;
+	}
+	#button li div{
+		width:12px;
+		height: 12px;
+		background:#DDDDDD;
+		border-radius: 6px;
+		cursor: pointer;
+	}
+	#prev{
+		width:40px;
+		height:63px;
+		background:url(../img/beijing.png) 0px 0px;
+		position: absolute;
+		top:500px;
+		left:10px;
+		z-index: 1000;
+	}
+	#next{
+		width:40px;
+		height:63px;
+		background:url(../img/beijing.png) -40px 0px;
+		position: absolute;
+		top:500px;
+		right:10px;
+		z-index: 1000;
+	}
+	#prev:hover{
+		background:url(../img/beijing.png)0px -62px;
+	}
+	#next:hover{
+		background:url(../img/beijing.png) -40px -62px;
+	}
+	.bq{
+		width:100%;
+		height:65px;
+		background:url(../img/bj.jpg);
+	}
+	.bq p{
+		
+		text-align:center;
+		font-size:14px;
+		color:#666;
+		line-height:65px;
+		text-indent:2em;
+	}
+	.bj{
+		width:80%;
+		height:600px;
+		background:#FFF;
+		margin: 10px auto;
+	}
+	.bj .img{
+		width:35%;
+		float:left;
+		position:relative;
+		padding:10px;
+		margin-right:30px;
+		background:#fff;
+		box-shadow:0 0px 4px rgba(0,0,0,0.3), 0 0 60px rgba(0,0,0,0.1) inset;	
+	}
+	.bj .img:before{
+		position:absolute;
+		content:'';
+		width:90%;
+		height:80%;
+		left:20px;
+		bottom:11px;
+		z-index:-2;
+		background:transparent;
+		box-shadow:0 8px 20px rgba(0,0,0,0.6);
+		transform:skew(-7deg)rotate(-3deg);
+		
+	}
+	.bj .img img{
+		width:100%;
+	}
+	.bz p{
+		font-size:20px;
+		line-height:90px;
+		text-indent:2em;
+		font-family:"楷体";
+	}
+	.lps-2 img{
+		width:45%;
+		float:right;
+		margin:20px;
+		padding:10px;
+		background:#EDEDED;
+		-webkit-transform:rotate(5deg);
+		-moz-transform:rotate(5deg);
+		transform:rotate(5deg);
+	}
+	.bx p{
+		font-size:20px;
+		line-height:75px;
+		font-family:"楷体";
+		text-indent:2em;
+	}
+	.ba{
+		width:80%;
+		background:#FFF;
+		margin: 0px auto;
+	}
+	.bos{
+		width:50%;
+		float:left;
+	}
+	.bc{
+		width:80%;
+		background:#FFF;
+		height:400px;
+		margin: 0px auto;
+	}
+	.bos a{
+		font-family:"方正粗黑宋简体";
+		display:block;
+		text-align:center;
+	}
+	.text-div{
+		width:80%;
+		line-height:50px;
+		margin:20px auto;
+		color:#666;
+		text-indent:2em;
+	}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>小提示窗口</title>
+</head>
+	<style>
+    	a.tip{color:red; text-decoration:none; position:relative;}
+		a.tip span {display:none; position:absolute; top:15px; left:-30px; width:100px;}
+		a.tip:hover{cursor:hand; z-index:999;}
+		a.tip:hover .popbox{display:block; background-color: #444; color:#fff; padding:10px; z-index:999;}
+    </style>
+<body>
+	<p>web前台技术：<a href="#" class="tip">Ajax<span class="popbox">Ajax是一种浏览器无刷新就能和web服务器交换数据的技术</span></a>技术和<a href="#" class="tip">CSS<span class="popbox">Cascading Style Sheets 层叠样式表</span></a></p>
+</body>
+</html>

@@ -1,0 +1,142 @@
+1、msgBox
+msgbox(msg='(Your message goes here)', title=' ', ok_button='OK', image=None, root=None)
+import easygui as g
+#对于大部分的EasyGui函数都有默认参数，几乎所有的组件都会显示一个消息和标题。
+#标题默认是空字符串，信息通畅有一个简单的默认值
+#比如msgbox()函数标题部分的参数就是可选的，所以你调用msgbox的时候可以指定一个消息参数，例如：
+msg = g.msgbox("Hello Easy GUI")
+#当然你也可以指定信息参数和标题参数
+title = g.msgbox(msg="我一定要学会编程！",title="标题部分",ok_button="加油")
+
+2、ccbox()
+ccbox(msg='Shall I continue?', title=' ', choices=('Continue', 'Cancel'), image=None)
+ccbox() 提供一个选择：Continue 或者 Cancel，
+并相应的返回 1（选中Continue）或者 0（选中Cancel）。
+注意 ccbox() 是返回整型的 1 或 0，不是布尔类型的 True 或 False。但你仍然可以这么写：
+1 import sys
+2 import easygui as g
+3 if g.ccbox("亲爱的还玩吗?",choices=("还要玩！","算了吧/(ㄒoㄒ)/~~")):
+4     g.msgbox("还是不玩了，快睡觉吧！")
+5 else:
+6     sys.exit(0)
+
+
+3、ynbox()
+老实说，这个函数和ccbox()功能一模一样。。。。。一下省略好几十字。。。
+
+4、buttombox()
+buttonbox(msg='', title=' ', choices=('Button1', 'Button2', 'Button3'), image=None, root=None)
+可以使用 buttonbox() 定义自己的一组按钮，buttonbox() 会显示一组你定义好的按钮。
+当用户点击任意一个按钮的时候，buttonbox() 返回按钮的文本内容。
+如果用户取消取消或者关闭窗口，那么会返回默认选项（第一个选项）。请看例子：
+1 import easygui as g
+2 g.buttonbox(msg="你喜欢下面哪种水果?",title="",choices=("西瓜","苹果","草莓"))
+
+
+
+5、indexbox()
+indexbox(msg='Shall I continue?', title=' ', choices=('Yes', 'No'), image=None) 
+基本跟上面一样，区别就是当用户选择第一个按钮的时候返回序列号0，选择第二个按钮时候返回序列号1。
+
+6、boolbox()
+boolbox(msg='Shall I continue?', title=' ', choices=('Yes', 'No'), image=None) 
+如果第一个按钮被选中则返回 1，否则返回 0。
+
+
+7、在buttonbox()中显示图片
+当你调用一个 buttonbox 函数（例如 msgbox(), ynbox(), indexbox() 等等）的时候，
+你还可以为关键字参数 image 赋值，这是设置一个 .gif 格式的图像（注意仅支持 GIF 格式哦）：
+
+1 import easygui as g
+2 g.buttonbox("大家说嗅嗅可爱吗?",image="xiuxiu.gif",choices=("可爱","不可爱","财迷"))
+choicebox()
+choicebox(msg='Pick something.', title=' ', choices=())  
+按钮组件方便提供用户一个简单的按钮选项，但如果有很多选项，或者选项的内容特别长的话，
+更好的策略是为它们提供一个可选择的列表。
+choicebox() 为用户提供了一个可选择的列表，使用序列（元祖或列表）作为选项，
+这些选项显示前会按照不区分大小写的方法排好序。  
+另外还可以使用键盘来选择其中一个选项（比较纠结，但一点儿都不重要）：
+1 import easygui as g
+2 
+3 msg = "选择你喜欢的一种业余生活"
+4 title = ""
+5 choicess_list = ["看书","游泳","骑自行车","玩游戏"]
+6 reply = g.choicebox(msg,choices=choicess_list)
+
+
+8、mutchoicebox()
+multchoicebox(msg='Pick as many items as you like.', title=' ', choices=(), **kwargs)
+multchoicebox() 函数也是提供一个可选择的列表，与 choicebox() 不同的是，multchoicebox() 
+支持用户选择 0 个，1 个或者同时选择多个选项。 
+multchoicebox() 函数也是使用序列（元祖或列表）作为选项，
+这些选项显示前会按照不区分大小写的方法排好序。
+1 import easygui as g
+2 g.multchoicebox(msg="请选择你爱吃哪些水果?",title="",choices=("西瓜","香蕉","苹果","梨"))
+
+9、enterbox()
+enterbox(msg='Enter something.', title=' ', default='', strip=True, image=None, root=None)
+enterbox() 为用户提供一个最简单的输入框，返回值为用户输入的字符串。
+默认返回的值会自动去除首尾的空格，如果需要保留首尾空格的话请设置参数 strip=False。
+1 import easygui as g
+2 g.enterbox(msg="请说出此时你的心里话",title="心里悄悄话")
+
+
+10、interbox()
+integerbox(msg='', title=' ', default='', lowerbound=0, upperbound=99, image=None, root=None, **invalidKeywordArguments)
+integerbox() 为用户提供一个简单的输入框，用户只能输入范围内（lowerbound参数设置最小值，upperbound参数设置最大值）
+的整型数值，否则会要求用户重新输入。
+1 import easygui as g
+2 g.integerbox(msg="请输入您的得分",title="分数统计",lowerbound=0,upperbound=100)
+
+11、mulenterbox()
+multenterbox(msg='Fill in values for the fields.', title=' ', fields=(), values=())
+multenterbox() 为用户提供多个简单的输入框，要注意以下几点：
+如果用户输入的值比选项少的话，则返回列表中的值用空字符串填充用户为输入的选项。
+如果用户输入的值比选项多的话，则返回的列表中的值将截断为选项的数量。
+如果用户取消操作，则返回域中的列表的值或者None值
+import easygui as g
+msg = "请填写一下信息(其中带*号的项为必填项)"
+title = "账号中心"
+fieldNames = ["*用户名","*真实姓名","固定电话","*手机号码","QQ","*Email"]
+fieldValues = []
+fieldValues = g.multenterbox(msg,title,fieldNames)
+#print(fieldValues)
+while True:
+    if fieldValues == None :
+        break
+    errmsg = ""
+    for i in range(len(fieldNames)):
+        option = fieldNames[i].strip()
+        if fieldValues[i].strip() == "" and option[0] == "*":
+            errmsg += ("【%s】为必填项   " %fieldNames[i])
+    if errmsg == "":
+        break
+    fieldValues = g.multenterbox(errmsg,title,fieldNames,fieldValues)
+print("您填写的资料如下:%s" %str(fieldValues))
+
+
+12、passwordbox()
+passwordbox(msg='Enter your password.', title=' ', default='', image=None, root=None)
+passwordbox() 跟 enterbox() 样式一样，不同的是用户输入的内容用"*"显示出来，返回用户输入的字符串：
+import easygui as g
+g.passwordbox(msg="请输入您的密码")
+import easygui as g
+msg = "请输入你的密码"
+user_password = g.passwordbox(msg)
+print(str(user_password))
+
+13、multpasswordbox()
+multpasswordbox(msg='Fill in values for the fields.', title=' ', fields=(), values=())
+multpasswordbox() 跟 multenterbox() 使用相同的接口，但当它显示的时候，最后一个输入框显示为密码的形式（"*"）：
+
+1 import easygui as g
+2 msg = "请输入用户名和密码"
+3 title = "用户登录接口"
+4 user_info = []
+5 user_info = g.multpasswordbox(msg,title,("用户名","密码"))
+6 print(user_info)
+
+14、textbox()
+textbox(msg='', title=' ', text='', codebox=0) 
+textbox() 函数默认会以比例字体（参数 codebox=1 设置为等宽字体）来显示文本内容（会自动换行哦），这个函数适合用于显示一般的书面文字。 
+注：text 参数（第三个参数）可以是字符串类型，列表类型，或者元祖类型。

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>jquery笔记</title>
+
+	<script type="text/javascript" src="js/已下载的jquery库"></script>   //引入jquery库
+	<script type="text/javascript">
+	
+
+
+	/* 引入跟使用jQuery库要分开 */
+
+
+	$(function(){  //简写
+
+
+		/* jQuery选择器 */
+		var $div = $('#box');  //选择器跟css一样
+					//$('.box');   类选择
+					//$('li');   标签选择
+					//$('#ul1 li span');    层级选择器
+					//$('input[name=first]');  选择name属性等于first的input元素
+		
+		
+
+
+		/* 操作 */
+		$div.css({'color':'red','fontSize':'30px'});  //给元素加css样式，与python字典一样,大驼峰为标准，’font-size‘中间横杠也行
+		alert($div.css({'color'});)  //不给定样式就会选择元素的样式，单个可以不用字典符号
+		$div.css('width',30px);	  //单个		
+					
+		
+
+
+		/* 对选择器过滤 */
+		$('div').has('p');  //选择包含p元素的div
+		$('div').not('myClass');  //选择class不等于myClass的div元素
+		$('div').filter('.myClass');  //选择class等于myClass的div元素
+		$('div').eq(2);  //选择第3个div元素（从0开始）
+
+
+
+		/* 选择集转移 */
+		$('div').prev();  //选择div元素前面紧挨的同辈元素
+		$('div').preAll();  //选择div元素前面所有的同辈元素
+		$('div').next();  //选择div元素后面紧挨的同辈元素
+		$('div').parent();  //选择div父元素
+		$('div').children();  //选择div子元素
+		$('div').siblings();  //选择div的同级元素
+		$('div').find('.myClass');  //选择div内的class等于myClass的元素
+
+
+		/* 判断是否选择到了元素 */
+		var $div2 = $('.box');
+		alert($div2.length);  //没有会弹出0，有弹出1
+
+
+
+		/*  操作样式类名 */
+		$('.div1').addClass('divClass2');  //为div1的对象加样式divVClass2，class="div1 divClass2"
+		$('.div1').removeClass('divClass2')  //移除样式divClass2
+		$('.div1').removeClass('divClass2 div3')  //移除多个样式
+		$('.div1').toggleClass('divClass2')  //重复切换toggleClass样式，点击事件用到click，点一下添加删除，再点一下删除样式
+		$(.div1).hasClass('divClass2'); //判断有没有样式dicClass2，true或false
+
+		/* click事件 ，相当于js的onclick*/
+		//var $div = $('#div');  //可以存到一个变量，也可以不存
+		$('#div').click(function(){  //匿名函数
+						语句块
+			$(this)  //表示当前点击的对象，后面可以加属性
+
+		})
+
+
+
+		var $li = $('.ul li');
+		$li.index();  //获取索引值，像列表一样，相对与同辈
+
+
+		$('.div').html();  //获取被包裹的值
+		$('.div').html("123123");  //写入，已有的会被覆盖
+		$('.div').each(function(){})  //jquery的循环语句
+		$('.div').append('123123');  //在内部里面插入
+		$('.div').prop('src');  //获取标签中的src地址，传参为赋值
+
+
+		
+		$('.div').delegate('li','click',function(){})  //事件委托
+
+
+
+				
+	});  //加分号为了压缩不出错，不压缩可以不加
+
+
+	</script>
+
+
+
+</head>
+<body>
+
+</body>
+</html>

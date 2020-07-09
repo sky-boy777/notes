@@ -1,0 +1,153 @@
+.fl{
+			float:left;
+		}
+		
+		
+	/*顶部*/
+		.head{
+			float:right;
+			margin-top:10px;
+			font-size:14px;
+			position:relative;
+		}
+		
+		
+		.head div{
+			background-color:red;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			position:absolute;
+			left: 77px;
+			top:-5px;
+		}
+		
+		
+		.head a{
+			color:#161212;
+			margin-left:20px;
+			line-height: 100%;
+			
+		}
+		
+		
+		.head a:nth-child(2){
+			color:red;
+		}
+		
+		
+		.head a:hover{color:blue;}
+		
+		
+		.head a:nth-child(11){
+			background-color:#3D7EF0;
+			color:white;
+			padding:5px;
+			text-decoration:none;
+		}
+		
+		
+		.head a:nth-child(11):hover{
+			color:#161212;
+			background-color:white;
+		}
+	
+		
+	/*中间*/
+		.centre{
+			position: absolute;
+			width: 100%;
+			margin:300px auto 0;
+			text-align: center;	
+			overflow:hidden;
+		}
+		
+		.centre form img{
+			position:absolute;
+			left:567px;
+			top:9px;
+			cursor: pointer;
+			
+			
+		}
+		
+		.centre div{
+			margin:30px auto 0;
+			height: 38px;
+			width: 698px;
+			border:1px solid #646464;
+			position: relative;	
+		}
+		
+		
+		.input_text{ 
+			width:540px;
+			height:36px;
+			font-size:16px;
+			
+			/*去除获取到焦点后的闪烁框*/
+		/*    outline: none;*/
+			
+			border:0;
+			margin-left:10px;
+		}
+		
+		
+		 .input_sub{
+			position: absolute;
+			right: 0;
+			width:100px;
+			height:38px;
+			color:white;
+			background-color:#3D7EF0;
+			border:0px;
+			 
+			/* 将鼠标变成手指形状*/ 
+			cursor:pointer;
+		}
+		
+		.input_sub:hover{
+			background-color:#0A43B7;
+		}
+		
+	/*底部*/
+		.bottom{
+			position:absolute;
+			top:650px;
+			width:100%;
+			text-align:center;
+		}
+		
+		.bottom .bottom01{
+			color: darkgray;
+			margin-top:5px;
+		}
+		
+		
+		.bottom .bottom02{
+			margin-top:30px;
+		}
+		
+		.bottom .bottom02 a{
+			color:darkgray;
+			margin-left:10px;
+			font-size: 12px;
+		}
+		
+		.bottom .bottom03{
+			position: relative;
+			overflow:hidden;
+			color:darkgray;
+			font-size: 12px;
+		}
+		
+		.bottom03  a{
+			color:darkgray;
+		}
+		
+		.bottom03 img{
+			position:absolute;
+			width:14px;
+			top:-21px;
+			
+		}
