@@ -7,4 +7,156 @@
 6、运行：python manage.py runserver
 7、生成迁移数据库文件： python manage.py  makemigrations
 8、生成数据库表： python manage.py  migrate
+9、原生sql查询data =  User.objects.raw("select * from 表名 where 条件")  可以执行任何sql语句，与user无关
+防止sql注入，不要使用format，应该使用%s：sql = "select * from user where username=%s"      user.objects.raw(sql,[username, nane, djf])  列表里面放参数。
+								登录                                   状态                                 退出登录
+保存登录状态三连：设置（cookie，session），获取（cookie，session），删除（cookie，session）
+设置cookie要先实例一个响应对象
+res = redirect('/')
+cookies_time = datetime.datetime.now() + datetime.timedelta(hours=3)
+res.set_cookie('username', user.username, expires=cookies_time)  # 设置cookie
+return ress
+
+设置session：
+request.session['username'] = user.username
+
+获取session
+username = request.session.get('username')
+
+删除session
+request.session.clear()  #清除所有session键值对，不清除sessionid
+ request.session.flush()   # 清除所有session键值对，连数据库里面的也清除
+ del request.session['username']  # 清除指定session键值对
+ 
+ 
+ 
+ 
+ 自定义数据库   settings.py
+ DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'databasenane',  # 数据库名字
+        'USER': 'root',  # 用户名
+        'PASSWORD': 'mysql',  # 密码
+        'HOST': '127.0.0.1',  # 数据库地址 
+        'PORT': 3306,  # 端口号
+    }
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ django图像验证码
+ 
+1、 pip install  django-simple-captcha
+ 
+ settings.py:
+2、添加captcha到INSTALLED_APPS您的settings.py
+3、生成迁移：python manage.py migrate
+
+ 4、# 图像验证码配置
+CAPTCHA_FONT_SIZE = 22  # 字体大小（默认22）
+CAPTCHA_IMAGE_SIZE = (80, 30)  # 图片大小（宽高）
+CAPTCHA_TIMEOUT = 1  # 每一分钟生成一个验证码
+CAPTCHA_LENGTH = 4  # 验证码上面的字符个数
+CAPTCHA_OUTPUT_FORMAT = u'%(image)s %(hidden_field)s %(text_field)s'  # 输出格式
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs',  # 弧线
+                           'captcha.helpers.noise_dots',  #
+                            'captcha.helpers.noise_null',  # 无
+                           )   # 干扰的东西
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'  # 随机字符串
+
+5、根路由：path('captcha/', include('captcha.urls'))
+
+6、app路由
+    # 验证码
+    path('cap/', views.cap, name='cap'),
+	
+7、views.py下
+导入：from app.form import CaptchaTestForm
+# 验证码
+def cap(request):
+	if request.method == 'POST':
+		form = CaptchaTestForm(request.POST)
+		if form.is_valid():
+			print('验证通过')
+		else:
+			print("输入错误")
+	form = CaptchaTestForm()
+	return render(request, 'app/yam.html', locals())
+	
+	
+8、在app下新建form.py
+from django import forms
+from captcha.fields import CaptchaField
+
+class CaptchaTestForm(forms.Form):
+    captcha = CaptchaField()  # 验证码字段
+	
+9、
+返回到表单
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证码</title>
+</head>
+<body>
+<h1>验证码</h1>
+<form action="{% url 'app:cap' %}" method="post">
+    {% csrf_token %}
+    {{ form.captcha }}
+    <input type="submit">
+
+</form>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+表单验证
+1、创建表单类
+form.py文件
+class RegisterForm(forms.Form): # 最大长度      # 不能为空       # 提示的错误信息
+    username = forms.CharField(max_length=15, required=True, error_messages={
+        'required': '用户名不能为空',
+        'max_length': '用户名长度不能超过15给字符'
+    })
+    password = forms.CharField(min_length=3, required=True, error_messages={
+        'required': '密码不能为空',
+        'max_length': '密码长度不能少于三个字符'
+    })
+	
+2、在视图调用表单类
+form = RegisterForm(request.POST)
+if form.is_valid():
+       逻辑处理
+else:
+		# 验证不成功将错误信息返回，渲染到页面
+		return render(request, 'register.html', {'form': form})
+
+3、html页面渲染
+{{ form.字段名.errors }}
+
+
+	
+
+
+
 
