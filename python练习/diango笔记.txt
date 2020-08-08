@@ -1,0 +1,834 @@
+1、新建项目文件
+2、创建虚拟环境 ：python -m venv 虚拟环境名字
+3、激活虚拟环境： cd  Scripts，   然后 ：.\activate
+3、创建Django项目： django-admin startproject 项目名 
+4、退出虚拟环境：deactivate
+5、创建应用：python manage.py startapp 应用名字
+6、运行：python manage.py runserver
+7、生成迁移数据库文件： python manage.py  makemigrations
+8、生成数据库表： python manage.py  migrate
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+重定向
+redirect ：  HttpResponseRedirect的快捷方式
+HttpResponseRedirect： 
+
+以下是重定向的几种方式
+return redirect('/')
+return HttpResponseRedirect('/')
+
+return redirect('user:index')  # 反向解析
+ return redirect(reverse('user:index'))  # 反向解析+reverse
+return HttpResponseRedirect(reverse('user:index'))  # 注意：这里使用反向必须加reverse不然报错
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+9、原生sql查询data =  User.objects.raw("select * from 表名 where 条件")  可以执行任何sql语句，与user无关
+防止sql注入，不要使用format，应该使用%s：sql = "select * from user where username=%s"      user.objects.raw(sql,[username, nane, djf])  列表里面放参数。
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+								登录                                   状态                                 退出登录
+保存登录状态三连：设置（cookie，session），获取（cookie，session），删除（cookie，session）
+设置cookie要先实例一个响应对象
+res = redirect('/')
+cookies_time = datetime.datetime.now() + datetime.timedelta(hours=3)
+res.set_cookie('username', user.username, expires=cookies_time)  # 设置cookie
+return res
+
+设置session：
+request.session['username'] = user.username
+
+获取session
+username = request.session.get('username')
+
+删除session
+request.session.clear()  #清除所有session键值对，不清除sessionid
+ request.session.flush()   # 清除所有session键值对，连数据库里面的也清除
+ del request.session['username']  # 清除指定session键值对
+ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 
+ 自定义数据库   settings.py
+ DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'databasenane',  # 数据库名字
+        'USER': 'root',  # 用户名
+        'PASSWORD': 'mysql',  # 密码
+        'HOST': '127.0.0.1',  # 数据库地址 
+        'PORT': 3306,  # 端口号
+    }
+}
+ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ 
+ django图像验证码
+ 
+1、 pip install  django-simple-captcha
+ 
+ settings.py:
+2、添加captcha到INSTALLED_APPS您的settings.py
+3、生成迁移：python manage.py migrate
+
+ 4、# 图像验证码配置
+CAPTCHA_FONT_SIZE = 22  # 字体大小（默认22）
+CAPTCHA_IMAGE_SIZE = (80, 30)  # 图片大小（宽高）
+CAPTCHA_TIMEOUT = 1  # 每一分钟生成一个验证码
+CAPTCHA_LENGTH = 4  # 验证码上面的字符个数
+CAPTCHA_OUTPUT_FORMAT = u'%(image)s %(hidden_field)s %(text_field)s'  # 输出格式
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs',  # 弧线
+                           'captcha.helpers.noise_dots',  #
+                            'captcha.helpers.noise_null',  # 无
+                           )   # 干扰的东西
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'  # 随机字符串
+
+5、根路由：path('captcha/', include('captcha.urls'))
+
+6、app路由
+    # 验证码
+    path('cap/', views.cap, name='cap'),
+	
+7、views.py下
+导入：from app.form import CaptchaTestForm
+# 验证码
+def cap(request):
+	if request.method == 'POST':
+		form = CaptchaTestForm(request.POST)
+		if form.is_valid():
+			print('验证通过')
+		else:
+			print("输入错误")
+	form = CaptchaTestForm()
+	return render(request, 'app/yam.html', locals())
+	
+	
+8、在app下新建form.py
+from django import forms
+from captcha.fields import CaptchaField
+
+class CaptchaTestForm(forms.Form):
+    captcha = CaptchaField()  # 验证码字段
+	
+9、
+返回到表单
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证码</title>
+</head>
+<body>
+<h1>验证码</h1>
+<form action="{% url 'app:cap' %}" method="post">
+    {% csrf_token %}
+    {{ form.captcha }}
+    <input type="submit">
+
+</form>
+
+
+</body>
+</html>
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+表单验证
+1、创建表单类
+form.py文件
+class RegisterForm(forms.Form): # 最大长度      # 不能为空       # 提示的错误信息
+    username = forms.CharField(max_length=15, required=True, error_messages={
+        'required': '用户名不能为空',
+        'max_length': '用户名长度不能超过15给字符'
+    })
+    password = forms.CharField(min_length=3, required=True, error_messages={
+        'required': '密码不能为空',
+        'max_length': '密码长度不能少于三个字符'
+    })
+	
+2、在视图调用表单类
+form = RegisterForm(request.POST)
+if form.is_valid():
+       逻辑处理
+else:
+		# 验证不成功将错误信息返回，渲染到页面
+		return render(request, 'register.html', {'form': form})
+
+3、html页面渲染
+{{ form.字段名.errors }}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+django内置用户认证
+
+1、
+settings.py
+	AUTH_USER_MODEL = 'app名字.User'
+
+2、
+模型里面继承AbstractUser类
+from django.contrib.auth.models import AbstractUser
+
+# Create your models here.
+class User(AbstractUser):
+
+写入数据库，密码自动签名（加密）
+user = User.objects.create_user(username=username, password=password)
+
+记住用户登录状态,将user赋值给request
+login(request, user)
+
+退出登录
+logout(request)
+
+判断是否登录	
+if authenticate(request)
+
+ # 路由保护，未登录，跳转下面的路由
+@login_required(login_url='user:login')
+
+需要导入的库(views.py)
+from django.contrib.auth import authenticate, login, logout   # 查数据库验证， 登录， 退出登录
+from django.contrib.auth.decorators import login_required  # 路由保护装饰器
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+django后台管理
+创建超级用户：python manage.py createsuperuser
+
+# 配置后台页面和添加数据的展示
+class UserAdmin(admin.ModelAdmin):
+		pass
+
+在app下的admin.py 
+# 注册（在后台显示表，然后可以修改表数据）
+admin.site.register(User, UserAdmin)
+admin.site.register(Data, DataAdmin)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+django中间件
+
+1、在app或哪里定义中间的.py文件，在里面自定义中间件类
+导包
+from django.utils.deprecation import MiddlewareMixin  # 自定义中间件要继承的父类
+
+定义类，下面的三个方法比较常用（可实现：统计、黑名单、白名单、界面友好话（只有本地登录才能看到异常））
+class MyMiddieware(MiddlewareMixin):
+     # 在每个请求前调用
+     def process_request(self, request):
+	 
+     # 每个响应返回浏览器之前调用()
+     def process_response(self, request, response):
+	 
+	 # 视图抛出异常时执行，返回None或HttpResponse对象
+     def process_exception(self, request, response):
+	 
+2、在settings里面注册自定义中间件，一般放在最后面
+# 自定中间件
+     路径        .py文件          自定义的类  
+    'user.MyMiddieware.MyMiddieware',
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+django缓存，适用于页面经常被访问，但页面数据不会经常改变的地方
+
+settings配置，二选一
+1、
+# 数据库缓存配置，然后python manage.py createcachetable生成缓存表
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        # 缓存表的名字
+        'LOCATION': 'my_cache_table'
+    }
+}
+
+2、
+# redis做缓存
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://192.168.1.101:6379/2',  # redis地址（无密码），后面表示使用第二个数据库
+        # 'LOCATION': 'redis://密码@192.168.1.101:6379/2',  # redis地址（有密码），后面表示使用第二个数据库
+    }
+}
+
+
+from django.views.decorators.cache import cache_page 
+# 页面缓存
+
+# 缓存装饰器，后面为时间（秒）
+@cache_page(1)
+def index(request):
+
+
+局部缓存，在HTML页面先加载缓存
+{% load cache %}
+
+                时间（秒）   名字是key值（取缓存的时候，需要根据key值取）
+{% cache        2           'my' %}
+     <h2>{{ my_time2 }}</h2>
+{% endcache %}
+
+
+手动设置缓存，将数据库里的数据读出来保存到缓存里，下次请求来的时候先在缓存里面查找，没有则到数据库查
+from django.core.cache import cache  # 手动设置缓存，导入底层的缓存
+	
+# 手动设置缓存（数据库）
+def my_cache(request):
+    # 首先在缓存表里查数据
+    my_data = cache.get('all_data')
+	
+    # 缓存表里没有再到数据库里查并将数据放入缓存表里
+    if not my_data:
+        my_data = Data.objects.all()
+		
+        # cache可以直接把查询结果序列化,保存到缓存表里
+        cache.set('all_data', my_data, 20)  # cache.set(key, value, timeout(秒))
+    return render(request, 'cache.html', locals())
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+邮箱验证激活账号
+
+1、token加密
+from itsdangerous import URLSafeTimedSerializer as utsr
+import base64
+from django.conf import settings as django_settings
+
+ 路由需要穿token值：path('active/<token>/', views.emial_active, name='active'),
+
+# 产生token
+class Token:
+    def __init__(self, security_key):
+        self.security_key = security_key
+        self.salt = base64.encodebytes(security_key.encode('utf-8'))
+    # 生成token（加密）
+    def generate_validate_token(self, uid):
+        serializer = utsr(self.security_key)
+        return serializer.dumps(uid, self.salt)
+    # 解密
+    def confirm_validte_token(self, token, expriation=3600):
+        serializer = utsr(self.security_key)
+        return serializer.loads(token, salt=self.salt, max_age=expriation)
+    # 移除
+    def remove_validate_token(self, token):
+        serializer = utsr(self.security_key)
+        print(serializer.loads(token, salt=self.salt))
+        return serializer.loads(token, salt=self.salt)
+
+# 定义为全局对象， SECRET_KEY是settings.py里面的
+token_confirm = Token(django_settings.SECRET_KEY)
+
+
+2、发送激活邮件
+	# 邮箱验证激活账号开始
+            # 如果数据库里有用户，则发送邮件激活账号
+            if user:
+                # 生成加密token
+                token = token_confirm.generate_validate_token(user.uid)
+
+                # 构造激活url
+                url = 'http://' + request.get_host() + reverse('user:active', kwargs={'token': token})
+
+                # 渲染html模板
+                html = loader.get_template('active.html').render({'url': url})
+
+                # 发送邮件
+                send_mail('账号激活', '', '1251779123@qq.com', [request.POST.get('emial')], html_message=html)
+
+                return HttpResponse('邮件已发送，请登录邮箱点击激活账号')
+# 结束
+	
+邮件模板
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>激活账号</title>
+</head>
+<body>
+<a href="{{ url }}">点击激活账号</a>
+</body>
+</html>
+
+
+3、激活处理
+# 邮箱验证激活账号
+def emial_active(request, token):
+    try:
+        uid = token_confirm.confirm_validte_token(token)   # 解密token，将uid取出来
+    except:
+        uid = token_confirm.remove_validate_token(token)  # 解密出错则删除token
+        user = User.objects.get(pk=uid)  # 连账号也删除，让用户重新注册
+        user.delete()
+        return HttpResponse('激活失败，重新注册')
+    try:
+        user = User.objects.get(pk=uid)
+    except:
+        return HttpResponse('用户不存在，重新注册')
+
+    # 激活
+    user.is_active = 1
+    user.save()
+    return HttpResponse('激活成功')
+
+	
+邮箱验证激活二
+1、导入
+from django.core.mail import send_mail          # 发送邮件
+from itsdangerous import TimedJSONWebSignatureSerializer          # 生成token
+from itsdangerous import SignatureExpired            # token超时发生的异常
+2、
+serializer = TimedJSONWebSignatureSerializer('SECRET_KEY', 3600)               # 实例化，超时时间3600秒
+info = {'uid': user.uid}            # 要加密的字典（最好是能唯一标识的）
+token = serializer.dumps(info)           # 加密，生成token
+token = token.decode('utf-8')       #  生成的token默认是byte类型，需要解码
+
+# HTML模板
+ html = '<h1>%s,欢迎你注册</h1> 点击下面链接激活账号<br> <a href="http://127.0.0.1:8000/active/%s">http://127.0.0.1:8000/active/%s</a">' % (username, token, token)
+# 发送邮件
+send_mail('账号激活', '内容（空）', '寄件人', ['收件人列表'], html_message=html)
+	
+ # 邮箱激活账号路由，要接受token参数
+ path('active/<token>/', views.emial_active, name='active'),
+
+ 解密
+    try:
+        # uid = token_confirm.confirm_validte_token(token)   # 方法一，解密token，将uid取出来
+        serializer = TimedJSONWebSignatureSerializer('SECRET_KEY', 3600)  # 方法二
+        info = serializer.loads(token)  # 解密，加密的时候是字典，解密的时候还是字典
+        uid = info.get('uid')
+    except SignatureExpired as e:   # token过期的错误SignatureExpired
+        user = User.objects.get(pk=uid)  # 连账号也删除，让用户重新注册
+        user.delete()
+        return HttpResponse('激活链接过期，请重新注册')
+		
+	 # 不出错则激活
+    user.is_active = 1
+    user.save()
+    return redirect(reverse('user:login'))  # 激活成功，重定向到登录页面
+	
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+cleery异步发送邮件：
+1、任务发出者（发邮件）， 
+2、任务队列（redis）， 
+3、任务处理者（worker）
+
+1、
+安装：pip install celery
+
+在项目根文件夹下创建celery包（名字随意），在下面创建tasks.py 文件，输入下面代码
+from celery import Celery
+from django.core.mail import send_mail  # 发送邮件
+from U.settings import EMAIL_FROM  # 服务器发送邮件的邮箱
+
+
+# 如果任务处理者（worker）在另一台电脑启动则需要把整个项目代码复制一份过去，而且要在worker加上下面四句，为了加载配置
+# import os
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'U.settings')
+# import django
+# django.setup()
+
+# 创建Celery类实例对象
+# main一般为tasks的路径                   中间人redis地址，使用6号数据库
+app = Celery(main='celery_tasks_tasks', broker='redis://127.0.0.1/6')
+
+
+# 定义任务函数，发送注册激活邮件
+@app.task
+def send_register_active_emial(to_emial, username, token):
+    '''发送激活邮件
+    to_emial: 发给谁
+    username: 用户名
+    token: token值
+    '''
+    # 组织邮件信息
+    html = '<h1>%s,欢迎你注册</h1> 点击下面链接激活账号<br> <a href="http://127.0.0.1:8000/active/%s">http://127.0.0.1:8000/active/%s</a">' % (
+    username, token, token)
+
+    # 发送邮件
+    send_mail('账号激活','', EMAIL_FROM, [to_emial], html_message=html)
+	
+	
+视图里面发送邮件：send_register_active_emial.delay(request.POST.get('emial'), username, token)
+2、
+处理者（worker）也要一分项目代码，代码看上面注释
+	
+启动worker（任务处理者）不同电脑或同一台电脑： 在项目目录下：celery -A celery包名.py文件名  worker  -l  日志等级（info）
+在windows下要安装：pip install eventlet, 启动：celery -A celery_tasks.tasks worker -l info -P eventlet
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	
+django前后端分离：  drf
+安装：pip install djangorestframework
+在settings.py 下注册app：rest_framework
+
+在app下定义序列化serializers.py文件，自定义序列化类，为了将在数据库查询出来的对象转换成json数据返回给前端，简化了手动转换的步骤
+from rest_framework import serializers  # 序列化器
+
+# 自定义序列化器
+class QbSerializers(serializers.Serializer):
+    id = serializers.IntegerField()
+    text = serializers.CharField()
+	
+	
+# 通过模型生成序列化器
+from app.models import Data
+
+# 自定义验证字段函数
+def text_yanzheng(value):
+    if len(value) < 3:
+        raise serializers.ValidationError('字数不能少于三个')
+
+class QbSerializers(serializers.ModelSerializer):
+
+    # 调用自定义验证字段函数,验证text字段，注意：字段必须跟模型里的字段名一致
+    text = serializers.CharField(validators=[text_yanzheng])
+
+    class Meta:
+        model = Data       # 模型类
+        # fields = '__all__'            # 所有字段
+        # fields = ['id', 'text']         # 自定义需要的字段，使用列表或元组： fields = ('id', 'text')
+        exclude = ['id']         # 排除的字段
+
+    # 单字段验证：validate_字段名，value为字段形参
+    def validate_text(self, value):
+        # 验证
+        if len(value) < 2:
+            # 返回错误信息
+            raise serializers.ValidationError('字数不能少于两个')
+        return value
+
+    # 验证多个字段，attrs为字段集
+    def validate(self, attrs):
+        # 验证
+        if attrs['text'] == '0':
+            raise serializers.ValidationError('不能输入0')
+        if re.search(r'反政府', attrs['text']):  # 如果有不允许的字样，抛异常
+            raise serializers.ValidationError('有不允许的字')
+        return attrs
+
+	
+	
+views.py下
+
+from rest_framework.generics import GenericAPIView  # 类视图要继承的父类
+from app.models import Data  # 数据表模型
+from app.serializers import QbSerializers  # 自定义的序列号类
+from rest_framework.response import Response  # 响应
+
+
+# 从数据库查询，转换成json数据传递给前端（序列化）
+class InfoView(GenericAPIView):
+    # 要有查询集
+    queryset = Data.objects.all()
+
+    # 处理get请求
+    def get(self, request, did=0):
+        # 查询所有段子信息
+        # duanzi = Data.objects.all()
+        # 序列化：将对象或queryset直接转换成字典或列表套字典
+        #                     查询的对象
+        # ds = QbSerializers(instance=self.queryset.all(), many=True)  # 多个对象则:many=True
+        # print(ds.data)
+        # return Response(ds.data)  # 返回，前端会收到json数据
+		
+		
+        # 判断查询全部还是一条数据
+        if did < 1:
+            return self.find_all(request, did)
+        return self.find_one(request, did)
+
+    # 查询所有
+    def find_all(self, request, did=0):
+        ds = QbSerializers(instance=self.queryset.all(), many=True)  # 多个对象则:many=True
+        return Response(ds.data)  # 返回，前端会收到json数据
+
+    # 查询一条
+    def find_one(self, request, did):
+        # 查询一个
+        duanzi = self.queryset.get(id=did)
+        # 序列化
+        ds = QbSerializers(instance=duanzi)
+        # 以json格式返回给前端
+        return Response(ds.data)
+
+
+# 接受前端传过来的json数据，转换成对象存入数据库（反序列化），这里需要用到验证
+class AddView(GenericAPIView):
+    queryset = Data.objects.all()
+    serializer_class = QbSerializers
+
+    def post(self, request):
+        # 将前端传过来的数据反序列化，json字符串转换成对象
+        ds = QbSerializers(data=request.data)
+
+        # 验证数据
+        if ds.is_valid():
+
+            # 验证通过，保存到数据库
+            ds.save()  # 调用的时create，直接创建并保存
+            return Response({"code": 1, 'msg': 'ok'})
+        else:
+            # 每通过，返回错误信息
+            return Response({'code': 0,'msg': ds.errors})
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+rest_framework验证、权限、节流
+
+验证
+myAuthentications.py
+
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+
+# 自定义验证类,身份验证本身不会允许或不允许传入的请求，它只会标识发出请求的凭据,告诉你验证是否通过，其他还会继续执行
+class MyAuthentications(BaseAuthentication):
+    # 必须重写authenticate方法
+    def authenticate(self, request):
+        # 获取token
+        token = request.query_params.get('token')  # query_params等于GET
+        # 验证token
+        if token == 'abcd':
+            print('验证成功')
+            return None  # 必须返回一个元组,第二个参数可以是None
+        else:
+            print('验证不成功')
+            # 验证不成功直接返回
+            raise AuthenticationFailed('验证不成功')
+            # 如果return None则会继续执行请求
+            # return None
+
+全局验证需要在settings里配置以下
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 自定义的验证,可以多个
+        'app.myAuthentications.MyAuthentications',
+    ]
+}	
+	
+局部验证只要在相对应的类视图加上以下
+# 对特定的视图进行验证，后面是一个元组，可以有多个验证类
+authentication_classes = (MyAuthentications,)
+
+
+	
+权限
+myPermissions.py
+
+from rest_framework.permissions import BasePermission
+
+# 自定义权限类
+class MyPerssion(BasePermission):
+    # 对视图
+    def has_permission(self, request, view):
+        print('权限')
+        return True  # 返回True则通过，返回False则不通过
+
+        # 如果登录了，则通过
+        # return request.user
+
+    def has_object_permission(self, request, view, obj):
+		 '''权限规则自定'''
+        return True  # 同上
+	
+在基于类的视图里加上
+ # 权限判断
+ permission_classes = (MyPerssion,)
+ 
+ 
+ 节流
+ from rest_framework.throttling import SimpleRateThrottle
+
+自定义节流
+class MyThrottle(SimpleRateThrottle):
+    '''('s', 'sec', 'm', 'min', 'h', 'hour', 'd', 'day')，秒，分，时，天'''
+    rate = '3/m'  # 请求次数/时间（分）
+    # scope = 'anon'  # 范围：匿名用户
+    def get_cache_key(self, request, view):
+        # 根据用户id用户名，登录不限制，不登录则限制每分钟请求次数
+        if request.user and request.user.id:
+            return None  # 返回None表示不限制
+        else:
+            return 1  # 返回其他，有限制
+
+
+			
+在视图类里局部节流
+throttle_classes = (MyThrottle,)
+
+
+在settings里面设置全局节流
+# rest_framework全局节流，认证跟权限的全局配置基本相同
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        # 自定义节流类
+        # 'app.myThrottle.MyThrottle',
+
+        # 框架的类, 需要在下面定义限制频率
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    # 节流的全局设置,在类里面定义了，这里就不用定义了
+    'DEFAULT_THROTTLE_RATES': {
+         'anon': '2/m',  # 匿名用户
+         'user': '1000/day',  # 已登录用户
+     }
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+rest_framework分页
+
+视图类里面局部分页
+from rest_framework.pagination import PageNumberPagination  # 分页类
+from app.myPagination import MyPage  # 自定义的分页类
+
+# 分页
+class DataView(GenericAPIView):  # 继承ListAPIView可以快速实现分页
+    queryset = Data.objects.all()  # 查询集（必须）
+    serializer_class = QbSerializers  # 序列化器（必须）
+
+    # 局部分页
+    # pagination_class = PageNumberPagination  # 分页类
+    # PageNumberPagination.page_size_query_param = 'page_size'  # 使用内置分页类必须声明这个，不声明默认禁用分页(None)
+    pagination_class = MyPage  # 使用自定义的分页类
+
+    # 继承GenericAPIView,如果继承ListAPIView则不用写下面
+    def get(self, *args, **kwargs):
+        # 过滤结果集
+        queryset = self.filter_queryset(self.get_queryset())
+        # 获取分页对象
+        page = self.paginate_queryset(queryset=queryset)
+        if page is not None:  # 分页对象存在
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # 不分页，返回所有数据
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+settings里面全局分页
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,   # 每页的数目
+}
+
+
+自定义分页类
+from rest_framework.pagination import PageNumberPagination, OrderedDict
+from rest_framework.response import Response
+
+# 自定义分页类
+class MyPage(PageNumberPagination):
+    page_size = 5  # 每页数目，为空则表示禁用分页
+    page_size_query_param = 'page_size'  # 页面大小，可以由前端传过来
+
+    # 自定义分页形式, 重写get_paginated_response方法
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),  # 总数
+            ('page_range', list(self.page.paginator.page_range)),  # 页码范围
+            ('has_next', self.page.has_next()),   # 是否有下一页
+            ('has_prious', self.page.has_previous()),  # 是否有上一页
+            ('next_page_number', self.page.next_page_number()),  # 下一页页码
+            ('results', data)  #
+        ]))
+------------------------------------------------------------------------------------------------------------------------------
+rest_framework过滤
+pip install django-filter
+
+在settings下app注册：'django_filters',
+REST_FRAMEWORK = {
+   'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
+
+自定义过滤类
+from django_filters import rest_framework as filters
+from app.models import Data
+
+# 自定义过滤类
+class MyFilter(filters.FilterSet):
+    class Meta:
+        model = Data  # 指定模型
+
+        # 字段过滤
+        fields = {
+            # 跟ORM运算一样
+            # http://127.0.0.1:8000/list/?id__gt=5, 过滤id大于5的
+            'id': ['exact', 'lt', 'lte', 'in'],  # 等于，小于,小于等于，在里面
+            'text': ['icontains', 'startswith', 'iendswith'],  # 包含、以什么开头，以什么结尾
+        }
+
+在视图类调用
+# 过滤
+class ListView(ListAPIView):
+    queryset = Data.objects.all()
+    serializer_class = QbSerializers
+
+    # 过滤字段（搜索框）
+    # filter_fields = ('id',)   # 只能判等
+    
+    # 使用自定义过滤类
+    filter_class = MyFilter
+	--------------------------------------------------------------------------------------------------------------------------------
+自动生成接口开发文档
+1、pip install coreapi
+2、settings配置
+	REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+	}
+3、根路由urls.py
+	from rest_framework.documentation import include_docs_urls   # 接口文档
+	urlpatterns = [
+			path('docs/', include_docs_urls(title='使用coreapi生成的接口文档')),
+]
+4、在视图（views.py）下，每个类视图或函数视图使用三引号写文档
+5、浏览器输入：http://127.0.0.1:8000/docs/
+-----------------------------------------------------------------------------------------------------------------------------
+django跨域的处理, 在settings下配置
+1、pip install django-cors-headers
+
+2、INSTALLED_APPS = [
+    # 跨域的解决
+    'corsheaders',
+]
+
+3、MIDDLEWARE = [
+    # 跨域的解决
+    'corsheaders.middleware.CorsMiddleware',   # 放在前面
+	......
+]
+
+4、
+# 处理跨域请求
+CORS_ALLOW_CREDENTIALS = True  # 允许将cookie包含在跨站点HTTP请求中。默认为False。
+# 以下两个二选一就行
+# CORS_ORIGIN_ALLOW_ALL = True  # 为True表示允许所有主机，将不使用白名单,默认为False,
+CORS_ORIGIN_WHITELIST = [  # 跨域请求白名单(可以跨域请求的主机或域名)
+    # 'https://sub.example.com',  # URI方案+主机名+端口，或特殊值'null'或 'file：//'之一。默认端口（HTTPS = 443，HTTP = 80）在此处是可选的。
+    'http://localhost',
+    'http://127.0.0.1:8000',
+]
+
+CORS_ALLOW_METHODS = [  # 允许的请求方式
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [  # 请求时可以使用的非标准HTTP标头的列表,以下是默认的
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+	
+	
+	
