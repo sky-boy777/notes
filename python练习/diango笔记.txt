@@ -9,6 +9,27 @@
 8、生成数据库表： python manage.py  migrate
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+centos安装MySQL：
+wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql-community-server
+启动：systemctl start  mysqld.service
+查看状态：systemctl status mysqld.service
+找出密码：grep "password" /var/log/mysqld.log
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ MySQL备份数据库：mysqldump -u root -p 数据库名 > blog.sql
+ MySQL导入数据库：
+ 远程复制：scp -r 本地目录 gg@192.168.1.101:/home/gg/
+ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ uwsgi启动：uwsgi uwsgi.ini
+ 关闭：uwsgi  --stop   uwsgi.ini   或 kill  -9   进程id
+ 重启：uwsgi --reload uwsgi.pid
+ 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 重定向
 redirect ：  HttpResponseRedirect的快捷方式
 HttpResponseRedirect： 
@@ -829,6 +850,52 @@ CORS_ALLOW_HEADERS = [  # 请求时可以使用的非标准HTTP标头的列表,以下是默认的
     'x-csrftoken',
     'x-requested-with',
 ]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+上线部署
+1、pip install uwsgi
+
+2、uwsgi.ini
+	[uwsgi]
+	# 使用nginx连接时使用
+	socket = 127.0.0.1:8000
+	# 项目目录
+	chdir = /home/byc/blog/blog/
+	# 项目中wsgi.py文件的目录，相对于项目目录
+	wsgi-file = blog/wsgi.py
+	module = blog.wsgi
+	# 进程数
+	processes = 4
+	# 线程数
+	threads = 2
+	master = true
+	# 保存启动后端进程pid，方便关闭
+	pidfile = uwsgi.pid
+	# 设置uwsgi后台运行，保存日志信息
+	# daemonize = uwsgi.log
+
+3、nginx配置nginx.conf
+	第一行改为： user  root;  # 权限设置
+	在http下添加
+	server {
+		listen 80;
+		server_name 47.112.208.199;    # 服务器的域名或IP
+		location / {
+			include uwsgi_params;
+			uwsgi_pass 127.0.0.1:8000;   # 跟uwsgi.ini 的socket一样，请求转发
+		}
+		location /static {
+			alias /home/byc/blog/blog/static/;    # 静态文件
+		}
+	}
+
+
+
+
+
+
+
+
+
 	
 	
 	
