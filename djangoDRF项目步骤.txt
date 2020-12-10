@@ -1,0 +1,16 @@
+创建django项目
+修改配置，在apps下注册rest：rest_framework
+创建模型
+序列化模型
+视图：查询数据，序列化数据，返回json数据
+
+标准格式返回，前端会收到json数据
+return Response({
+            'code': 200,
+            'msg': 'ok',
+            'data': ds.data,
+        })  
+	
+get方法问号传参http://www.xxx.com/index/?id=1&username=boy	 都是字符串，数字类型后端需要转换
+request.GET.get('id')                       django
+request.query_params.get('id')        rest_framework

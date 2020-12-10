@@ -1,0 +1,74 @@
+1、浏览器会缓存css，导致修改后刷新还是原来的页面，可以清除浏览数据。
+2、javascript的return false只会阻止默认行为，而是用jQuery的话则既阻止默认行为又防止对象冒泡。
+3、datetime.now().strftime('%Y/%m/%d')    # 2020/11/15，str类型。
+4、flask模板引擎，父模板的块{% block %}，使用前端的方式注释掉<-- -->，依然还会显示出来，
+      要删掉，或者使用模板的注释方式{#  #}。
+5、css盒子水平加垂直居中： 
+        width: 400px;
+        height: 300px;
+        position: absolute;
+        top:50%;
+        left:50%;
+        margin-top: -150px;   
+        margin-left: -200px;
+6、SQLAlchemy 模型中设置的default默认值是在提交数据的时候才有的，迁移时，不会在数据库中生成默认值。
+7、1到n累加求和公式（高斯发明）：n*(n+1)/2，例，1到3，3*（3+1）/2=6
+---------------------------------------------------------------------------------------------
+8、jQuery在头部写js要使用ready事件的几种方式（相对于windows.onload）：
+
+$(document).ready(function() {
+   //执行代码
+});
+
+$().ready(function() {
+    //执行代码
+});
+
+$(function(){
+    //执行代码
+})；
+--------------------------------------------------------------------------------------------------
+10、js跳转链接
+        // 加个定时器延时跳转，大多数都能解决浏览器不自动跳转问题
+        setTimeout(function(){
+            window.location.href = "{{ url_for('user.reset_password') }}";
+        }, 10);
+11、防止表单重复提交：在缓存放一个标志，添加过期时间，每次请求查看缓存
+12、头像上传，浏览器还是显示原来图片问题解决，js动态添加
+<img class="icon_image" src="" alt="头像">
+$(function(){
+        $('.icon_image').attr('src', '/static{{ g.user.icon }}?key=' + Math.random());
+        });
+-----------------------------------------------------------------------
+13、jquery Ajax
+$('#submit').click(function(){
+        var formData = new FormData();  // 上传文件需要对象
+        var username = $('#username').val();
+        var token = $('#token').val();
+        formData.append('username', username);
+        formData.append('icon', $('#icon')[0].files[0]);
+        formData.append('token', token);
+
+        // Ajax请求
+        $.ajax({
+            headers: { "token": token }, // 此处放置请求到的用户token
+            type: 'POST',
+            url: '{{ url_for('user.user_center') }}', 
+            data: formData,
+            function(data){
+                alert(data);
+                if (data.msg == 'ok'){
+                    alert('保存成功');
+                }；
+            }
+        });
+        
+        return false;
+    });
+----------------------------------------------------------
+python装饰器标准格式
+def login_rz(func):
+    def wrapper(*args, **kwargs):
+        pass
+        return func(*args, **kwargs)
+    return wrapper

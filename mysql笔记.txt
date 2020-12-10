@@ -1,0 +1,16 @@
+创建
+create database 数据库名  dufault charset='utf8';
+
+删除
+drop database 数据库名;
+drop table  表名;
+
+删除表数据
+delete 表名 where 条件;
+
+插入
+insert into 表名(字段名) values(值);
+insert into article_type(type_name) values('python');
+--------------------------------------------------------------------------------------------------
+导出：mysqldump -uroot -p 数据库名 >  文件名.sql
+导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql 

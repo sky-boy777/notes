@@ -1,0 +1,4 @@
+运行镜像：docker run -dp 80:80 docker/getting-started
+浏览器：http：// localhost
+拉取镜像：docker pull 镜像名
+进入容器：docker exec -it centos-test /bin/bash

@@ -1,0 +1,1179 @@
+css图片跟文字对齐：vertical-align:middle;
+-------------------------------------------------------------------------------------------------------------------------
+g对象只能是这次的请求如果重定向之后就会改变
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+重定向可以用url_for传递参数：url_for('user.login'，name=username)
+-----------------------------------------------------------------------------------------------------------------
+基础概念
+mtv:
+model  模型
+template  模板
+view  视图
+
+ORM, 映射
+属性---字段
+对象----一条数据
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+flask蓝图*
+（跟django的项目目录差不多）
+1、在项目目录下新建python包：apps，这里面用来放各种模块，用户模块、商品模块等
+2、apps下的__init__.py文件下
+from flask import Flask
+import settings  # 导入配置
+from apps.user.view import user_bp  # 导入用户模块
+def create_app():
+    # 创建app，并且指定templates、static文件夹位置
+    app = Flask(__name__, template_folder='../templates', static_folder='../static')  # app,一个核心对象
+    app.config.from_object(settings)  # 加载配置
+    # 蓝图
+    app.register_blueprint(user_bp)  # 将蓝图对象注册到app
+    print(app.url_map)  # 打印全部路由
+    return app
+	
+3、项目目录下的app.py
+from apps import create_app
+app = create_app()
+if __name__ == '__main__':
+    app.run(port=8000)
+	
+4、在apps下新建用户模块包user
+view.py视图函数
+model.py模型函数
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+flask项目基本
+from flask import Flask
+import settings  # 导入配置，创建settings.py文件
+
+app = Flask(__name__)
+app.config.from_object(settings)  # 加载配置
+
+加载静态文件，基于static文件夹
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}"> 或 <link rel="stylesheet" href="/static/css/index.css">
+<img src="{{ url_for('static', filename='images/11.jpg') }}" alt="">
+
+前端反向解析
+<form action="{{ url_for('user.search') }}">
+
+前端url_for传参
+<a href="{{ url_for('user.delete', id=user.id) }}">删除</a>
+或
+<a href="{{ url_for('user.delete') }}?id={{ user.id }}">删除</a>
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+JinJa2
+模板继承
+{% extends 'base.html' %}
+{% block 名字 %}  
+{% endblock %}
+
+{# 声明一个变量然后使用 #}
+{% set username='张三' %}
+{{ username }}
+
+{# 声明局部变量，只能在里面使用 #}
+{% with num=1000 %}
+    {{ num }}
+{% endwith %}
+
+了解
+包含：include
+{% include 'xxx.html' %}  包含，把整个页面嵌入进来，跟block差不多，路径基于templates文件夹
+
+宏: macro
+{# 定义宏 #}
+{% macro form(action, value='注册', method='post') %}
+<form action="{{ action }}" method="{{ method }}">
+    用户名：<input type="text">
+    <input type="submit" value="{{ value }}">
+</form>
+{% endmacro %}
+
+{# 导入宏 #}
+{% import 'macro/macro.html' as func %}
+{{ func.form('', value='提交') }}
+
+模板语法过滤器：{{ 变量名 | 过滤器 }}
+过滤器：
+length-----长度
+count------计数
+safe--------禁止转义，不把html标签转成字符，比如 <p> 转成  &lt p &gt, 常用与富文本编辑器
+capitalize-----首字母大写
+title------一句话中每个单词的首字母大写
+lower------首字母小写
+upper-----全部大写
+reverse------翻转
+{{ ‘%s’is ‘%d’| format（‘张三’， 18） }}  ------格式化
+{{ xxx | xxx | xxx }}-------链式
+
+列表过滤器：
+{{ list | xxx }}
+first----第一个
+length----长度
+last-----最后一个
+sum----求和
+sort------排序
+
+# 自定义过滤器，用于应用程序
+	# 第一种，添加
+	def aa(value):
+		return value + '你好'  # 要返回结果
+	app.add_template_filter(aa, name='add')  # 函数，过滤器名字
+
+	# 第二种，装饰器方法
+	@app.add_template_filter('add')  # add为模板使用的装饰器名字
+	def bb(value):
+		return value + '你好'  # 要返回结果
+
+# 自定义过滤器,用于蓝图
+@app_bp.app_template_filter('cut_off')  # cut_off为名称，没有则适用函数名称
+def cut_off(value):
+    # 切片
+    return value[:50] + '......'
+
+字典语法：
+{% for k ,v in dicts.items() %}  ----跟python语法差不多: items(), keys(), vales()
+	{{ k }}----{{ v }}
+{% endfor %}
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+flask模型
+pip install flask-script -------------一个让你的命令行支持自定义命令的工具
+
+2、app.py下
+from apps import create_app
+from flask_script import Manager  # 导入  
+app = create_app()
+manager = Manager(app=app)  # 弄个壳
+if __name__ == '__main__':
+    # app.run(port=8000)
+    manager.run()  # 使用它的run方法
+	
+3、启动
+python app.py runserver -p 端口号 -h 主机
+
+
+配置数据库模型
+1、安装：
+pip install pymysql ---------python与数据库之间的桥梁
+pip install flask-sqlalchemy ------ 基于sqlalchemy做了提升，实现ORM映射
+pip install flask-migrate --------发布命令的工具
+
+2、settings配置：
+	#                                                   数据库+驱动       用户 ：密码 @ 主机  ： 端口号 /数据库名
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1：3306/flask'            # 连接数据库
+
+3、创建包ext：
+__init__.py种添加
+	# 创建一个映射对象
+	from flask_sqlalchemy import SQLAlchemy
+	db = SQLAlchemy()   # 稍后必须跟app关联
+	
+4、在apps包的__init__.py添加
+	from apps.ext import db   # 导入db对象，ext下面的__init__
+	def create_app():
+		...
+		db.init_app(app)  # 将db对象与app进行关联
+		...
+		return app  # 返回app对象
+
+5、app.py代码如下
+from apps import create_app  # 创建app
+from flask_script import Manager  # 给app套壳
+from flask_migrate import Migrate, MigrateCommand  # 数据库命令工具,执行迁移一些操作
+from apps.ext import db  # 数据库映射对象
+
+app = create_app()
+manager = Manager(app=app)  # 套一个壳
+
+# 数据库命令工具,迁移什么的
+migrate = Migrate(app=app, db=db)
+manager.add_command('db', MigrateCommand)  # 添加数据库的一些迁移操作到manager壳,跟python数据库迁移操作差不多
+
+if __name__ == '__main__':
+    manager.run()  # 命令行启动：python app.py runserver -p 端口 —h 主机
+	
+创建模型
+1、在models.py下
+# ORM   类-----表
+# 对象----表中的一条记录
+from ext import db  # 跟django差不多
+from datetime import datetime
+
+# 模型
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # 主键、自动增长
+    username = db.Column(db.String(30), nullable=False, unique=True)  # 不能为空、唯一
+    password = db.Column(db.String(255), nullable=False)
+    register_time = db.Column(db.DateTime, default=datetime.now())  # 注册时间
+
+    def __str__(self):
+        return self.username
+
+2、在app.py下必须导入创建好的模型
+from apps.user.models import User  # 导入模型
+
+3、迁移
+python app.py db init  ----产生一个文件架migrations，只需执行一次
+
+python app.py db migrate  ----产生版本文件，迁移
+python app.py db upgrade-----在数据库里升级版本，同步
+
+python app.py db downgrade------降级的前一个版本
+
+-------------------------------------------------------------------------------------------------------------------------------
+简化模型小技巧：创建一个父类，将模型相同的字段统一创建好，__abstrace__ = True表示作为抽象类，不会在数据库生成表
+
+# 父类
+class BaseModel(db.Model):
+    __abstract__ = True  # 这一句使成为抽象模型，不会在数据库生成表，作为父类使用
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+class Article_type(BaseModel):
+    '''文章表'''
+    type_name = db.Column(db.String(30), nullable=False)  # 类型名称
+
+  
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+查询得到一个对象的方法
+           # 方法一，取下标
+            user = UserModel.query.filter(UserModel.email == email)
+            user = user[0]
+
+            # 方法二，first（）
+            user = UserModel.query.filter(UserModel.email == email).first()
+---------------------------------------------------------------------------------------------------------------------
+flask数据库的操作
+参考手册：http://www.pythondoc.com/flask-sqlalchemy/index.html
+		user = User()  # 实例化一个用户对象
+        user.username = '张三'
+        user.password = hashlib.sha256(‘123456’.encode('utf-8')).hexdigest()  # 加密，先编码转换才能使用加密
+        # 添加并保存
+        db.session.add(user)   # 删除db.session.delete(me)
+        db.session.commit()	
+	
+数据库查询   all()返回查询集列表，first()返回一条记录	
+        User.query.all()    # 查询全部
+         User.query.filter().all()  # 查询全部，列表形式
+        # 条件查询
+        User.queryset.filter_by(username=username)  # 返回一个查询集，列表，取对象user = user[0]
+        User.queryset.filter_by(username=username).first（）  # 返回查询集第一条，一个对象，没有为None
+        User.query.get(1)  # 根据主键查询
+        User.query.filter_by(username='bbb').first()  # 加first()表示取第一个
+        
+filter(最常用)，各种条件查询
+        User.query.filter(User.username == 'aaa').first()  # 最常用,里面是布尔条件,first()表示取第一个，一个对象，没有为None
+        User.query.filter(User.username.like('%a%'))  # 模糊查询, %a, a%
+        User.query.filter(User.username.startswith('张')).all()  # 名字以张开头的,all()获取全部，列表形式
+        User.query.filter(User.username.endswith('三')).all()  # 以三结尾
+        User.query.filter(User.username.contains('张')).all()  # 包含
+       
+        User.query.filter(User.username.endswith('g')).first_or_404()  # 查询不存在，则抛出404错误页面 ，get_or_404()
+        User.query.limit(1).all()  # 返回指定的记录数 
+   排序
+        User.query.order_by(User.register_time).all()   # 排序，默认升序，降序在前面加-，字符串不能加-
+        User.query.filter().order_by(-User.register_time).all()   # 降序排序
+        User.query.filter().order_by('register_time').all()   # 字符串不能降序
+
+        # 多条件查询，需要导入,from sqlalchemy import or_, and_, not_    # or, and, not不包含
+        User.query.filter(or_(User.username.like('a%'), User.username.like('b%'))).all()  # 或查询or_
+        User.query.filter(not_(User.register_time > '2020-09-11 12:28:49')).all()   # not取反
+        User.query.filter(User.username=='aa', User.username=='bb')  # and查询也可以这样
+
+        两种大于查询：__gt__(), >
+        User.query.filter(User.register_time.__gt__('2020-09-11 12:28:49')).all()  
+        User.query.filter(User.register_time > '2020-09-11 12:28:49').all()
+
+        User.query.filter(User.username.in_(['aaa','bbb','ccc'])).all()  # in查询
+        User.query.filter(User.age.between(15, 30)).all()  # 范围查询
+
+    偏移，用来分页
+        User.query.filter().offset(2).limit(2).all()  #  跳过前两个，选择两个
+        User.query.offset(2).limit(1).all() 
+
+逻辑删除是在创建数据表的时候添加字段isdelete，就是一种更新的方式
+
+--------------------------------------------------------------------------------------------------------------------
+一对多(one-to-many)关系（一个用户多篇文章），用来关联查询，关系：在其中的一个表添加，外键在多一方添加
+    外键：文章表
+class Arcitle(db.Model):
+    '''文章表'''
+    # 自定义表名
+    # __tablename = '表名'
+    ......
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # 哪个表的外键
+
+class User(db.Model):
+    '''用户表'''
+    ......
+    # 建立关系                1、对应哪个类  2、反向引用：Arcitle.user.username
+    arcitle = db.relationship('Arcitle',     backref='user')  # 不用迁移，不在数据库层面
+
+--------------------------------------------------------------------------------------------------------------------
+多对多(many-to-many)关系
+    定义一个用于关系的辅助表，建议 不 使用模型，而是采用一个实际的表
+
+# 多对多关系（用户跟商品）,一个辅助表
+lass User(db.Model):
+    '''用户表'''
+     ......
+
+class Goods(db.Model):
+    '''商品表'''
+    ......
+    # 关联表                  模型名            反向                   表名:数据库里面
+    users = db.relationship('User', backref='goods', secondary='user__goods')    # 添加多对多关联
+
+class User_Goods(db.Model):
+    '''多对多辅助表'''
+    ......
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # 外键
+    goods_id = db.Column(db.Integer, db.ForeignKey('goods.id'), nullable=False)  # 外键
+--------------------------------------------------------------------------------------------------------------------
+
+
+字段类型
+Integer	                 一个整数
+String (size)	有长度限制的字符串
+Text	                  一些较长的 unicode 文本
+DateTime	                 表示为 Python datetime 对象的 时间和日期
+Float	               存储浮点值
+Boolean	                  存储布尔值
+PickleType	存储为一个持久化的 Python 对象
+LargeBinary	存储一个任意大的二进制数据
+
+注意：主键字段不会自动添加，需要手动（跟django不同）
+-------------------------------------------------------------------------------------------------------------------
+使用flask-bootstrap     参考：https://flask-bootstrap-zh.readthedocs.io/zh/latest/
+1、pip install flask-bootstrap
+
+2、在exts下的__init__.py下
+    from flask_bootstrap import Bootstrap
+    bootstrap = Bootstrap()  # bootstrap
+或者直接在apps在apps下的__init__.py下
+    from flask_bootstrap import Bootstrap
+    def create_app():
+   ......
+    Bootstrap(app)  # 初始化bootstrap
+    ......
+    return app
+
+3、在apps下的__init__.py的create_app下
+def create_app():
+   ......
+    bootstrap.init_app(app)  # 初始化bootstrap
+    ......
+    return app
+
+4、base.html
+{# flask-bootstrap模板的使用 #}
+{# 参考：https://flask-bootstrap-zh.readthedocs.io/zh/latest/basic-usage.html #}
+
+{% extends "bootstrap/base.html" %}
+{% block title %}This is an example page{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+</div>
+{% endblock %}
+
+{% block content %}
+  <h1>Hello, Bootstrap</h1>
+{% endblock %}
+-------------------------------------------------------------------------------------------------------------------
+views.py下
+
+# url_prefix='/blog':路由前导,例如：/blog/blog_detail
+app_bp = Blueprint('app', __name__, url_prefix='/blog')
+----------------------------------------------------------------------------------------------------------------
+发送Ajax请求
+$.get('{{ url_for("user.check_phone") }}', {phone:phone}, function(data){
+            alert(data.msg);
+            }
+--------------------------------------------------------------------------------------------------------------------
+flask密码加密与验证
+导入
+from werkzeug.security import generate_password_hash, check_password_hash  # 密码加密,验证密码
+加密
+user.password = generate_password_hash(password)  # 密码格式：方法$盐值$哈希   盐值是八位
+验证：匹配密码                 数据库里密码跟表单传过来的密码
+if check_password_hash(user.password, password):
+--------------------------------------------------------------------------------------------------------------------
+cookie与session
+
+1、设置cookie
+# 设置cooke,需要实例一个响应对象
+                res = redirect(url_for('app.index'))
+                res.set_cookie('uid', str(user.id), max_age=1800)  # 用户主键作为cookie，1800秒
+                return res
+
+2、获取cookie
+uid = request.cookies.get('uid', None)  # 获取cookie值
+
+3、删除cookie
+ # 删除cookie
+    res = redirect(url_for('app.index'))
+    res.delete_cookie('uid')  
+    return res
+
+实例response对象的几种方式
+redirect（）
+render_template()
+Response()
+make_response()
+jsonify()
+
+session
+1、在settings.py
+# 用来给加密加盐
+SECRET_KEY = 'kdfuiefjk4343424@&&$^@&$@&$&@^$&fkjksjfkdsf'
+
+from flask import session
+
+ # 设置session, 字典形式
+                session['uid'] = user.id
+
+# 获取session
+    uid = session.get('uid')
+
+# 删除session
+    # del session['uid']  # 删除某一个，只删除session键值对，不会删除session的内存空间和cookie
+    session.clear()  # 删除session的内存空间和cookie
+-----------------------------------------------------------------------------------------------------------------------
+手机验证码登录基本流程（练习用的网易短信服务）
+1、申请短信服务，获取发送短信demo
+2、在代码获取手机号发送验证码
+# 手机登录，发送验证码
+@user_bp.route('/send_msg', methods=['GET', 'POST'], endpoint='send_msg')
+def send_msg():
+    '''发送短信验证码'''
+    phone = request.args.get('phone')
+    print(phone)
+    SECRET_ID = "ebf79d9288825ef70ac1e0335f71fe25 "  # 产品密钥ID，产品标识
+    SECRET_KEY = "040c04fa10e06b5a9e83c5e175473e6b"  # 产品私有密钥，服务端生成签名信息使用，请严格保管，避免泄露
+    BUSINESS_ID = "931f3201039240128b129b77370a1286"  # 业务ID，易盾根据产品业务特点分配
+    api = SmsSendAPIDemo(SECRET_ID, SECRET_KEY, BUSINESS_ID)
+    params = {
+        "mobile": phone,  # 手机号码
+        "templateId": "10084",  # 短信模板id
+        "paramType": "json",
+        "params": "json格式字符串"
+        # 国际短信对应的国际编码(非国际短信接入请注释掉该行代码)
+        # "internationalCode": "对应的国家编码"
+    }
+    ret = api.send(params)
+    print(ret)
+    session[phone] = '3333'  # 因为没有申请短信服务，所以用个假的练习
+    return jsonify(code=200, msg='短信发送成功')
+    # if ret is not None:
+    #     if ret["code"] == 200:
+    #         taskId = ret["data"]["taskId"]
+    #         print("taskId = %s" % taskId)
+    #          # 将手机号码作为键，验证码作为值
+    #         return jsonify(code=200, msg='短信发送成功')
+    #     else:
+    #         print("ERROR: ret.code=%s,msg=%s" % (ret['code'], ret['msg']))
+    #         return jsonify(code=400, msg='发送失败')
+3、将手机号作为session键，验证码作为值：session[phone] = '3456'  验证码
+4、 获取，对比验证码
+phone = request.args.get('phone')  # 获取手机号
+            yzm = request.args.get('yzm')  # 获取前端的验证码
+            code = session.get(phone)  # 获取真实验证码
+            # 判断验证码是否正确
+            if code == yzm:
+                user = User.query.filter(phone == phone).first()  # 查询用户
+                if user:  # 如果用户存在
+                    session['uid'] = user.id
+                    return redirect(url_for('app.index'))
+                else:
+                    return render_template('user.phone_login', msg='号码未注册')
+            else:
+                return render_template('user.phone_login', msg='验证码错误')
+-----------------------------------------------------------------------------------------------------------
+*****用户权限验证，钩子函数，未登录用户不能访问某些页面
+
+钩子函数： 钩子函数是指在执行函数和目标函数之间挂载的函数，框架开发者给调用方提供一个point-挂载点，至于挂载什么函数由调用方决定
+使用例子（像装饰器一样应用）：user_bp.before_first_request
+
+常用：
+应用到app上
+1、before_first_request       在对应用程序实例的第一个请求之前要运行的函数，只会运行一次
+2、before_request            在每个请求之前要运行的函数，每一次请求都会执行一次
+3、after_request           在每个请求之后要运行的函数，每次请求完成后都会执行。 需要接受一个Response对象作为参数，并返回一个新的Response对象，或者返回接收的Response对象s                                
+4、teardown_request          注册在每一个请求的末尾，不管是否有异常，每次请求的最后都会执行。
+
+应用到蓝图上（因为用这个）
+1、before_app_first_request       
+2、before_app_request          
+3、after_app_request                                               
+4、teardown_app_request 
+
+不常用：
+context_processor  上下文处理器，返回的字典可以在全部的模板中使用
+template_filter('xxxxxx')  增加模板过滤器，可以在模板中使用该函数，后面的参数是名称，在模板中用到
+errorhandler(400)
+发生一些异常时，比如404,500，或者抛出异常(Exception)之类的，就会自动调用该钩子函数
+1.发生请求错误时，框架会自动调用相应的钩子函数，并向钩子函数中传入error参数
+2.如果钩子函数没有定义error参数，就会报错
+3.可以使用abort函数来手动终止请求抛出异常，如果要是发生参数错误，可以abort(404)之类的
+--------------------------------------------------------------------------------------------------------------------
+g对象
+from flask import g  # g对象，本次请求的对象,全局的
+g.user = user
+
+模板也能使用：{{ g.user.username }}
+----------------------------------------------------------------------------------------------------------------------
+表单有文件上传必须加 enctype
+form action="" method="post" enctype="multipart/form-data">  # enctype: 上传文件要用
+
+# post请求接收图片使用files
+icon = request.files.get('icon')
+
+修改图片保存的文件名，保存图片路径在数据库
+ # 接收头像图片
+        icon = request.files.get('icon')  # FileStorage对象
+        icon_name = icon.filename  # 获取上传的文件名字，包括后缀名
+        icon_extend = icon_name.rsplit('.')[-1]  # 从右边以点分割，提取文件后缀名
+        if icon_extend in ['jpg', 'png']:
+            # 返回一个安全的文件名，会把斜杠转换为下划线
+            icon_name = secure_filename(icon_name)
+
+            # 生存文件路径,绝对路径，然后保存在相对应路径
+            file_path = os.path.join(settings.UPLOAD_ICON_DIR, str(g.user.id) + icon_name)
+
+            # 保存文件,文件名为：用户id+上传的文件名，保存到数据库也要相同的名字
+            icon.save(file_path)  
+
+            user = g.user  # 使用g对象
+
+            # 保存用户头像路径到数据库,相对于静态文件路径，模板渲染的路径一样
+            path = 'upload/icon'  
+
+            # 名字要跟文件夹里的名字一样，不然找不到
+            path = os.path.join(path, str(user.id) + icon_name)
+
+            # 将window系统生成的路径\替换为/, 反斜杠要转义
+            user.icon = path.replace('\\', '/')  
+
+            # 提交更改
+            db.session.commit()
+-----------------------------------------------------------------------------------------------------------------------
+注意：python的os.path.join()在window系统下生成的路径是反斜杠'\',浏览器是不认识的，要转换
+path.replace('\\', '/')  # 将window系统生成的路径\替换为/
+--------------------------------------------------------------------------------------------------------------------------
+TinyMCE富文本编辑器下载：https://www.tiny.cloud/get-tiny/self-hosted/
+快速开始：http://tinymce.ax-z.cn/quick-start.php
+1、下载，解压然后放到项目static文件夹下
+
+2、引入并初始化
+<script src="{{ url_for('static', filename='tinymce/js/inymce/tinymce.min.js') }}"></script>
+<script>
+        tinymce.init({  // 键值对形式
+            selector: '#textarea',
+            inline: false,
+            toolbar: true,
+            menubar: true,
+            plugins: 'quickbars emoticons advlist autolink link image lists preview', // 字符串，或plugins : ['advlist','autolink','link'],数组方式
+            toolbar: 'undo redo | styleselect | bold italic | link h2 h3 image',  // 工具栏按钮
+            width: 600,  // 宽高
+            height: 300,
+        });
+    </script>
+
+3、form表单
+<form action="" method="post">
+    <textarea id="textarea" name="content" placeholder="正文"></textarea><br>
+    <input type="submit" value="发布">
+</form>
+------------------------------------------------------------------------------------------------------------
+后端接收前端表单内select标签的值
+
+前端
+<form action="" method="post">
+    <select name="title">
+        <option value="文章标题">文章标题</option>
+    </select>
+    <input type="submit" value="发布">
+
+后端
+title = request.form.get('a')  # a是select的name，获得的值是option的熟悉value的值
+-----------------------------------------------------------------------------------------------
+分页：paginate（）函数，返回分页对象，跟django分页几乎一样
+
+    p = int(request.args.get('page', 1))  # 接收页码，转换为整形
+    # 分页,                                                                                      当前页，  每页几条,        每页最大记录数
+    page = Article.query.order_by(-Article.create_time).paginate(page=p, per_page=2，max_per_page=20)
+
+    page.items  # 当前页的每条记录对象（list）
+    page.page  # 当前页码
+    page.prev_num  # 前一页页码
+    page.next_num  # 后一页页码
+    page.has_next  # 是否有下一页（true， false）
+    page.has_prev  # 是否有上一页
+    page.pages  # 总页数
+    page.total  # 数据库的总的记录数
+
+前端
+{% for article in page.items %}  {# 遍历分页对象 #}
+。。。。。。
+
+{# 分页开始 #}
+{% if page.has_prev %}
+<a href="{{ url_for('app.index') }}?page={{ page.prev_num }}">上一页</a>
+{% endif %}
+
+{% for page_num in range(1, page.pages + 1) %}  {# 使用range函数 #}
+<a href="{{ url_for('app.index') }}?page={{ page_num }}">{{ page_num }}</a>
+{% endfor %}
+
+{% if page.has_next %}
+<a href="{{ url_for('app.index') }}?page={{ page.next_num }}">下一页</a>
+{% endif %}
+
+<span>共{{ page.pages }}页</span>
+{# 分页结束 #}
+-------------------------------------------------------------------------------------------------------------------------------
+Ajax点赞
+
+1、前端
+<a href="javascript:;" id="love_num">点赞：<span>{{ article.love_num }}</span></a>
+
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>  <!-- 引入jquery cdn -->
+<script>
+    let tag = 1;  // 一个标识，点赞后变为0
+    $('#love_num').click(function(){
+        let $this = $(this);
+        // 点赞     路径                          参数                    回调函数
+        $.get('{{ url_for('app.love_num') }}', {aid:{{ article.id }}, tag:tag}, function(data){
+            if(data.code==200){
+                $this.children('span').text(data.num);
+                $this.css({'color':'red'});  // 点击后变成红色
+                tag = 0;
+            };
+        });
+    });
+
+2、后端
+@app_bp.route('/love_num')
+def love_num():
+    tag = request.args.get('tag')
+    aid = request.args.get('aid')
+    if tag == '1':
+        article = Article.query.get(aid)
+        article.love_num += 1
+        db.session.commit()
+    else:
+        article = Article.query.get(aid)
+    return jsonify({'code': 200, 'num': article.love_num})
+------------------------------------------------------------------------------------------------------------------------
+七牛云存储图片
+1、注册，实名认证，创建存储空间（公开）
+2、pip install qiniu
+3、找到python SDK，，创建一个python包，添加util.py文件，修改如下
+
+from qiniu import Auth, put_file, etag, put_data
+import qiniu.config
+import random
+import datetime
+from werkzeug.utils import secure_filename  # 生成安全的文件名
+
+def upload(filestorage):
+    '''上传图片'''
+    # 需要填写你的 Access Key 和 Secret Key
+    access_key = 'gYE5FmsnJXtAwH2cEhPXQVkQ8yBDlNdxqbrCJBez'
+    secret_key = 'sV6rNj-q1SX4echtu-Gy-QrGxENr2GMDJ4N0Ud0i'
+    # 构建鉴权对象
+    q = Auth(access_key, secret_key)
+    # 要上传的空间,自己创建的存储空间
+    bucket_name = 'flask-b'
+
+    # 上传后保存的文件名
+    filename = filestorage.filename  # 获取文件名（包含后缀名）
+    ran = random.randint(1, 10000)  # 一个随机数
+    now_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')  # 现在的时间
+    suffix = filename.rsplit('.')[-1]  # 切割，获取文件后缀名
+    # 时间 + 原文件名 + 随机数 + 后缀名
+    key = str(now_time) + filename.rsplit('.')[0] + str(ran) + '.' + suffix
+    key = secure_filename(key)
+
+    # 生成上传 Token，可以指定过期时间等
+    token = q.upload_token(bucket_name, key, 3600)
+    ret, info = put_data(token, key, filestorage.read())  # filestorage.read():文件二进制
+    # return info, key  # key是文件名，用来存储到本地数据库
+    return ret, info
+
+注意：
+put_data()适用于从filestorage对象里面读取数据实现上传
+put_file()适用于指定文件路径上传
+
+上传图片
+        photo = request.files.get('photo')  # 接收前端图片
+        ret, info = upload(photo)  # 调用util
+        if info.status_code == 200:   # 状态码200表示成功
+            # 将文件名添加到数据库
+            photo = Photo()
+            photo.photo_name = ret['key']  # 文件名
+
+            db.session.add(photo)
+            db.session.commit()
+            return '上传成功'
+
+前端使用      域名 + 文件名
+<img src="http://qhpzt6wpn.hn-bkt.clouddn.com/{{ photo.photo_name }}" alt="">
+
+
+删除图片，先删除七牛云上的，再删除本地数据库的
+1、在util.py添加函数如下
+def del_photo(filename):
+    from qiniu import Auth, BucketManager
+
+    # 需要填写你的 Access Key 和 Secret Key
+    access_key = 'gYE5FmsnJXtAwH2cEhPXQVkQ8yBDlNdxqbrCJBez'
+    secret_key = 'sV6rNj-q1SX4echtu-Gy-QrGxENr2GMDJ4N0Ud0i'
+
+    # 初始化Auth状态
+    q = Auth(access_key, secret_key)
+
+    # 初始化BucketManager
+    bucket = BucketManager(q)
+
+    # 你要测试的空间， 并且这个key在你空间中存在
+    bucket_name = 'flask-bl'
+    key = filename
+
+    # 删除bucket_name 中的文件 key
+    ret, info = bucket.delete(bucket_name, key)
+    return info
+
+2、flask后端
+@user_bp.route('/photo_del', methods=['GET', 'POST'])
+def photo_del():
+    '''删除图片'''
+    # 获取图片id,图片对象
+    pid = request.args.get('pid')
+    photo = Photo.query.get(pid)
+
+    # 删除七牛云上的图片
+    filename = photo.photo_name
+    info = del_photo(filename)  # 调用删除函数
+    if info.status_code == 200:
+        # 删除本地数据库的图片
+        db.session.delete(photo)
+        db.session.commit()
+        return '删除成功'
+    else:
+        return '失败'
+
+3、前端
+<h1>展示图片（公开空间域名+图片文件名）</h1>
+{% for photo in photos %}
+<img src="http://qhpzt6wpn.hn-bkt.clouddn.com/{{ photo.photo_name }}" alt="">
+<button class="photo-del" data-tag="{{ photo.id }}">删除</button>
+{% endfor %}
+
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script>
+    $('.photo-del').click(function(){
+        let pid = $(this).attr('data-tag');
+        location.href='/user/photo_del?pid='+pid;
+    });
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+nginx
+轻量级
+并发能力强
+高度模块化
+反向代理
+负载均衡
+
+nginx -s quit    退出
+              stop   也是退出
+              reload   重新加载
+systemctl  start  nginx  启动
+
+
+上线部署uwsgi + nginx
+1、迁移本地环境包：pip freeze > requirements.txt      pip install -r requirements.txt
+    备份数据库（注意：要在cmd下执行）：mysqldump -u root -p 数据库名 > flask_blog.sql
+    导入数据库：mysql -u root -p flask_blog < flask_blog.sql
+2、在服务器安装python，mysql，nginx，创建虚拟环境
+3、ssh上传项目:scp -r flask_blog byc@47.112.208.199:/home/byc/flask，  安装号项目需要的python包，pip install uwsgi
+
+WSGI一种协议
+uWSGI服务器
+
+pip install uwsgi
+-----------------------------------
+创建uwsgi.ini，输入如下:
+[uwsgi]
+# 使用nginx连接时使用
+socket = 0.0.0.0:8000  # 保证跟nginx.conf 里的端口号一致
+
+# 直接作为服务器使用
+# http=0.0.0.0:8080
+
+# 配置工程目录
+chdir = 项目目录
+
+# 配置项目的wsgi目录，相对于工程目录(部署django时使用)
+# wsgi-file=项目目录/wsgi.py
+
+# 适用于flask项目部署
+wsgi-file = app.py
+
+# router
+callable = app
+
+# 配置进程，线程信息
+# 进程
+processes = 4
+# 线程
+threads = 10
+enable-threads = True
+master = True
+# 进程号
+pidfile = uwsgi.pid
+# 日志
+daemonize = uwsgi.log
+---------------------------------------------------
+uwsgi --ini uwsgi.ini  启动
+uwsgi --stop uwsgi.pid  停止
+
+
+
+nginx配置
+------------------------------------------------
+# 注意改成root用户
+user  root;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections  1024;
+}
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    keepalive_timeout  65;
+# 主要填下面代码
+server{
+     listen 80;
+     server_name www.byc.ink;
+     root /home/byc/flask/flask_blog;
+     location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:8000;  # 保证跟uwsgi.ini 里的端口号一致
+    }
+    location /static {
+        alias /home/byc/flask/flask_blog/static/;
+    }
+  }
+}
+--------------------------------------------------------------------------------------------------------
+redis缓存
+1、安装
+pip install redis
+pip install flask-caching
+
+2、在exts下的__init__.py下
+from flask_caching import Cache  # 缓存
+cache = Cache()
+
+3、在apps的__init__.py下
+from exts import cache
+
+def create_app():
+    ......
+    # 初始化缓存文件, redis缓存配置，参考：https://pythonhosted.org/Flask-Caching/
+    cache.init_app(app=app， config = {
+        'CACHE_TYPE': 'redis',
+        'CACHE_REDIS_HOST': '127.0.0.1',  # 默认使用0号数据库
+        'CACHE_REDIS_PORT': 6379
+        # 'CACHE_REDIS_URL': 'redis://@localhost:6379/2'  # 无密码，有密码：redis://user:password@localhost:6379/2
+})
+    ......
+    return app
+
+4、
+    cache.set('code', code, timeout=180)          # 设置缓存,（key，value， timeout（秒））
+    cache.set_many([(key, value), (key, value), ...])        # 缓存多个
+    cache.get(key)          # 获取, cache.get_many(key, key2, ...)
+    cache.delete(key)          # 删除, cache.delete_many(key, key2, ...)
+    cache.clear()         # 清空
+
+    @app_bp.route('/', methods=['GET', 'POST'], endpoint='index')
+    @cache.cached(timeout=10)  # 视图缓存,10秒后过期
+    def index():
+        ......
+---------------------------------------------------------------------------------------------------
+flask-WTF表单验证， 参考：http://www.pythondoc.com/flask-wtf/csrf.html#module-flask_wtf.csrf
+图形验证码
+------------------------------
+全局csrf
+from flask_wtf.csrf import CsrfProtect
+csrf = CsrfProtect()
+def create_app():
+    app = Flask(__name__)
+    csrf.init_app(app)
+
+前端表单，添加隐藏域
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><br>
+    ......
+</form>
+-----------------------------------
+
+1、pip install flask-WTF， pip install pillow
+
+2、创建form.py
+from flask_wtf import FlaskForm  # 继承的父类
+from wtforms import StringField, PasswordField, DateField  # 字段
+from wtforms.validators import DataRequired, Length, ValidationError, EqualTo  # 验证器
+import re
+from flask_wtf.file import FileField, FileRequired, FileAllowed  # 文件上传
+from exts import cache  # 缓存
+
+# 定义表单验证类
+class UserRegisterForm(FlaskForm):
+    '''用户登录表单验证'''
+    # <input type="text">                           必填                   长度
+    username = StringField(label='用户名', validators=[DataRequired(), Length(max=10, message='名字太长了')])
+    password = PasswordField('password', validators=[DataRequired(), Length(min=6, message='密码太短了')])
+    password2 = PasswordField('password', validators=[DataRequired(),
+                              # 判断两个字段是否一致
+                              EqualTo(fieldname='password', message='两次密码不一致')])
+    phone = StringField(label='手机号', validators=[DataRequired(), Length(max=11, min=11, message='11位手机号')])
+    # 文件上传                                                                              内部自动转换成小写
+    icon = FileField(label='头像', validators=[FileRequired(message='未上传'), FileAllowed(['png', 'jpg', 'gif'], message='文件格式不对')])
+    # 验证码
+    yzm = StringField(validators=[DataRequired(message='请输入验证码')])
+
+    def validate_yzm(self, data):
+        '''对比验证码'''
+        code = cache.get('code')
+        input_code = data.data
+        # 转换成小写验证
+        if code != input_code:
+            raise ValidationError('验证码错误')
+
+    # 单字段验证：validate_字段名
+    def validate_username(self, data):
+        # self.username跟data是同一个对象
+        if data.data[0].isdigit():  # 查看第一位是否是数字
+            raise ValidationError('不能以数字开头')
+
+    def validate_phone(self, data):
+        '''正则验证手机号'''
+        phone = data.data
+        if not re.search(r'^1[3875]\d{9}$', phone):
+            raise ValidationError('手机号格式不对')
+3、在视图使用
+# 表单验证测试
+@user_bp.route('/test_register', methods=['GET', 'POST'])
+def test_register():
+    form = UserRegisterForm()
+    if form.validate_on_submit():  # 验证表单
+        # 接收表单数据
+        password = form.password.data  # flask_wtf的表单接收可以这样
+        phone = request.form.get('phone')
+        icon = form.icon.data
+
+        # 保存图片文件
+        filename = secure_filename(icon.filename)  # 返回一个安全的文件名
+        path = os.path.join(settings.BASE_DIR, 'test\\')  # C:\Users\zhang\Desktop\flask_blog\test
+        icon.save(path + filename)  # 保存文件
+        # print(filename, path)
+        return 'ok'
+    return render_template('test/register.html', form=form)
+
+
+@user_bp.route('/get_img')
+def get_img():
+    '''返回一个图形验证码'''
+    # 调用生成图片验证码的函数
+    code, yzm_img = yzm()
+    cache.set('code', code, timeout=180)  # 验证码保存到redis
+
+    # 创建一个缓冲区
+    buffer = io.BytesIO()
+
+    # 将图片保存到缓冲区
+    yzm_img.save(buffer, 'jpeg')
+
+    # 获取缓冲区里的二进制图片
+    b_img = buffer.getvalue()
+
+    # 二进制图片交给响应，响应头要改为图片类型
+    res = make_response(b_img)
+    res.headers['Content-Type'] = 'image/jpg'
+    return res
+
+4、前端
+<form method="post" action="{{ url_for('user.test_register') }}" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    用户名---{{ form.username.label }}{{ form.username }}{{ form.username.errors[0] }}<br>
+    密码{{ form.password }}{{ form.password.errors[0] }} <br>
+    再次输入{{ form.password2 }}{{ form.password2.errors.0 }}<br>
+    {{ form.phone.label }}{{ form.phone }}{{ form.phone.errors.0 }}<br>
+    头像{{ form.icon }}{{ form.icon.errors.0 }}<br>
+    验证码{{ form.yzm }}{{ form.yzm.errors.0 }}<img src="{{ url_for('user.get_img') }}" alt="验证码" id="yzm_img"><br>
+    <input type="submit" value="注册">
+</form>
+<script>
+    // 点击切换验证码
+    $('#yzm_img').click(function(){
+        // 后面添加一个随机数，不同的请求才能切换
+        $(this).attr('src', "{{ url_for('user.get_img') }}?key=" + Math.random());
+        // $(this).attr('src', "{{ url_for('user.get_img') }}");
+    });
+</script>
+---------------------------------------------
+各种字段类型，Field的子类
+String  字符串
+Password  密码
+Integer  整形
+Decima  有小数点,可以指定小数点位数
+Float  浮点
+Boolean  布尔
+Radio  复选框
+Select  下拉列表
+Datetime  日期
+
+各种验证
+DataRequired  必填
+EqualTo  两个字段是否一致
+IPAddress  IP地址
+Length  长度
+NumberRange  数字范围
+URL  url路径格式
+Email
+Regexp  正则
+----------------------------------------------------------------------------------------------------------
+绘制图形验证码
+pip install pillow
+
+from PIL import Image, ImageFont, ImageDraw, ImageFilter
+import random
+
+def random_RGB():
+    '''随机生成RGB'''
+    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+def yzm():
+    '''生成图片验证码'''
+    s = 'qwertyuiop1234567890lkjhgfdsazxcvbnm'   # 26个单词跟0-9数字
+    size = (120, 60)  # 图片大小
+    yzm_img = Image.new('RGB', size, color=random_RGB())  # 生成画布，随机生成RGB颜色
+    my_font = ImageFont.truetype('static/fonts/ARIALUNI.TTF', size=50)  # 添加字体文件，字体大小
+    draw = ImageDraw.Draw(yzm_img)  # 创建画图对象
+
+    code = ''  # 初始化验证码
+
+    # 开始绘制
+    for i in range(4):
+        t = random.choice(s)  # 从s里面随机选取一个
+        code += t  # 保存验证码，后面用来跟前端的比较
+        # xy坐标,注意字体间隔                  字体        字体颜色
+        draw.text(xy=(i*30, 0), text=t, font=my_font, fill=random_RGB())
+
+    # 画干扰线
+    for j in range(5):
+        draw.line(xy=((5, random.randint(10, 55)), (115, random.randint(10, 50))), fill=random_RGB())
+    # 添加滤镜
+    yzm_img = yzm_img.filter(ImageFilter.DETAIL)
+    return code, yzm_img
+
+if __name__ == '__main__':
+    code, yzm_img = yzm()
+    yzm_img.show()
+
+-------------------------------------------------------------------------------------------
+flask：flash闪现，顾名思义：闪出来一下子就没了
+
+1、第一次请求结束时添加
+2、第二次请求获取后，销毁
+
+导入：from flask import flash
+
+添加
+# 添加闪现，category：消息类型,随便定义
+        flash('info消息', category='info')
+        flash('error消息', category='error')
+        flash('自定义消息', category='my_info')
+
+获取
+<h1>闪现flash消息展示</h1>
+{# with声明一个变量 #}
+{# get_flashed_messages()函数的返回值是一个消息列表,with_categories=true表示启用消息分类,category_filter=['error']过滤 #}
+
+{% with messages = get_flashed_messages(with_categories=true, category_filter=['error']) %}
+    {% if messages %} 
+        {% for i in messages %}
+            <p>{{ i.0 }}----{{ i.1 }}</p>
+         {% endfor %}
+    {% endif %}
+{% endwith %}
+
+-----------------------------------------------------------------------------------------------------------------------------
+python内置日志模块：import logging 
+-------------------------------------------------------------------------------------------------------------------------------
+flask发送邮件
+1、pip inatall flask-mail
+
+2、settings.py下配置
+MAIL_DEFAULT_SENDER = '账户激活<bycwql@1>'  # 显示发件人
+MAIL_SERVER = 'smtp.163.com'  # smtp服务的邮箱服务器， 如果是 qq 改成 smtp.qq.com
+MAIL_USERNAME = 'bycwql@1'  # 发送邮件的邮箱
+MAIL_PASSWORD = 'JBRH'  # 开启SMTP后的客户端授权码
+MAIL_USE_SSL = True
+MAIL_PORT = 465  # SMTP端口需要SSL
+
+3、在exts的__init__.py
+from flask_mail import Mail  # 邮件
+
+mail = Mail()
+
+4、apps下的__init__.py
+from exts import mail
+
+def create_app():
+    ...
+    mail.init_app(app)  # 初始化发送邮件类
+    ...
+    return app
+
+5、新建send_mail.py
+from flask_mail import Message, Mail
+from apps import mail
+
+def send_mail():
+    '''发送邮件'''
+    msg = Message()
+    msg.subject = '旅游景点自助系统'  # 主题
+    msg.sender = '账户激活<bycwql@163.com>'  # 发件人
+    msg.recipients = ['1251779123@qq.com']  # 收件人
+    msg.html = '<a href="#">垃圾</a>'  # 内容
+    # 发送
+    try:
+        mail.send(msg)
+        return True
+    except:
+        return False
+
+
+if __name__ == '__main__':
+    pass
+
+-----------------------------------------------------------------------------------------------------------------------
+flask生成token
+from itsdangerous import TimedJSONWebSignatureSerializer  # token
+
+# 生成token，24小时后过期，secret_key加密
+serializer = TimedJSONWebSignatureSerializer(secret_key=settings.SECRET_KEY, expires_in=86400)
+
+token = serializer.dumps({'uid': uid}).decode('utf-8')   # 加密
+token_j = serializer.loads(token)  # 解密
+

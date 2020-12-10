@@ -1,0 +1,6 @@
+乌班图
+安装：sudo apt install nginx
+启动：sudo systemctl start nginx.service
+重启：sudo service nginx restart
+查看安装的路径：whereis nginx
+
