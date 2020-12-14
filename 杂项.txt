@@ -66,9 +66,11 @@ $('#submit').click(function(){
         return false;
     });
 ----------------------------------------------------------
-python装饰器标准格式
+14、python装饰器标准格式
 def login_rz(func):
     def wrapper(*args, **kwargs):
         pass
         return func(*args, **kwargs)
     return wrapper
+---------------------------------------------------------------
+15、python 三元表达式 ： a = 'b'  if  x>y  else  'c'
