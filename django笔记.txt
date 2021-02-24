@@ -1,10 +1,12 @@
 1、新建项目文件
 2、创建虚拟环境 ：python -m venv 虚拟环境名字
-3、激活虚拟环境： cd  Scripts，   然后 ：.\activate
-3、创建Django项目： django-admin startproject 项目名 
-4、退出虚拟环境：deactivate
+3、激活虚拟环境： cd  Scripts，   然后 ：.\activate或source activate
+3、退出虚拟环境：deactivate
+
+4、创建Django项目： django-admin startproject 项目名 
 5、创建应用：python manage.py startapp 应用名字
 6、运行：python manage.py runserver
+
 7、生成迁移数据库文件： python manage.py  makemigrations
 8、生成数据库表： python manage.py  migrate
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -29,7 +31,180 @@ yum -y install mysql-community-server
  重启：uwsgi --reload uwsgi.pid
  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+模型：
+M：模型
+T：模板（c）
+V：视图（v）
 
+django框架：快速开发，不重复做一些东西
+
+ORM：
+object relations mapping 对象关系映射
+
+模型字段约束：
+设置长度、唯一、索引
+name = models.CharField(max_length=20, unique=True, db_index=True)
+ImageField  图片
+
+添加：
+User.objects.create(key=value)
+
+查询：
+User.objects.get(id=1) 
+get(条件)        一条
+all()                全部
+filter(条件)     满足条件的
+exclude(条件)    不满足条件的
+User.objects.filter().order_by('-id')  结果排序,降序加减号
+
+查询集：惰性查询：实际使用才查询。缓存：第一次查询时缓存起来
+
+查询条件：
+包含：contains
+以xx结尾： endswith
+以xxx开头：startswith
+判空：isnull
+范围：字段__in = [1,2,3]
+
+通过两个下划线查询：
+User.objects.filter(用户id__gt=3)  
+gt  大于
+gte  大于等于
+lt
+lte
+
+需要导入： 
+F对象：类属性之间的比较
+Q对象：与或非的操作
+
+聚合函数：
+需要导入
+aggeregate：Sum、Count、Avg、Max、Min
+
+返回结果数目：count（）
+User.objects.filter(条件).count()
+
+保存：
+user = User()
+user.save()
+
+---------------------------------------------------------------------------------------------
+视图：
+正则起名：(?P<num\d+>)
+request.POST.get()
+request.GET.get()
+request.path  请求完整路径
+request.method
+
+上传文件：
+必须post请求
+f = request.FILES[]     获取文件对象，小于2.5M放在内存中，大于则写入临时文件
+f.name   名字
+f.size
+f.read()  读入内存
+f.chunks()    返回生成器，使用for循环不断写入文件就行了
+路径保存到数据库
+
+ajax默认是异步请求
+ajax里面加'async': false可以为同步
+dataType：预期返回的数据类型
+
+
+----------------------------------------------------------------------------------------------
+模板：
+模板变量：数字、字母、下划线、点组成，**不能以下划线开头**
+解析顺序：
+{{ user.name }} 字典---属性----对象
+{{ user.0 }} 字典----列表
+
+{{ forloop.counter }} 显示循环到第几次
+{% if a > b %}  比较操作符两边必须有空格
+过滤器：
+{{ user.usename | 过滤器 }}
+date：'Y年-m月-d日'  格式化日期
+length  长度
+default  默认值，管道前为False时使用
+
+自定义过滤器：
+在项目目录下新建python包：名字必须是templatetags
+使用时先加载：{% load filters %}
+导入Library
+
+register = Library()
+
+@register.filter
+def xxx(num)  最多两个参数，最少一个
+    return num%2 == 0
+
+多行注释：
+{% comment %}
+{% endcomment %}
+
+模板继承：
+{% extends 'base.html' %}  相对于模板目录template
+
+{% block a %}
+    {{ block.super }}  保留父模块内容
+    内容
+{% endblock a %}
+
+html转义：
+关闭转义过滤器：safe
+{% autoescape %}
+{% endautoescape %}
+
+csrf只针对post请求
+
+反向解析：
+动态生成url地址
+应用url：namespace=xxx
+视图url：name=xxx
+前端：{% url 'xx：xx'  参数=  参数=%}
+View：redirect(reverse('xxx : xxx'， arsg=(参数)， kwargs={'xx': xx}))
+
+动态加载静态文件：
+{% load staticfiles %}
+{% static '/images/aa.png' %}  相当于 /static/images/aa.png
+--------------------------------------------------------------------------------------------
+中间件：
+干预请求和响应的过程
+request.META['REMOTE_ADDR']  获取请求的ip地址
+
+自定义中间件：
+1、新建middleware.py（一般是这个名字）
+2、创建类：xxx
+3、固定的方法：
+    1、__init__:      服务器启动后第一个请求调用，只一次
+    2、process_request(self, request):     产生请求对象，进行url匹配前调用
+ url匹配
+    3、process_view(self, request, view_func, *args, **kwargs)  每个请求前调用
+ 调用视图函数
+    4、process_response(self, request, response):   调用视图后，返回浏览器之前调用
+                 return response
+    process_exception(self, request, exception):   视图函数出现异常时调用，***调用顺序跟注册顺序相反
+4、在setting注册：
+ 应用.xxx.middleware.xxx类
+--------------------------------------------------------------------------------------------
+后台管理：
+1、本地修改时区、语言
+2、创建超级用户  python manage.py createsuperuser
+3、注册模型
+4、自定义管理页面：自定义模型管理类
+
+上传文件：
+setting设置上传路径
+模型字段使用：ImageField(upload_to='保存的文件夹')
+迁移生成表
+后台管理注册模型
+-------------------------------------------------------------------------------------------
+分页：
+pag = Pageintor(查询集， 每页条数)
+pag.page(1)  某页内容
+num_pages()  总页数
+number  当前页码
+pag.object_list   查询集
+
+----------------------------------------------------------------------------------------
 重定向
 redirect ：  HttpResponseRedirect的快捷方式
 HttpResponseRedirect： 
@@ -48,25 +223,34 @@ return HttpResponseRedirect(reverse('user:index'))  # 注意：这里使用反向必须加re
 防止sql注入，不要使用format，应该使用%s：sql = "select * from user where username=%s"      user.objects.raw(sql,[username, nane, djf])  列表里面放参数。
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-								登录                                   状态                                 退出登录
+							登录                                   状态                                 退出登录
 保存登录状态三连：设置（cookie，session），获取（cookie，session），删除（cookie，session）
 设置cookie要先实例一个响应对象
 res = redirect('/')
 cookies_time = datetime.datetime.now() + datetime.timedelta(hours=3)
-res.set_cookie('username', user.username, expires=cookies_time)  # 设置cookie
+res.set_cookie('username', user.username, expires=日期)  # 设置cookie，max_age=秒数
 return res
+获取cookies：request.COOKIES.get()
+
 
 设置session：
+依赖于cookies，存入什么类型，取出来就是什么类型
 request.session['username'] = user.username
+浏览器session的值会经过base64编码
 
 获取session
 username = request.session.get('username')
+request.session.has_key() 判断是否有值
 
 删除session
-request.session.clear()  #清除所有session键值对，不清除sessionid
+request.session.clear()  #清除所有session值部分，不清除sessionid
  request.session.flush()   # 清除所有session键值对，连数据库里面的也清除
  del request.session['username']  # 清除指定session键值对
+
+session设置过期时间：
+request.session.set_expiry(秒)
+默认14天
+0：关闭浏览器过期
  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
  

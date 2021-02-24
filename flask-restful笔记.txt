@@ -17,10 +17,8 @@ from exts import api
 api.init_app(app=app)
 
 4、在视图下
-from flask import Blueprint  
 from flask_restful import Resource, fields, marshal_with
 from exts import api
-from apps.blog_app.models import *
 
 # 创建蓝图
 restful_bp = Blueprint('restful', __name__, url_prefix='/api')
@@ -93,9 +91,7 @@ class UsersResource(Resource):
 接收图片
 from flask_restful import Resource, reqparse
 
-
 parser = reqparse.RequestParser()
-
 
 class UsersResource(Resource):
     def post(self):
@@ -293,12 +289,10 @@ return res
 ---------------------------------------------------------------------------------------------------------------------------
 
 前后端分离：后端返回数据格式
-           {
 	'success': True,  # 是否成功（布尔值）
                 'status': 200,  # 状态码（数字）
                 'msg': '注册成功',  # 消息（字符串）
                 'data': data,  # 数据，键值对形式
-            }
 
 例子：
 {
@@ -333,7 +327,7 @@ def get_token():
     token = request.headers.get('token')  # 获取请求头的token
     if not token:
         abort(401, msg='未登录')
-    uid = cache.get(token)  #  在redis中查找
+    uid = cache.get(token)  #  在缓存(redis)中查找
     if not uid：
         abort(401, msg='令牌错误或无效')
     user = User.query.get(uid)
@@ -358,12 +352,6 @@ cache.set(token，uid)  # token作为key，用户唯一标识作为值（主键�
 def post(self):
     # 发布文章，评论等逻辑处理。。。。
     return {'status': 200, 'msg': 'ok'}
-
-
-
-
-
-
 
 ----------------------------------------------------------------------------------------------------------------------------
 views.py练习完整代码
@@ -393,7 +381,6 @@ parser.add_argument('icon', type=FileStorage, location='files')  # 接收图片
 
 # -----------------------------------------
 # 输出：json形式返回数据
-
 
 # 使用Url，产生一个链接，点击进入详情，相当于在user_fields前面加了一层
 user_fields1 = {

@@ -1,0 +1,162 @@
+k-v形式数据
+C语言编写
+支持网络
+基于内存（数据在内存中），支持持久化
+支持数据备份、主从
+读110000次每秒，写81000
+原子性操作，支持几个操作合并后原子性执行
+key过期时间
+
+应用场景：
+缓存
+
+6379端口号
+默认16个数据库，0-15
+
+安装：
+wget 包
+解压
+
+启动、停止、重启：
+service redis start
+stop
+restart
+kill -9 进程id
+
+客户端：redis-cli
+测试：ping
+切换数据库： select  3
+
+数据类型：
+list
+set
+zset  有序集合
+hash  哈希
+string
+----------------------------------------------------------------------------
+string：
+最多512M
+
+设置：
+set key value
+setex key  秒数  value   过期时间
+mset k1 v1 k2 v2  设置多个
+append key value  追加
+
+获取：
+get key
+mget k1 k2
+
+keys * 查看所有
+keys 'a*'  查看以a开头的
+exists key  判断是否存在 1存在，0
+type key   对应值类型
+
+删除：
+del key1  key2  多个删除
+expire key  秒数    设置过期时间
+ttl key  查看剩余时间
+
+----------------------------------------------------------------------------------
+hash：
+用于存储对象，结构：属性、值(必须string类型)
+设置单个：
+hset key field value
+hset  user   name   张三
+hset  user   age   18
+多个：
+hset  kye   field value field value
+
+获取：
+hkeys  key  获取属性
+hget  key   field  获取值
+hmget key  filed filed...    获取多个值
+hvals  key   获取对应key所有属性值
+
+删除：
+del key
+hdel key  f1   f2..
+
+-------------------------------------------------------------------------
+list:
+里面元素为str类型
+按插入排序
+
+插入：
+linsert key berfore或after   哪个元素    要插入的元素
+linsert key berfore b  4   在b前面插入3
+左：lpush 列表对应key   v1  v2...
+右：rpush 列表对应key   v1  v2...
+
+获取：
+lrange key  开始  结束位置        包括开始结束位置
+lrange key  0 -1  全部
+设置指定索引值：lset  key  4  value
+
+删除：
+lrem  key   3  value
+数字为删除的的个数
+大于0从头往尾
+小于0相反
+等于0全部移除
+-------------------------------------------------------------------------------
+set：
+无序
+string类型
+不重复
+集合不能修改
+
+添加：
+sadd  key(集合名字)   v1  v2...
+获取：
+smembers key  所有
+
+删除：
+srem  key   v1 v2...
+-------------------------------------------------
+zset:
+有序
+string类型
+不重复
+元素关联double类型的权值，按权值从小到大排序
+不能修改
+
+添加：
+zadd  key  权值  v1  权值  v2  ...
+
+获取：
+zrange  key  start  stop     -1最后一个
+zrangebyscore   key   min  max     权值范围获取
+
+zscore  key   value   查看成员权值
+
+删除：
+zrem  key   v1   v2...
+zremrangebyscore  key   min   max   权值范围之间删除
+--------------------------------------------------------------------------------------------------------
+python交互：
+安装：pip   install   redis
+from redis  import StrictRedis
+sr = StrictRedis(host='localhost', port=6379, db=0)     默认sr = StrictRedis()  
+返回布尔值：sr.set(key, value)
+                     sr.get(key)
+
+删除多个键值：
+sr.delete(v1,v2)   返回删除的个数
+
+sr.keys()   获取所有键
+-----------------------------------------------------------------------------------
+主从备份：
+读写分离
+打开从配置修改：
+从使用6378端口号
+slaveof  主ip  主port
+
+集群：
+通过网络连接的计算机，共同对外提供服务，像一个独立的服务器
+软件层面：一台计算机，多个redis
+硬件层面：一个redis，多台计算机
+
+redis集群配置：
+
+

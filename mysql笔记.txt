@@ -1,19 +1,260 @@
-创建
-create database 数据库名  dufault charset='utf8';
+外键降低表更新、删除的效率
 
-删除
-drop database 数据库名;
+导出：mysqldump -uroot -p 数据库名 >  文件名.sql
+导出所有数据库并锁住所有表，防止操作时有数据修改(导入时不需要指定数据库)：mysqldump -uroot -p --all-databases --lock-all-tables  >  文件名.sql
+导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
+导入2：>source back.sql;
+
+安装：
+centos安装MySQL  官方安装指南：https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/#repo-qg-yum-fresh-install
+
+wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm  下载rpm软件包包
+rpm -ivh mysql-community-release-el7-5.noarch.rpm  安装软件包
+yum update  更新
+yum install mysql-server  安装mysql
+systemctl start mysqld  启动
+systemctl status mysqld  查看运行状态
+mysqladmin --version  查看版本
+grep "temporary password is generated" /var/log/mysqld.log   查看临时密码
+
+修改密码策略
+>set global validate_password_policy=LOW;  
+>set global validate_password_length=4;
+修改密码
+>set password for 'root'@'localhost'=password('密码');
+
+国内源安装MySQL教程  https://zhuanlan.zhihu.com/p/200909519
+
+行：记录
+列：字段
+----------------------------------------------------------------------------------------------
+数据类型
+enum（“男”，“女”） 枚举，下标从1开始
+decimal（5，2）      小数类型  两位小数
+int unsigned      无符号整型
+bit      二进制类型 8位   存0、1
+---------------------------------------------------------
+
+创建数据库：create database 数据库名  dufault charset=utf8;
+创建表：create table if not exists 表名(字段1 类型 约束 约束...,字段2 类型 约束...);
+例如：create table aa(id int primary key auto_increment,  create_time varchar(15));
+
+删除：drop database 数据库名;
 drop table  表名;
 
-删除表数据
-delete 表名 where 条件;
+删除表数据  delete 表名 where 条件;
 
-插入
-insert into 表名(字段名) values(值);
-insert into article_type(type_name) values('python');
---------------------------------------------------------------------------------------------------
-导出：mysqldump -uroot -p 数据库名 >  文件名.sql
-导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
------------------------------------------------------------------------------------------------- 
+select database();  查看当前使用的数据库
+desc 表名； 查看表结构
+ 
 更新：update 表名 set 列名=新值 where 列名=条件值;
-更改字段类型：alter table 表名 modify column 字段名  类型  varchar(300);
+
+添加外键：ALTER   TABLE    当前表    ADD    FOREIGN KEY(当前表要添加外键的字段)    REFERENCES   目标表(id);
+
+创建表：create table 表名(id int not null primary key  auto_increment,  字段名 类型 约束);
+
+更改字段类型
+不重命名：alter table 表名 modify  字段名 类型（例：varchar(255)）;
+重命名： alter table 表名 change 原名 新名 类型及约束 
+
+删除字段： alter table 表名 drop 字段名
+
+添加字段：alter table 表名 add 字段名 类型 约束;
+添加外键： alter table 表1 add foreign key （表1字段名） references 表2(字段名)
+删除外键：alter table 表名 drop foreign key 外键字段名
+
+********存储别的表的主键的字段叫外键
+
+show create table 表名      查看创建表命令
+************innodb引擎支持事物、外键、行级锁，MylSAM不支持
+-------------------------------------------------------------
+*******增删改查（curd）
+
+insert into
+部分插入：insert into 表名(字段名) values(值);
+全部插入：insert into 表名 values(值);
+          insert into 表名(字段名) values(值)，（值）;
+将查询的数据插入表：insert into 表名 select * from ......
+创建表时也可以同时插入数据
+---------------------------------------------------------------------
+删除数据：delete from 表名 条件
+--------------------------------------------------------------------
+更新：update 表名 set 字段名=值，字段名=值 where 条件
+同步表数据
+update 表1 inner join 表2 on 表1.字段=表2.字段 set 表1.字段=表2.字段
+--------------------------------------------------------------------------------------
+查询：
+select * from 表名 where 条件
+select name as 别名 from 表名
+select name from 表名 as 别名
+select 表.字段，表.字段 from  表名
+去重distinct：select distinct 字段 from 表名  
+
+条件查询：
+不等于：<>、!=
+select * from 表名 where 条件
+
+not、or 、and 
+not （年龄>18 and 身高>170);  
+年龄>18 or 身高>170
+年龄>18 and 身高>170
+
+模糊查询：like、rlike正则
+%：多个、_：一个
+select * from 表名 where name like "%a_";
+select * from 表名 where name rlike "^a$";  开头结尾
+
+范围：
+in（1，2，3）
+not in（1，2，3）
+between 开始 and 结束   
+not between ... and ...
+
+空判断：
+is null
+is not null
+
+排序：order by 字段1 asc，字段2 desc
+asc 升序 默认
+desc 降序
+
+分页：limit 开始处，取多少个
+limit 0，5  从0开始取5个
+
+order by ... limit ...  排序前，分页后
+
+
+连接查询：
+inner join  内连接  
+left join 左连接  
+right join  右链接 
+on  连接处                                                  
+select 表1.id, 表2.name from 表1 inner join 表2  on 表1.aid=表2.bid having 条件;
+结果集：用having
+
+把子查询结果当作一个表：表1 left join （子查询）as 表别名
+
+子查询：
+select * from 表名 where  条件=（select 字段 from 表名）
+
+自关联：
+不需要外键，多个表合成一个表，成自关联
+列子：省、市、县
+        id    字段     关联id
+        1      广西       null
+        2      贵港         1
+        3      桂平         2
+自关联查询：同一个表
+select  * from 表 as a inner join 表 as b  on a.id=b.id having 表.字段=值
+
+
+聚合函数：
+select count(*) as 总数 form 表名 
+count
+max
+min
+sum 
+avg
+round 结果四舍五入
+表达式：select  sum(age)/count(*)  from 表名
+round（sum(age)/count(*)，2）保留两位小数
+
+分组：group by  一般跟聚合一起用
+select * from 表名 group by 能够标记分组的字段
+group_concat(要显示的字段)  查看分组里的内容
+select 性别，group_concat(姓名) from 表名 where 性别=男 group by 性别 
+
+对分组进行条件判断：having avg(年龄)>18
+where 对原表判断
+having 对查询出来的数据判断
+
+多对一：在多的一边加外键
+多对多：新建第三个表
+
+python3使用pymysql模块连接数据库，2使用mysqldb模块
+1、连接数据库
+2、创建游标对象
+3、查询,有增删改要commit()
+4、关闭游标
+5、关闭数据库连接
+
+
+视图：
+查询语句返回的结果，一般用来方便查询
+创建视图：create view 视图名(虚表) as select ......
+查看视图：show tables
+删除视图：drop view 视图名
+原表数据更改，视图数据会自动更改，相当于对原表的引用
+作用：
+1、提供重用性，像一个函数
+2、对数据库重构，不影响程序运行
+3、提高安全性能，可以对不同用户
+4、让数据更加清晰
+
+事务：
+要么全部成功，一个失败全部失败，一般用于订单系统，银行系统等
+ACID
+  1、原子性   最小不可分割单元，全部成功或失败
+  2、一致性   总是从一个一致性状态到另一个一致性状态
+  3、隔离性   在事务提交前，对其它事物不可见
+  4、持久性   一旦提交事务，修改会永久保存到数据库
+开启事务：begin;或start transaction;
+提交事务：commit；
+回滚：rollback；
+
+索引：
+B-tree，先查看数据在哪个范围
+一个特殊文件，包含数据表里所以记录的引用指针
+作用：加快查询速度，类似课本目录
+原理：通过不断缩小想要获取的数据的范围来筛选出最终想要的结果，同时把随机事件
+变成顺序事件。
+查看索引：show index from 表名；
+给表创建索引：create index 索引名 on 表名(字段名(字段长度))；针对字符类型，整型不用写长度
+删除索引：drop index 索引名 on 表名；
+注意：
+建立太多索引影响更新和插入速度，因为要更新索引文件
+建立索引占用磁盘空间
+
+查看语句执行时间：
+开启运行时间监测：set profiling=1;
+查看执行时间：show profiles;
+
+账户管理：
+不同权限不同账号，保证数据安全
+常用数据库级别账号：对某个数据库能增删改查
+查看所有用户：use mysql; 
+                        desc user;
+创建账号并授予权限：
+grant 权限列表 on 数据库 to '用户名'@'访问主机' identified by '密码'；
+
+修改权限：
+grant 权限名称 on 数据库 to 账户@主机 with grant option；
+
+刷新权限：
+flush privileges；
+
+远程连接(危险慎用)，建议用ssh：
+1、注释掉mysql.conf绑定的地址，重启
+2、mysql -uroot -p -h 172.16.12.33 -p 3306
+
+删除账户：
+drop user '用户名'@'主机'；
+
+
+MySQL主从：master，slave
+作用：
+     1、数据备份
+     2、读写分离：一个数据库负责写，一个负责读
+从数据库读取主数据库的二进制log日志文件，然后根据log日志更改自己的数据
+
+配置：
+1、修改主、从数据库的配置文件，然后重启
+2、主数据库添加一个用于从数据库使用的账号
+3、从数据库输入测试命令
+
+
+
+
+
+
+

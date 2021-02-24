@@ -531,7 +531,10 @@ g.user = user
 form action="" method="post" enctype="multipart/form-data">  # enctype: 上传文件要用
 
 # post请求接收图片使用files
-icon = request.files.get('icon')
+icon = request.files.get('icon')  
+
+<input type="file" name="images" multiple>  # multiple表示接收多个文件
+icon = request.files.getlist('icon_list')  # 多个文件用getlist
 
 修改图片保存的文件名，保存图片路径在数据库
  # 接收头像图片

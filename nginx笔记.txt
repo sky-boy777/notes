@@ -4,3 +4,7 @@
 重启：sudo service nginx restart
 查看安装的路径：whereis nginx
 
+centOS 8
+安装 ：yum install nginx
+启动：systemctl enable nginx
+           systemctl start nginx
