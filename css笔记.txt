@@ -1,0 +1,46 @@
+font-family：'微软雅黑', '宋体'；
+font-size: 20px;
+font-weight: 400;       设置h1标签
+font-style: normal;      设置字体不倾斜
+font:     font-style     font-weight       font-size/line-height     font-family;       复合属性
+color：red；
+color：rgb（22，22，33）；
+color：#ffffff；
+text-align：center；   水平对齐方式，left，right
+text-decoration：underline；  下划线，一般取消a标签下划线none
+text-indent：10px；   首行缩进，第一行，2em，两个文字缩进
+line-height：10px；    行间距
+----------------------------------------------
+div                      标签
+.class                   类
+#id                       id
+ul  li {},                 后代选择器
+div > p {}             子元素选择器
+div，p, .aa {}        并集选择器
+
+伪类选择器：
+***要按顺序声明
+a：link{}              未访问的链接
+a：visited{}         访问过的
+a：hover{}          鼠标经过
+a：active{}          按下时
+
+input：focus       获得焦点
+--------------------------------------------------------
+块元素：        宽高，内外边距，div
+行内元素：    宽高无效，默认内容宽度，span
+行内块元素： img、input、有宽高，在一行内显示，默认内容宽
+转换：
+display：inline-block         转为行内块
+               block                   块
+               inline                   行 
+
+文字水平居中：line-height=行高
+
+background-color：transparent(透明) ；      透明度
+        
+
+
+
+
+

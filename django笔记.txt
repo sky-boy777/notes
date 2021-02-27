@@ -990,7 +990,7 @@ class ListView(ListAPIView):
 4、在视图（views.py）下，每个类视图或函数视图使用三引号写文档
 5、浏览器输入：http://127.0.0.1:8000/docs/
 -----------------------------------------------------------------------------------------------------------------------------
-django跨域的处理, 在settings下配置
+django允许跨域的处理, 在settings下配置
 1、pip install django-cors-headers
 
 2、INSTALLED_APPS = [
@@ -1009,7 +1009,8 @@ django跨域的处理, 在settings下配置
 CORS_ALLOW_CREDENTIALS = True  # 允许将cookie包含在跨站点HTTP请求中。默认为False。
 # 以下两个二选一就行
 # CORS_ORIGIN_ALLOW_ALL = True  # 为True表示允许所有主机，将不使用白名单,默认为False,
-CORS_ORIGIN_WHITELIST = [  # 跨域请求白名单(可以跨域请求的主机或域名)
+# 跨域请求白名单(可以跨域请求的主机或域名)
+CORS_ORIGIN_WHITELIST = [  
     # 'https://sub.example.com',  # URI方案+主机名+端口，或特殊值'null'或 'file：//'之一。默认端口（HTTPS = 443，HTTP = 80）在此处是可选的。
     'http://localhost',
     'http://127.0.0.1:8000',

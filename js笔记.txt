@@ -194,7 +194,7 @@ js对象：
 方法：动词
 键值对形式
 
-创建对象object：
+创建对象object：  // ES5
 var obj = {};
 bar obj = new Object（）;  // 区分大小写
 obj.age = 18;
@@ -613,5 +613,148 @@ class Son extends 父类名{
 }
 
 ES6类没有变量提升
+
+xxx.insertAdjacentHTML('beforeend', 元素)      插入元素，支持追加
+-----------------------------------------------------------------------------
+ES5构造函数和原型：
+必须和new一起使用
+function Obj(age, uname){  // 定义构造函数
+        this.age = age;    // 实例成员
+        this.uname = uname;
+         this.fun = function(){}
+}
+var obj = new Obj(xxx, xxx)
+Obj.age  // 不能通过构造函数访问实例成员
+Obj.sex = '男'    // 创建静态成员，只能通过构造函数访问
+
+构造函数存在浪费内存，构造函数里有函数，每new一个对象都会在内存中开辟一块空间
+
+构造函数原型prototype：
+Obj.prototyep.fun = function () {}    共享方法，节约内存，公共的方法
+obj.__proto__   指向构造函数的prototype对象
+Obj.prototyep == obj.__proto__ == true
+
+constructor构造函数
+obj.__proto__.constructor    指向Obj，创建它的构造函数，原型对象
+Obj.prototyep.constructor   指向Obj
+Obj.prototyep = { 
+     constructor: Obj,   // 手动指向
+     f1：function(){},
+     f2:   function(){},
+}
+原型链：obj.__proto__指向Obj.prototyep，Obj.prototyep.__proto__指向Object.prototype，Object.prototype.__proto__指向null
+js成员按照原型链查找，相当于继承的查找，就近原则使用
+
+原型对象this指向：
+指向调用者
+
+扩展内置对象：
+Array.prototypes.sum = function(){}  // 给数组增加方法
+Array.prototypes = {}   // 这样会覆盖里面的全面方法
+
+fn.call(要指向的对象，其它参数)  // call方法可以修改this指向 
+
+ES6前使用继承：
+function A(x, y){ this.x = x; this.y = y}
+function B(){
+    A.call(this, x, y)   // 实现了继承
+}
+obj = new B(x, y);
+
+使用父类的方法：
+B.prototype = A.prototype  // 这样会有问题，修改了子原型对象，父原型对象也会修改
+B.prototype = new A()
+B.prototype.constructor = B  // 利用对象的方式修改原型对象要指会B
+obj = new B()
+obj.fun  // 这样就可以使用A的fun方法了
+-----------------------------------------------------------------
+ES5新增方法：
+数组方法：遍历
+arr.forEach(每个数组元素, 索引, 一个数组)
+map()
+filter(function(){})   筛选，返回一个新数组
+some(function(){})    查找满足条件的第一个元素，返回布尔值，
+every()
+
+字符串方法：
+xxx.trim()     去掉两边空格，返回新字符串
+
+对象方法：
+arr = Object.keys(obj)   把对象的属性放入数组，返回
+Object.defineProperty(对象，属性，{   // 修改对象的属性
+                             value: "xxx",  //  值
+                              writable: false， //  是否可以修改
+                              enumerable： false，  // 枚举，是否允许遍历出来，
+                              configurable：false      //  是否允许删除，或再次修改
+})   
+-----------------------------------------------------------------------
+函数进阶：
+函数也是对象
+var fun = new Function('参数', '函数体')      定义函数，了解
+普通函数this，定时器this，立即指向函数this，都指向window
+
+改变this指向：
+指向obj
+var fun = xxx.bind(obj, xx,xx)      只是绑定，不会调用，返回新函数，最常用
+xxx.call(obj, xx, xx...)   
+apply(obj, [xx,xx...])      求最大值应用：var max = Math.max.apply(Math, 数组)
+
+ES5严格模式：
+ie10以上才支持
+1、为脚本开启严格模式
+<script>
+    (function(){
+        'use strict';    // 开启严格模式 
+     })();
+</script>
+
+2、为函数开启严格模式
+function(){
+      'use strict';    // 开启严格模式 
+}
+
+规范：
+变量必须先声明
+不能随意删除以定义的变量
+***全局作用域的函数this指向undefined
+函数不能有重复形参
+函数不能在非函数的代码块声明：for...、if...
+
+高阶函数：
+1、函数作为参数
+2、返回是函数
+
+闭包：
+一个函数有权访问另一个函数内部的变量
+作用：延申了变量的使用范围，所有函数使用完毕才销毁变量，占用内存，造成内存泄漏
+
+递归：
+在函数内部调用自己，没有退出条件，容易有栈溢出
+
+ES6拷贝：
+浅拷贝：Object.assign(o, obj)   拷贝obj给o
+-----------------------------------------------------------------
+js使用正则：
+1、var r = new RegExp(/xxx/)
+2、var r = /正则/
+r.test('字符串')    正则验证字符串，返回布尔值
++，至少一次
+？，零次或一次
+*，零次到多次
+{n，m} 范围，{3，} 大于3次
+[abc], 其中一个
+[^abc], 取反
+（abc){3} ，小括号优先级，abc重复三次
+\w，字母、数字、下划线 ,\W取反
+\s，空格，\t\r\n\v\f
+
+替换：
+var s = str.replace(正则，替换的字符)   返回新字符串
+/正则/g
+g：全局匹配
+i：忽略大小写
+gi：全局匹配 + 忽略大小写
+
+
 
 
