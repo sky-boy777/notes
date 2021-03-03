@@ -38,7 +38,133 @@ display：inline-block         转为行内块
 文字水平居中：line-height=行高
 
 background-color：transparent(透明) ；      透明度
-        
+background-image：url（image/aa.png）；
+background-repeat: no-repeat;   不平铺背景，x、y
+小图片使用背景
+background-position: center, 20px;       背景图片位置，精灵图
+background-attachment：fixed；          背景固定，默认滚动  
+background：#fff url(image/xxx.png) no-repeat fixed center top;   背景复合写法
+background：rgba(0，0，0，0.5)    背景半透明
+
+css三大特点：
+层叠性、继承性、优先级
+font：12px/1.5     不跟单位为1.5倍
+
+优先级：
+*
+标签
+类，伪类
+id
+行内样式
+！important
+
+继承权重为0
+
+****盒子模型：
+浮动、定位
+
+border：1px solid #fff         边框复合写法，无序
+三角形：border-top：1px solid red；  border-bottom：1px solid red；  然后填充盒子颜色，点线：dotted
+border-collapse：collapse；     合并相邻边框，常用于表格
+padding：上      右    下   左          四个值
+padding：上    左右   下                 三个值
+padding没有加宽高不会撑开盒子大小
+******块盒子水平居中：widht：200px；margin：0 auto；     盒子必须要有宽度，上下0，左右自动
+解决外边距塌陷问题：给父元素添加上边框或内边距，overflow：hidden
+
+* { margin：0； padding：0； }  清除内外边距
+li去掉小圆点：list-style：none；
+
+css3：
+圆角边框：border-radius：50%或50px；  大于50%后始终是按照50%
+border-radius：上  右   下   左；       复合写法
+盒子阴影：box-shadow：水平  垂直    模糊距离    阴影尺寸   颜色  insert内阴影；   默认外阴影，水平垂直必须写
+文字阴影：text-shadow：水平  垂直   模糊距离     rgba（1，1，1，0.4）
+
+三种网页布局：标准流，浮动，定位
+浮动特性：脱离标准流，不保留原先位置，顶端对齐，行内块特性，根据内容决定宽度
+浮动不会影响前面的标准流
+-----------------------------------------------------------------------------------
+清除浮动：
+原因：父盒子不方便给高度的情况下，子元素设置浮动会撑不开高度，使父盒子的高度变为0，影响后面的盒子。
+1、父级添加overflow属性
+2、父级添加alter伪元素
+3、父级添加双伪元素
+4、了解：额外标签，在最后一个浮动的元素添加一个块元素，添加clear：both；
+
+父级元素添加：overflow：hidden；   缺点溢出隐藏
+
+父级元素添加伪元素：
+.clearfix: after {         添加伪元素，额外标签法升级办
+    content: "";
+    display: block;
+    height: 0;
+    clear: both;
+    visbility: hidden;
+}
+.clerfix { *zoom: 1; }     兼容ie67
+优点：没有增加标签，结构更简单
+缺点：照顾低版本浏览器
+
+父级添加双伪元素清除浮动：
+.clearfix:before, .clearfix: after {          前后添加伪元素
+    content: "";
+    display: table;
+}
+.clearfix: after { clear: both; }
+.clerfix { *zoom: 1; }     兼容ie67
+
+css属性书写顺序：
+1、布局定位属性：定位，浮动。。。
+2、自身属性：宽高。。。。。
+3、文本属性：
+4、其它属性
+
+导航栏一般使用li包含a的做法
+
+定位：
+position：fixed、static、absolute、relative
+定位偏移：
+top
+bottom
+left
+right
+
+************子绝父相
+------------------------------------------------
+固定定位小技巧：
+始终固定在某个元素旁边
+left：50%；
+margin-left：元素的一半；
+----------------------------------------------
+display：none         隐藏且不占原来位置
+visibility：hidden    隐藏，继续占用原来的位置
+overflow：hidden   溢出部分隐藏
+
+精灵图：为了减少服务器的发送和请求的次数，提高页面加载速度
+缺点：图片大，放大缩小失真
+
+字体图标：轻量级，减少服务器请求
+
+css三角：使用边框，宽高0，三个边变成透明，其中一个边有颜色
+
+cursor：鼠标样式；
+
+input表单：outline：none；   取消默认的蓝色线
+去掉文本域拖拽功能：resize：none；
+
+vertical-align：middle；        图片跟文字对齐，中线对齐，只对行内块生效
+解决图片底部孔隙：默认是基线对齐，改为vertical-align：middle；
+
+溢出文字添加省略号：
+
+1、white-space：nowrap； 强制一行内显示
+2、overflow：hidden；       溢出隐藏
+3、text-overflow：ellipsis；   溢出使用省略号
+
+浮动会使文字有环绕效果
+
+
 
 
 

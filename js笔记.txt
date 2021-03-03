@@ -8,6 +8,8 @@ ECMAScript：基础语法
 DOM：页面文档对象模型
 BOM：浏览器对象模型
 
+***判断数据类型：Object.prototype.toString.call([1,2,3])    //    [object Array]
+
 **内存分配：
 简单数据类型放在栈，直接开辟空间
 复杂数据类型放在堆，在栈放地址(0xaabb)，堆放值，地址指向值
@@ -612,7 +614,7 @@ class Son extends 父类名{
      }
 }
 
-ES6类没有变量提升
+****ES6类没有变量提升
 
 xxx.insertAdjacentHTML('beforeend', 元素)      插入元素，支持追加
 -----------------------------------------------------------------------------
@@ -627,44 +629,49 @@ var obj = new Obj(xxx, xxx)
 Obj.age  // 不能通过构造函数访问实例成员
 Obj.sex = '男'    // 创建静态成员，只能通过构造函数访问
 
-构造函数存在浪费内存，构造函数里有函数，每new一个对象都会在内存中开辟一块空间
+构造函数存在浪费内存，因为构造函数里有如果定义了方法，每new一个对象都会在内存中开辟一块空间
 
 构造函数原型prototype：
-Obj.prototyep.fun = function () {}    共享方法，节约内存，公共的方法
-obj.__proto__   指向构造函数的prototype对象
+*****为了实现类的继承而有的东西，原型是一个对象
+******作用是共享方法，节约内存，一般是公共方法定义在原型对象上，因为new里面的方法会重新开辟内存空间
+Obj.prototyep.fun = function () {}    定义一个共享方法，节约内存，公共的方法
+obj.__proto__                                     指向构造函数的prototype对象
 Obj.prototyep == obj.__proto__ == true
 
 constructor构造函数
-obj.__proto__.constructor    指向Obj，创建它的构造函数，原型对象
-Obj.prototyep.constructor   指向Obj
+obj.__proto__.constructor    指向Obj，创建它的构造函数
+Obj.prototyep.constructor   也指向Obj
 Obj.prototyep = { 
-     constructor: Obj,   // 手动指向
+     constructor: Obj,   // 因为这是以对象的形式赋值，会覆盖原来的constructor，所以要手动指向原来Obj对象，这样做方便定义共享方法
      f1：function(){},
      f2:   function(){},
 }
-原型链：obj.__proto__指向Obj.prototyep，Obj.prototyep.__proto__指向Object.prototype，Object.prototype.__proto__指向null
+原型链：
+最顶层为null
+obj.__proto__指向Obj.prototyep，Obj.prototyep.__proto__指向Object.prototype，Object.prototype.__proto__指向null
 js成员按照原型链查找，相当于继承的查找，就近原则使用
 
 原型对象this指向：
 指向调用者
 
-扩展内置对象：
+原型的应用，扩展内置对象：
 Array.prototypes.sum = function(){}  // 给数组增加方法
-Array.prototypes = {}   // 这样会覆盖里面的全面方法
+Array.prototypes = {}   // 不要这样做，会覆盖里面的全部方法
 
 fn.call(要指向的对象，其它参数)  // call方法可以修改this指向 
 
 ES6前使用继承：
+使用call()方法实现继承
 function A(x, y){ this.x = x; this.y = y}
-function B(){
-    A.call(this, x, y)   // 实现了继承
+function B(x, y){
+    A.call(this, x, y)   // 改变this指向，实现了继承
 }
 obj = new B(x, y);
 
-使用父类的方法：
+继承父类的方法：
 B.prototype = A.prototype  // 这样会有问题，修改了子原型对象，父原型对象也会修改
 B.prototype = new A()
-B.prototype.constructor = B  // 利用对象的方式修改原型对象要指会B
+B.prototype.constructor = B  // 利用对象的方式修改原型对象要指回B
 obj = new B()
 obj.fun  // 这样就可以使用A的fun方法了
 -----------------------------------------------------------------

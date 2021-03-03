@@ -2,7 +2,7 @@
 异步
 ---------------------------------------------------------
 js创建ajax：
-var = xhr = new XMLHttpRequest();     创建ajax对象
+var xhr = new XMLHttpRequest();     创建ajax对象
 xhr.open('post', 'url');       构建请求
 xhr.setRequestHeader('Content-Type', 'application/json')   请求信息
 xhr.send();        发送
@@ -88,19 +88,24 @@ xhr.upload.onprogress = function(e){      // 文件上传过程中会不断触�
 同源：
 协议、域名、端口相同
 
+同源策略作用：
+保证用户信息的安全，防止恶意的网站窃取数据。
+
 JSONP解决同源限制：
 ajax跨浏览器请求
-1、script标签可以请求不同源
+1、script标签的src可以请求不同的源，但是返回必须是合法的JavaScript代码
+2、服务器端返回的必须是一个函数调用代码，真正要发送给客户端的数据需要作为函数调用的参数
+3、在客户端全局作用域下定义函数，必须在script标签前面调用，不然找不到
 <script>
    function fn(data){ data }     // data => fn({})  服务器端返回的是前端js函数调用
 </script>
-<script src='https://www.baidu.com？callback=fn'></script>  服务器端返回的是前端js函数调用
+<script src='https://www.baidu.com？callback=fn'></script>  
 
 CORS跨域资源共享：
 非同源，ajax跨浏览器请求
 在服务器端，设置白名单，允许跨域
 
-另一种跨域的方法：浏览器客户端==>服务器1==>服务器2，然后服务器1返回给浏览器
+JSONP解决同源限制：另一种跨域的方法：浏览器客户端==>服务器1==>服务器2，然后服务器1返回给浏览器
 
 跨域请求携带cookie：
 服务器端：header('Access-Control-Allow-Credentials', true)   表示跨域允许携带cookie
