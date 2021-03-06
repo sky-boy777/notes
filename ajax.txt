@@ -26,7 +26,7 @@ post请求：
 3、xhr.send(JSON.stringify({name: 'xxx', age: 18}))      传递json格式数据：JSON.stringify()
 
 ajax状态码，send后会不断变化：
-0: 刚创建ajax对象，var = xhr = new XMLHttpRequest();
+0: 刚创建ajax对象，var  xhr = new XMLHttpRequest();
 1：已经对ajax对象进行了配置，xhr.open('post', 'url');  xhr.send();
 2：请求已发送
 3：已接收服务端部分数据
@@ -141,8 +141,8 @@ $(document).on('ajaxComplete', function(){})  // 页面中Ajax请求完成时触
 --------------------------------------------------------
 RESTful风格api：
 get：获取数据
-post：添加数据
-put：更新数据
+post：发送处理数据
+put：保存数据
 delete：删除数据
 
 请求地址使用名词：/users

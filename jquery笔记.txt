@@ -111,7 +111,7 @@ xxx.toFixed(2)    保留两位小数
 
 jquery元素操作：
 遍历元素
-xxx.each(function(索引 (i), DOM元素){  })   DOM元素没有jQuery的方法，要在函数内转换
+xxx.each(function(索引 , DOM元素){  })   DOM元素没有jQuery的方法，要在函数内转换
 $.each('div'或数组或对象, function(索引, 元素或值){  })
 
 创建元素：

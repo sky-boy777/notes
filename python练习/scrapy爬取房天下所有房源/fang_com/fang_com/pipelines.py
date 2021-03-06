@@ -8,6 +8,6 @@ db = client["fang"]
 class FangComPipeline:
     def process_item(self, item, spider):
         '''这里保存数据,我是保存到MongoDB里'''
-        db.fang_date.insert_one(dict(item))
+        # db.fang_date.insert_one(dict(item))
         print(item)
         return item

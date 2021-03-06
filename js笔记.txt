@@ -32,7 +32,7 @@ var  name, age=18;   声明多个
 
 变量命名规范：
 可以：$age
-字母、数字、下划线、美元符号$，大小区分，不能数字开头，不能关键字，保留字
+字母、数字、下划线、$，大小区分，不能数字开头，不能关键字，保留字
 驼峰命名法：myNameIs
 不能有空格
 不要用name做变量名，有特殊含义
@@ -102,7 +102,7 @@ false：' ', 0, NaN, null, undefind
 浮点数运算有精度问题
 ++i、i--
 e=10
-e++ + ++e =22：10 11 ++e12
+e++ + ++e =22：10  12
 
 值和数据类型的比较：===、!==
 逻辑运算：&&、||、！
@@ -185,7 +185,7 @@ js引擎运行步骤：
 1、预解析：把var跟function提升到作用域最前面
 2、代码执行：从上往下执行
 变量提升：只提升变量声明
-函数提升：所有函数声明提升作用域最前面，不调用函数
+函数提升：所有函数声明提升到作用域最前面，不调用函数
 
 var a=b=c=9;相当于var a=9; b=9; c=9;    // b、c 为全局变量
 --------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ obj.fun()
 for....in
 for (i  in  obj){
     alert(i);  //  属性名
-    obj[i];  // 属性名
+    obj[i];  // 属性值
 }
 对象无序
 
@@ -235,7 +235,7 @@ for (i  in  obj){
 自定义对象、内置对象、浏览器对象
 
 Math:
-随机数random()返回 [0, 1) 浮点数、PI、max()、min()、abs()、round()、floor()、ceil()
+随机数random()返回 [0, 1) 浮点数、PI、max()、min()、abs()、round()、向下取整floor()、向上取整ceil()
 随机整数公式：return Math.floor(Math.random() * (max - min + 1)) + min;
 
 Date：
@@ -354,13 +354,13 @@ H5自定义属性规范：data-开头
 
 H5新增：
 ie11 以上兼容
-xxx.dataset.属性或[ ]      返回所有data开头的属性数组，
+xxx.dataset.属性或[ ]      返回所有data开头的属性数组，去掉data-
 data-item-list
 xxx.dataset.itemList       驼峰命名法获取
 
 排他思想：
 干掉所有人，复活我自己
-每次循环先把全部元素样式晴空，再单独设置单个样式
+每次循环先把全部元素样式清空，再单独设置单个样式
 
 节点操作：
 名字、类型、值、实际开发主要操作元素节点、父子兄关系操作
@@ -386,7 +386,7 @@ previousElementSibling   上一个元素节点
 1、创建   2、添加
 var d = document.createElement('div')      创建，innerHTML采用数组拼接创建的快，字符串拼接慢
 xxx.appendChild(d)                追加
-insertBeffore('d', xxx)             指定插入位置，前面插入
+insertBefore('d', xxx)             指定插入位置，前面插入
 
 删除节点：
 xxx.removeChild('孩子节点')
@@ -415,7 +415,7 @@ onblur、onfocus、onmouseenter、onmouseleave
 事件对象 event:
 事件的相关信息：点击、按下键盘
 xxx.onclick = function(e) { } 
-ie678兼容：e = e | |  window.enent
+ie678兼容：e = e | |  window.event
 e.target      返回触发事件的对象，点击的那个，this是返回绑定事件的元素
 e.target.style.color = 'red'
 e.type         返回事件类型，click...
@@ -458,7 +458,7 @@ setTimeout(fun, 2000)    延时2000毫秒
 var time1 = setTimeout(function(){}, 2000)     起名    
 clearTimeout(time1)    清除定时器
 
-var time2 setInterval(function(){}, 3000）    间隔时间反复调用函数
+var time2 = setInterval(function(){}, 3000）    间隔时间反复调用函数
 clearInterval(time2)                清除
 
 this指向：
@@ -478,7 +478,7 @@ H5后有同步异步任务
 
 location对象：
 获取url
-***loaction.href     获取地址，赋值会跳转
+***location.href     获取地址，赋值会跳转
 ***search     返回参数 ：?a=1&b=2
 host         域名
 port         端口
@@ -548,7 +548,7 @@ window.scroll(x, y);
 ---------------------------------------------------------------------------
 移动端事件：
 触屏事件touch
-touchtrart    触摸时触发
+touchstrart    触摸时触发
 touchmove    滑动时触发
 touchend       离开时触发
 
@@ -573,13 +573,13 @@ sessinoStorage      约5M，关闭浏览器窗口死亡，同页面共享，键�
 sessinoStorage.setItem(key， value)    设置
                            getItem(key)                获取
                            removeItem(key)         删除
-                            cleart()                         清除所有
+                            clear()                         清除所有
 
 localStorage          约20M，永久生效，多窗口共享
 localStorage.setItem(key，value)          设置
                            getItem(key)                获取
                            removeItem(key)         删除
-                            cleart()                         清除所有
+                            clear()                         清除所有
 ----------------------------------------------------------------------------
 *****************************************************面向对象OOP：
 1、封装
@@ -598,7 +598,7 @@ obj = new 类名(参数);     // new 实例化一个对象
 obj.fun(参数)
 
 继承：
-extend、super
+extends、super
 class Son extends 父类名{ 
     constructor(参数){
          super(参数);     // 调用父类的构造函数 ，可以传参，必须放在构造函数最前面
@@ -636,7 +636,7 @@ Obj.sex = '男'    // 创建静态成员，只能通过构造函数访问
 ******作用是共享方法，节约内存，一般是公共方法定义在原型对象上，因为new里面的方法会重新开辟内存空间
 Obj.prototyep.fun = function () {}    定义一个共享方法，节约内存，公共的方法
 obj.__proto__                                     指向构造函数的prototype对象
-Obj.prototyep == obj.__proto__ == true
+Obj.prototyep == obj.__proto__      true
 
 constructor构造函数
 obj.__proto__.constructor    指向Obj，创建它的构造函数
@@ -698,7 +698,7 @@ Object.defineProperty(对象，属性，{   // 修改对象的属性
 函数进阶：
 函数也是对象
 var fun = new Function('参数', '函数体')      定义函数，了解
-普通函数this，定时器this，立即指向函数this，都指向window
+普通函数this，定时器this，立即调用函数this，都指向window
 
 改变this指向：
 指向obj

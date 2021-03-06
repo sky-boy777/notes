@@ -1,0 +1,87 @@
+主要考虑webkit内核浏览器
+max-width：   最大宽度
+
+视口：
+布局视口：980px
+视觉视口：
+***理想视口：
+meta标签，视口标签
+<meta name="viewport" content="width=device-width, user-scalable=no,
+initial-scale=1.0, maxmum-scale=1.0, minmum-scale=1.0">
+
+二倍图：
+物理像素比：1：2，1px=2物理像素
+retina视网膜屏幕是一种
+
+百分比布局：
+元素的宽度用百分比，高度不用
+
+二倍精灵图：
+将原来的图缩小一半，再定位
+--------------------------------------------------------
+flex弹性布局：
+布局原来：给父盒子添加flex属性，来控制子盒子的位置和排列方式。
+display：flex；
+
+flex-direction：column；     设置主轴方向：x、y
+justify-content：***space-between***/end/center/start/space-around；    设置主轴上子元素的排列方式
+flex-wrap：wrap；      是否换行
+align-items：center；              侧轴上的子元素排列方式，单行，多行无效
+align-content：  center；         侧轴上的子元素排列方式，多行，单行无效
+flex-flow：column wrap；      复合属性， 主轴和换行简写
+
+flex：1或20%；           占父元素的份数，平均
+align-self：         某个元素排列顺序
+order：2；        排序
+------------------------------------------------------------------
+rem布局：
+em相当于父元素字体大小
+rem相当于html字体大小
+元素使用rem做单位
+html { 12px; }
+p { width: 10rem }
+
+媒体查询：
+针对不同的屏幕尺寸定义不同的样式
+@media screen  and （max-width：800px）{ 
+    body { width：100px； }
+ }
+------------------------------------
+less：
+一门css预处理语言，扩展了css的动态特性
+文件：xxx.less
+
+less变量：
+不能特殊字符、不能数字开头、区分大小写、以@开头
+@变量名：值
+定义：@color：red；
+使用：body{ color：@color； }
+
+less编译：
+编译成css才能在页面使用
+
+嵌套：
+div{ 
+    color：red；
+    a{ color: red; }
+ }
+
+&::after {}
+&:hover {}
+
+less运算：
+运算符左右必须加空格，以第一个值单位为准
+--------------------------------------------------
+rem设配方案：rem+媒体查询+less技术
+--------------------------------------------
+响应式开发：
+***媒体查询
+
+bootstrap：
+hidden-*            隐藏 hidden-md   
+visible-*           显示     
+
+
+
+
+
