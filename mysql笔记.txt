@@ -1,14 +1,17 @@
 外键降低表更新、删除的效率
 
 导出：mysqldump -uroot -p 数据库名 >  文件名.sql
-导出所有数据库并锁住所有表，防止操作时有数据修改(导入时不需要指定数据库)：mysqldump -uroot -p --all-databases --lock-all-tables  >  文件名.sql
+
+导出所有数据库并锁住所有表，防止操作时有数据修改(导入时不需要指定数据库)：
+mysqldump -uroot -p --all-databases --lock-all-tables  >  文件名.sql
+
 导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
 导入2：>source back.sql;
 
 安装：
 centos安装MySQL  官方安装指南：https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/#repo-qg-yum-fresh-install
 
-wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm  下载rpm软件包包
+wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm  下载rpm软件包
 rpm -ivh mysql-community-release-el7-5.noarch.rpm  安装软件包
 yum update  更新
 yum install mysql-server  安装mysql
@@ -35,7 +38,7 @@ int unsigned      无符号整型
 bit      二进制类型 8位   存0、1
 ---------------------------------------------------------
 
-创建数据库：create database 数据库名  dufault charset=utf8;
+创建数据库：create database 数据库名  default charset=utf8;
 创建表：create table if not exists 表名(字段1 类型 约束 约束...,字段2 类型 约束...);
 例如：create table aa(id int primary key auto_increment,  create_time varchar(15));
 
@@ -50,8 +53,6 @@ desc 表名； 查看表结构
 更新：update 表名 set 列名=新值 where 列名=条件值;
 
 添加外键：ALTER   TABLE    当前表    ADD    FOREIGN KEY(当前表要添加外键的字段)    REFERENCES   目标表(id);
-
-创建表：create table 表名(id int not null primary key  auto_increment,  字段名 类型 约束);
 
 更改字段类型
 不重命名：alter table 表名 modify  字段名 类型（例：varchar(255)）;
@@ -206,13 +207,12 @@ ACID
 B-tree，先查看数据在哪个范围
 一个特殊文件，包含数据表里所以记录的引用指针
 作用：加快查询速度，类似课本目录
-原理：通过不断缩小想要获取的数据的范围来筛选出最终想要的结果，同时把随机事件
-变成顺序事件。
+原理：通过不断缩小想要获取的数据的范围来筛选出最终想要的结果，同时把随机事件变成顺序事件。
 查看索引：show index from 表名；
 给表创建索引：create index 索引名 on 表名(字段名(字段长度))；针对字符类型，整型不用写长度
 删除索引：drop index 索引名 on 表名；
 注意：
-建立太多索引影响更新和插入速度，因为要更新索引文件
+建立太多索引影响更新和插入速度，因为同时要更新索引文件
 建立索引占用磁盘空间
 
 查看语句执行时间：
@@ -245,7 +245,7 @@ MySQL主从：master，slave
 作用：
      1、数据备份
      2、读写分离：一个数据库负责写，一个负责读
-从数据库读取主数据库的二进制log日志文件，然后根据log日志更改自己的数据
+"从"数据库读取"主"数据库的二进制log日志文件，然后根据log日志更改自己的数据
 
 配置：
 1、修改主、从数据库的配置文件，然后重启

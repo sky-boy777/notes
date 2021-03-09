@@ -163,7 +163,6 @@ function 函数名 (参数，参数，...) { }
 return  返回值，没有return则返回undefined
 
 arguments：
-类似python args
 存储了传递来的所有实参，伪数组：有length属性，按索引进行存储，没有数组的一些方法，pop(), push()
 取值：arguments[0]
 
@@ -737,9 +736,40 @@ function(){
 
 递归：
 在函数内部调用自己，没有退出条件，容易有栈溢出
-
+----------------------------------------------------------------------------------------
 ES6拷贝：
 浅拷贝：Object.assign(o, obj)   拷贝obj给o
+
+ES6新特性：
+...args           解包，接收多余参数，以逗号分隔，将伪数组转换为数组：var arr = [...args]
+（）=>{ }     箭头函数，不绑定this，this指向箭头函数定义位置中的this
+
+无变量提升，块作用域：
+let         定义变量
+const    定义常量
+
+数组方法：
+var arr = Array.from(伪数组，函数(可选)对数组内每个值加工)     将伪数组转换为数组
+var s = arr.find(item=> item.id == 2)         查找第一个符合条件的值，不存在返回undefined
+findIndex(item => item >5)         查找第一个符合条件的值的索引，没有返回 -1
+arr.includes(value)   是否包含某个元素，布尔值
+
+字符串：
+判断某个参数是否在开头还是结尾
+str.startsWith(value)
+str.endsWith(value)
+模板字符串：
+反引号
+str = `aaaa${变量名}`
+
+集合set：
+add（value）   添加值，返回set本身。 例：var set = new Set();    set.add('aa').add('bb')   链式添加
+delete（value）返回布尔值，
+has（value）     返回布尔值，判断是否有value
+clear（）          清除所有元素
+
+set.forEach（value）遍历
+
 -----------------------------------------------------------------
 js使用正则：
 1、var r = new RegExp(/xxx/)
