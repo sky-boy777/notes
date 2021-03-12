@@ -588,8 +588,8 @@ localStorage.setItem(key，value)          设置
 ES6中的类和对象：
 class 声明一个类，属性和方法都要用this.xxx，构造方法里this指向实例对象，方法里指向调用者，比如按钮
 class 类名{    
-    constructor(参数){      // 构造函数，必须要有
-           this.name = name;
+    constructor(name){      // 构造函数，必须要有
+           this.name = name;  // 属性
      }   
      fun(参数){ }   // 定义方法 
  }    
@@ -602,7 +602,7 @@ class Son extends 父类名{
     constructor(参数){
          super(参数);     // 调用父类的构造函数 ，可以传参，必须放在构造函数最前面
          this.xxx = xxx;
-         this.init()    // 不是必须
+         this.init()    // 初始化方法，不是必须
          this.fun();   // 调用方法，this
      }   
      init(){
@@ -661,6 +661,7 @@ fn.call(要指向的对象，其它参数)  // call方法可以修改this指向
 
 ES6前使用继承：
 使用call()方法实现继承
+fn.call()   // 可以调用fn函数
 function A(x, y){ this.x = x; this.y = y}
 function B(x, y){
     A.call(this, x, y)   // 改变this指向，实现了继承
@@ -676,11 +677,11 @@ obj.fun  // 这样就可以使用A的fun方法了
 -----------------------------------------------------------------
 ES5新增方法：
 数组方法：遍历
-arr.forEach(每个数组元素, 索引, 一个数组)
-map()
-filter(function(){})   筛选，返回一个新数组
-some(function(){})    查找满足条件的第一个元素，返回布尔值，
-every()
+arr.forEach(每个数组元素, 索引, 一个数组), forEach(value, index, arr)
+map()  遍历，跟forEach相似，返回一个数组
+filter(function(value, index, arr){})   筛选，返回一个新数组
+some(function(value, index, arr){})    查找满足条件的第一个元素，返回布尔值
+every()   跟some相似，所有元素符合返回true，否则false
 
 字符串方法：
 xxx.trim()     去掉两边空格，返回新字符串
@@ -702,8 +703,8 @@ var fun = new Function('参数', '函数体')      定义函数，了解
 改变this指向：
 指向obj
 var fun = xxx.bind(obj, xx,xx)      只是绑定，不会调用，返回新函数，最常用
-xxx.call(obj, xx, xx...)   
-apply(obj, [xx,xx...])      求最大值应用：var max = Math.max.apply(Math, 数组)
+xxx.call(obj, xx, xx...)     会调用函数
+apply(obj, [xx,xx...])      会调用函数，求最大值应用：var max = Math.max.apply(Math, 数组)
 
 ES5严格模式：
 ie10以上才支持
@@ -739,6 +740,7 @@ function(){
 ----------------------------------------------------------------------------------------
 ES6拷贝：
 浅拷贝：Object.assign(o, obj)   拷贝obj给o
+递归实现深拷贝，先判断数据类型，先判断数组，再判断对象，因为数组也是对象，再调用自身
 
 ES6新特性：
 ...args           解包，接收多余参数，以逗号分隔，将伪数组转换为数组：var arr = [...args]
