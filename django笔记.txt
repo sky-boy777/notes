@@ -10,7 +10,14 @@
 7、生成迁移数据库文件： python manage.py  makemigrations
 8、生成数据库表： python manage.py  migrate
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+django开启事务：
+使用装饰器，需要导入，可以设置保存点，方便回滚到保存点位置
 
+@transaction.atomic
+def xxx(self, request):
+    pass
+
+-----------------------------------------------------------------------------------------------------------------------------
 centos安装MySQL：
 wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 yum -y install mysql57-community-release-el7-10.noarch.rpm
@@ -48,7 +55,19 @@ ImageField  图片
 
 添加：
 User.objects.create(key=value)
+--------------------------------------------------------------------
+解决并发问题，加锁：
+悲观锁，查之前先上锁：select_for_update()，别的事物执行相同查询会阻塞
+select * form user where   id=3  for  update
+User.objects.select_for_update().get(id=udi)
 
+乐观锁：
+查询时不加锁，更现时做判断，跟查询的时候不一样则事物失败
+update user set username='xxx' where xxx='xxx'            where条件判断是否被其他人修改过
+num = User.objects.filter(id=sid，xxx='xxx').update(username='xxx')       返回受影响的行数：1更新或0未更新
+
+
+---------------------------------------------------------------------------
 查询：
 User.objects.get(id=1) 
 get(条件)        一条
@@ -1058,20 +1077,62 @@ CORS_ALLOW_HEADERS = [  # 请求时可以使用的非标准HTTP标头的列表,以下是默认的
 	# 设置uwsgi后台运行，保存日志信息
 	# daemonize = uwsgi.log
 
-3、nginx配置nginx.conf
+3、配置nginx.conf
 	第一行改为： user  root;  # 权限设置
-	在http下添加
+	server {
+		listen 80;
+		server_name 47.112.208.199;    # 公网ip或域名：www.byc.ink
+		
+		location / {
+			include uwsgi_params;   # 请求的参数
+			uwsgi_pass 127.0.0.1:8000;   # 请求转发给服务器，必须跟uwsgi.ini 的socket一样
+		}
+		
+		# 静态文件的目录，可以在其它地方
+		location /static {
+			alias /home/byc/blog/blog/static/;    
+		}
+	}
+
+-------------------------------------------------------------------------------------------------------
+配置负载均衡：
+1、复制两份django项目代码，配置两个不同的端口，分别启动两个uwsgi服务器
+2、# 负载均衡，名字自定义，服务器地址端口
+	upstream blog {
+	    server 127.0.0.1:8000;
+	    server 127.0.0.1:8001;
+	    ......
+	}
+3、location / {
+	include uwsgi_params;  # 前端请求的参数
+	uwsgi_pass blog； # 请求转发，去配置的服务器选择一个
+
+
+完整配置：
+配置nginx.conf
+	第一行改为： user  root;  # 权限设置
+
+	# 负载均衡
+	upstream blog {
+	    server 127.0.0.1:8080;
+	    server 127.0.0.1:8081;
+	}
+
 	server {
 		listen 80;
 		server_name 47.112.208.199;    # 服务器的域名或IP
+		
+		# location = /  精确匹配
 		location / {
 			include uwsgi_params;
-			uwsgi_pass 127.0.0.1:8000;   # 跟uwsgi.ini 的socket一样，请求转发
+			uwsgi_pass blog； # 请求转发，选择一个服务器
 		}
 		location /static {
 			alias /home/byc/blog/blog/static/;    # 静态文件
 		}
 	}
+
+
 
 
 

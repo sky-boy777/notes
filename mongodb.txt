@@ -1,0 +1,36 @@
+键值对/json
+show database/show dbs
+use 数据库名
+查看当前使用的数据库：db
+db.dropDatabase()   删除当前数据库
+集合：
+db.createCollection("集合名")
+显示集合：show collections
+删除：db.集合名.drop()
+
+插入：db.集合名.insert({age: 18, name: "张三"})    键不用引号，_id存在会报错
+                           save({age: 18, name: "张三"})       _id存在会更新
+更新                   update({条件}，{$set: {更新的内容}}) 
+删除                          remove（{name："张三"}，{justOne: false}）     justOne默认false，删除多条
+查找：
+db.集合名.find({age:18，name："张三"}) .pretty()  多条，and运算，美化输出
+findOne()   查一条
+$lte    小于等于
+$in:[]    范围
+$or:[{},{}]
+/.*/     正则
+可以使用js语句
+count()   计数
+aggregate({})   聚合,管道
+
+
+
+
+
+
+
+
+
+
+
+

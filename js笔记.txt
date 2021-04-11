@@ -224,8 +224,8 @@ obj.fun()
 遍历对象：
 for....in
 for (i  in  obj){
-    alert(i);  //  属性名
-    obj[i];  // 属性值
+    alert(i);  //  属性名key
+    obj[i];  // 属性值value
 }
 对象无序
 
@@ -298,13 +298,13 @@ Web API：浏览器的api（BOM、DOM）
 document.getElementById('id名')    大小写区分，返回element对象
 console.dir(元素)  打印元素对象的属性和方法
 
-var ul = getElementsByTagName('ul')    Elements加s，获取标签ul[0]
+var ul = getElementsByTagName('ul')    Elements加s，获取标签ul[0]，伪数组
 ul.getElementsByTagName('li')     获取元素里面的元素
 
 H5新增：
        getElementsByClassName('类名')
-       document.querySelector('#id、.class')   任意选择第一个
-       document.querySelectorall()   返回所有选择到的，数组
+       document.querySelector('#id、.class')   获得第一个
+       document.querySelectorall()   返回所有选择到的，伪数组
 
 获取特殊元素：
 document.body;   body元素
@@ -444,7 +444,7 @@ e.keyCode    返回ASCII码，可以判断用户按下那个键
 BOM对象模型 ：
 兼容性比较差，核心对象 window，顶级对象，全局对象
 函数跟变量都是window对象的方法跟属性 
-特殊：window.name
+特殊：window.name  // name 属性可设置或返回存放窗口的名称的一个字符串。
 
 window.onload = function() { }        页面加载完毕才执行代码，传统方式，只执行最后一个
 window.addEventlistener('load', function(){})     监听方式，能在页面执行多个       
@@ -509,7 +509,7 @@ clientWidth       包括padding，不包含边框，不带px单位，用于获�
 
 立即执行函数：
 创建独立的作用域，避免变量名冲突
-1、(function(形参){})(实参);
+1、(function(形参){}) (实参);
 2、(function(){}());
 
 元素滚动距离：
@@ -670,6 +670,7 @@ obj = new B(x, y);
 
 继承父类的方法：
 B.prototype = A.prototype  // 这样会有问题，修改了子原型对象，父原型对象也会修改
+
 B.prototype = new A()
 B.prototype.constructor = B  // 利用对象的方式修改原型对象要指回B
 obj = new B()
@@ -677,7 +678,7 @@ obj.fun  // 这样就可以使用A的fun方法了
 -----------------------------------------------------------------
 ES5新增方法：
 数组方法：遍历
-arr.forEach(每个数组元素, 索引, 一个数组), forEach(value, index, arr)
+arr.forEach(function(value, index, arr){})   里面是一个函数
 map()  遍历，跟forEach相似，返回一个数组
 filter(function(value, index, arr){})   筛选，返回一个新数组
 some(function(value, index, arr){})    查找满足条件的第一个元素，返回布尔值
