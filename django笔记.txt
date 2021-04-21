@@ -59,10 +59,10 @@ User.objects.create(key=value)
 解决并发问题，加锁：
 悲观锁，查之前先上锁：select_for_update()，别的事物执行相同查询会阻塞
 select * form user where   id=3  for  update
-User.objects.select_for_update().get(id=udi)
+User.objects.select_for_update().get(id=uid)
 
 乐观锁：
-查询时不加锁，更现时做判断，跟查询的时候不一样则事物失败
+查询时不加锁，更新时做判断，跟查询的时候不一样则事物失败
 update user set username='xxx' where xxx='xxx'            where条件判断是否被其他人修改过
 num = User.objects.filter(id=sid，xxx='xxx').update(username='xxx')       返回受影响的行数：1更新或0未更新
 

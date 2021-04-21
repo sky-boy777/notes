@@ -1,3 +1,5 @@
+python的传递都是内存地址或引用传递
+
 select、poll、epoll：
 监管
 IO多路复用，轮询
@@ -135,64 +137,6 @@ GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻
 面向切面编程：
 只管一点点地方，其它已经做好了
 
-匿名函数：
-fun = lambda x：x + 1
-fun(1)
-返回：2
-
-闭包：
-拥有函数功能，还有函数数据
-一个函数里面有另一个函数，内部函数使用到外层函数的变量，返回内部函数
-def fun(a):
-    def fun2(b):
-        print(a+b)
-    return fun2
-
-my_fun = fun(1)   my_fun得到fun的返回值fun2的函数引用
-my_fun(2)   执行fun2函数
-输出：3
-
-nonlocal：在闭包里使用
-
-装饰器：
-改变原函数的指向，在不改变函数的情况下，给它运行前后加功能
-在闭包基础上，传入参数为函数的引用
-通用装饰器：有返回值，有不定参数
-def f1(func):
-    def f2(*args, **kwargs):
-         print('验证')
-         return func(*args, **kwargs)
-    return f2
-
-@f1    #  等价于 test = f1(test)
-test()
-
-多个装饰器先装下层的，调用则先最外层一层一层下去：
-@f1
-@f2
-fun()
-先执行@f2
-
-带参数装饰器：
-在外面再包一层，先调用参数，在返回内层装饰器
-def s(num)
-    def f1(func):
-        def f2(*args, **kwargs):
-             print('验证')
-             return func(*args, **kwargs)
-        return f2
-    return f1
-
-@f1(100)    #  等价于 test = f1(test)
-test()
-
-类装饰器:
-@MyClass
-test()
-或
-@MyClass.静态方法
-test()
-
 python动态导入模块方式：ss = __import__(变量)
 
 格式化输出：print(f'{name}')
@@ -289,15 +233,6 @@ ORM：
 is：比较id
 ==：比较值
 
-读取大文件：
-使用readline，每次读取一行，当读到末尾就退出
-f = open ('信息.txt')
-while True:
-    t = f.readline()
-    if not t:
-        break
-    print(t)
-f.close()
 -----------------------------------------------------------------
 
 面向对象：
@@ -499,7 +434,195 @@ python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 
 python迭代器：节省内存空间，生成循环。生成器：让函数代码暂停执行，关键yield
 
+数字类型int与float：
+int('1.23') === 1
+float('1') === 1.0
+bin(10)  转二进制
+oct（10） 转八进制 0o33
+hex（10）转十六进制 0xd
+复数：x = 10 + 3j
 
+字符类型：
+不可变类型，str(任何类型)
+按索引取值，正取0，倒取-1，只能取不能赋值
+切片[1:-1: 2]       反向步长[1:5: -1]得到为空  ，倒着走[5:1:-1]
+长度len(s)
+成员运算in 与 not in
+s.strip('字符字符字符')   去除左右两边字符，默认空格，可以多个，s.lstrip（''）左边空格、s.rstrip（''）右边空客
+s.split('字符'，分割次数)   切割成列表，默认空格分割，s.rsplit('xx')   从右边切割
+大小写转换：s.lower（）转小写、s.upper（）转大写
+判断开头结尾：startswith('xx')、endswih('xx')
+''.join(列表)      拼接，列表里同时有字符串跟数字会报错，因为不能相加
+s.replace('aa', 'bb', 次数)   aa替换为bb
+s.isdigit()     判断字符串是否由纯数字组成，阿拉伯数字，isnumeric()能识别'4'、'四'、'IV'
+find('xx')
+index('xx')
+count('xx')
+
+列表list：
+l.append()         追加
+insert(索引)     插入
+pop(索引)        弹出，默认末尾
+extend(列表)   合并两个列表           
+clear()               清空
+count（'值'）    计算值出现次数
+index（'值'）     第一次出现位置的索引
+remove（'值'）  删除首个出现的值
+copy()                复制
+reverse()            反转
+sort(reverse=True，key=func)             升序排序，  reverse=True降序，key排序的函数
+列表比较：
+元素依次比较
+数字跟字符串比较会报错
+字符串按ASCII码比较
+
+元组tuple：
+不可变，存放值对应的地址，也就是指向的地址不变，值可有修改，如只能修改列表里的值，不能修改列表本身
+t.index("值")     # 返回第一个匹配的值的索引
+t.count("值")    # 计数，值出现的次数
+
+字典类型dict:
+key=value，key不可变，不重复
+d = {}.fromkeys(列表，值)   # 初始化字典
+len(d)  key的个数
+成员运算：in、not in    针对key
+d.pop('key')  # 返回删除的值
+popitem()     # 元组方式返回随机删除的k-v
+keys()      # key，类型dict_keys，python3不是列表
+values()   # value，类型dict_values
+items()    # 列表包含元组，类型dict_items
+update({1:2, 3:4})    更新，覆盖或添加
+clear()
+get('xxx')
+setdefault({1:2})   key不存在则添加，返回字典中key对应的值
+
+集合set：
+********s1.discard('xx')        删除元素，s1.remove('xxx')不存在会报错
+********s1.update({1,2,3})   更新，改
+********s = pop()    弹出
+********s1.add('xxx')   添加
+交集
+集合内元素：不可变类型，无序，不重复
+空集合s = { , } 或s = set()   没有逗号会变成空字典
+类型转换：s = set('hellooo') == {'h', 'e', 'l', 'o'}，转换的类型里不能有可变类型，如列表嵌套列表
+转换字典只是得到字典的key
+内置方法(关系运算)：
+交集：s = set1 & set2    # set1.intersection(set2)
+并集：set1 | set2            # set1.union(set2)
+差集：set1 - set2           # set1.difference(set2), 有先后顺序，得到set1在set2中没有的
+对称差集：set1 ^ set2   # set1.symmetric_difference(set2), 去掉交集部分
+父子集，包含关系：
+a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
+s1.issuperset(s2)   s1是s2的父集，返回布尔值
+s1.issubset(s2)       s1是s2的子集
+去重后无序
+clear()         清空
+s1.isdisjoint({1,2,3})    没有共同部分返回true
+
+文件修改两种方式：
+1、打开全部读入内存修改，再以w模式打开，将内存中的内容写入文件，速度快
+2、打开两个文件，读入一行写入一行，最后使用os.remove(文件路径)删除旧文件，然后修改新文件名，占内存小
+f.seek()
+读取大文件：
+使用readline，每次读取一行，当读到末尾就退出
+f = open ('信息.txt')
+while True:
+    t = f.readline()
+    if not t:
+        break
+    print(t)
+f.close()
+
+函数：
+申请内存空间保存函数体代码
+内存地址绑定函数名
+定义会检测语法
+func(1, 3) * 10        # 函数的返回值乘10
+func(func(1, 2), 3)   # 函数当参数
+关键字参数：key=value
+位置参数放在关键字参数前面
+不能重复传参数
+默认参数在函数定义阶段赋值：def func(a=3)  而列表做参数会改变
+默认参数不应该使用可变类型，如列表
+可变长参数：*与**，*args是元组格式、**kwargs字典格式，*args放在**kwargs前面
+解包：*[1,2,3]<==>1 2 3  ，*'hello'<==>h e l l o，单个*号解包字典只获得key，*{1：2，3：4}  <==>1 2
+def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1,y=2
+
+匿名函数：
+fun = lambda x：x + 1
+fun(1)
+返回：2
+------------------------------------------------------
+def func():
+    print(x)
+x = 1
+func()
+输出：1
+以函数定义阶段为准
+
+x = 111
+def func()
+    print(x)
+    x = 222
+func()
+报错，在定义前使用x
+--------------------------------------------------------
+全局作用域：global用在改变不同作用域的不可变类型
+nonlocal：局部作用域的修改，不是本地，在当前层的外一层开始
+
+闭包：
+拥有函数功能，还有函数数据
+一个函数里面有另一个函数，内部函数使用到外层函数的变量，返回内部函数
+def fun(a):
+    def fun2(b):
+        print(a+b)
+    return fun2
+
+my_fun = fun(1)   my_fun得到fun的返回值fun2的函数引用
+my_fun(2)   执行fun2函数
+输出：3
+
+nonlocal：在闭包里使用
+-------------------------------------------------------------------
+装饰器：
+改变原函数的指向，在不改变函数的情况下，给它运行前后加功能
+在闭包基础上，传入参数为函数的引用
+通用装饰器：有返回值，有不定参数
+def f1(func):
+    def f2(*args, **kwargs):
+         print('验证')
+         return func(*args, **kwargs)
+    return f2
+
+@f1    #  等价于 test = f1(test)
+test()
+
+多个装饰器先装下层的，调用则先最外层一层一层下去：
+@f1
+@f2
+fun()
+先执行@f2
+
+带参数装饰器：
+在外面再包一层，先调用参数，在返回内层装饰器
+def s(num)
+    def f1(func):
+        def f2(*args, **kwargs):
+             print('验证')
+             return func(*args, **kwargs)
+        return f2
+    return f1
+
+@f1(100)    #  等价于 test = f1(test)
+test()
+
+类装饰器:
+@MyClass
+test()
+或
+@MyClass.静态方法
+test()
+------------------------------------------------------------------
 
 
 
