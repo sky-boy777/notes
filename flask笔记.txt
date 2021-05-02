@@ -2,7 +2,7 @@ css图片跟文字对齐：vertical-align:middle;
 -------------------------------------------------------------------------------------------------------------------------
 g对象只能是这次的请求如果重定向之后就会改变
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-重定向可以用url_for传递参数：url_for('user.login'，name=username)
+重定向可以用url_for传递参数：url_for('user.login'，key=value)
 -----------------------------------------------------------------------------------------------------------------
 flask生成MySQL数据库特有字段类型：
 from sqlalchemy.databases import mysql  # 定义MySQL特有的字段类型
@@ -18,6 +18,7 @@ view  视图
 
 ORM, 映射
 属性---字段
+模型类----表
 对象----一条数据
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 flask蓝图*
@@ -130,13 +131,13 @@ sort------排序
 		return value + '你好'  # 要返回结果
 
 # 自定义过滤器,用于蓝图
-@app_bp.app_template_filter('cut_off')  # cut_off为名称，没有则适用函数名称
+@app_bp.app_template_filter('cut_off')  # cut_off为名称，没有则使用函数名称
 def cut_off(value):
     # 切片
     return value[:50] + '......'
 
 字典语法：
-{% for k ,v in dicts.items() %}  ----跟python语法差不多: items(), keys(), vales()
+{% for k ,v in dicts.items() %}  ----跟python语法差不多: items(), keys(), values()
 	{{ k }}----{{ v }}
 {% endfor %}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,11 +164,11 @@ pip install flask-sqlalchemy ------ 基于sqlalchemy做了提升，实现ORM映射
 pip install flask-migrate --------发布命令的工具
 
 2、settings配置：
-	#                                                   数据库+驱动       用户 ：密码 @ 主机  ： 端口号 /数据库名
+	#                                        数据库+驱动         用户 ：密码@主机     端口号 /数据库名
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1：3306/flask'            # 连接数据库
 
 3、创建包ext：
-__init__.py种添加
+__init__.py中添加
 	# 创建一个映射对象
 	from flask_sqlalchemy import SQLAlchemy
 	db = SQLAlchemy()   # 稍后必须跟app关联
@@ -217,15 +218,15 @@ class User(db.Model):
 from apps.user.models import User  # 导入模型
 
 3、迁移
-python app.py db init  ----产生一个文件架migrations，只需执行一次
+python app.py db init  ----产生一个文件夹migrations，只需执行一次
 
 python app.py db migrate  ----产生版本文件，迁移
 python app.py db upgrade-----在数据库里升级版本，同步
 
-python app.py db downgrade------降级的前一个版本
+python app.py db downgrade------降级回前一个版本
 
 -------------------------------------------------------------------------------------------------------------------------------
-简化模型小技巧：创建一个父类，将模型相同的字段统一创建好，__abstrace__ = True表示作为抽象类，不会在数据库生成表
+简化模型小技巧：创建一个父类，将模型相同的字段统一创建好
 
 # 父类
 class BaseModel(db.Model):
@@ -249,9 +250,9 @@ class Article_type(BaseModel):
 ---------------------------------------------------------------------------------------------------------------------
 flask数据库的操作
 参考手册：http://www.pythondoc.com/flask-sqlalchemy/index.html
-		user = User()  # 实例化一个用户对象
+        user = User()  # 实例化一个用户对象
         user.username = '张三'
-        user.password = hashlib.sha256(‘123456’.encode('utf-8')).hexdigest()  # 加密，先编码转换才能使用加密
+        user.password = hashlib.sha256('123456'.encode('utf-8')).hexdigest()  # 加密，先编码转换才能使用加密
         # 添加并保存
         db.session.add(user)   # 删除db.session.delete(me)
         db.session.commit()	
@@ -305,7 +306,7 @@ class Arcitle(db.Model):
     # 自定义表名
     # __tablename = '表名'
     ......
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # 哪个表的外键
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # 创建外键，用户表的id
 
 class User(db.Model):
     '''用户表'''
@@ -335,7 +336,6 @@ class User_Goods(db.Model):
     goods_id = db.Column(db.Integer, db.ForeignKey('goods.id'), nullable=False)  # 外键
 --------------------------------------------------------------------------------------------------------------------
 
-
 字段类型
 Integer	                 一个整数
 String (size)	有长度限制的字符串
@@ -346,7 +346,7 @@ Boolean	                  存储布尔值
 PickleType	存储为一个持久化的 Python 对象
 LargeBinary	存储一个任意大的二进制数据
 
-注意：主键字段不会自动添加，需要手动（跟django不同）
+注意：主键字段不会自动添加，需要手动（django自动添加）
 -------------------------------------------------------------------------------------------------------------------
 使用flask-bootstrap     参考：https://flask-bootstrap-zh.readthedocs.io/zh/latest/
 1、pip install flask-bootstrap
@@ -354,7 +354,7 @@ LargeBinary	存储一个任意大的二进制数据
 2、在exts下的__init__.py下
     from flask_bootstrap import Bootstrap
     bootstrap = Bootstrap()  # bootstrap
-或者直接在apps在apps下的__init__.py下
+或者直接在apps下的__init__.py下
     from flask_bootstrap import Bootstrap
     def create_app():
    ......
@@ -400,7 +400,7 @@ flask密码加密与验证
 from werkzeug.security import generate_password_hash, check_password_hash  # 密码加密,验证密码
 加密
 user.password = generate_password_hash(password)  # 密码格式：方法$盐值$哈希   盐值是八位
-验证：匹配密码                 数据库里密码跟表单传过来的密码
+验证：匹配密码                   数据库里密码，表单传过来的密码
 if check_password_hash(user.password, password):
 --------------------------------------------------------------------------------------------------------------------
 cookie与session
@@ -435,7 +435,7 @@ SECRET_KEY = 'kdfuiefjk4343424@&&$^@&$@&$&@^$&fkjksjfkdsf'
 from flask import session
 
  # 设置session, 字典形式
-                session['uid'] = user.id
+  session['uid'] = user.id
 
 # 获取session
     uid = session.get('uid')
@@ -452,7 +452,6 @@ from flask import session
 def send_msg():
     '''发送短信验证码'''
     phone = request.args.get('phone')
-    print(phone)
     SECRET_ID = "ebf79d9288825ef70ac1e0335f71fe25 "  # 产品密钥ID，产品标识
     SECRET_KEY = "040c04fa10e06b5a9e83c5e175473e6b"  # 产品私有密钥，服务端生成签名信息使用，请严格保管，避免泄露
     BUSINESS_ID = "931f3201039240128b129b77370a1286"  # 业务ID，易盾根据产品业务特点分配
@@ -488,7 +487,7 @@ phone = request.args.get('phone')  # 获取手机号
                 user = User.query.filter(phone == phone).first()  # 查询用户
                 if user:  # 如果用户存在
                     session['uid'] = user.id
-                    return redirect(url_for('app.index'))
+                    return redirect(url_for('app.index'))  # 登录成功，重定向到主页
                 else:
                     return render_template('user.phone_login', msg='号码未注册')
             else:
@@ -907,7 +906,7 @@ def create_app():
     return app
 
 4、
-    cache.set('code', code, timeout=180)          # 设置缓存,（key，value， timeout（秒））
+    cache.set('code', code, timeout=180)          # 设置缓存,（key，value， timeout（秒）），默认缓存300秒
     cache.set_many([(key, value), (key, value), ...])        # 缓存多个
     cache.get(key)          # 获取, cache.get_many(key, key2, ...)
     cache.delete(key)          # 删除, cache.delete_many(key, key2, ...)

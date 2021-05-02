@@ -66,7 +66,6 @@ User.objects.select_for_update().get(id=uid)
 update user set username='xxx' where xxx='xxx'            where条件判断是否被其他人修改过
 num = User.objects.filter(id=sid，xxx='xxx').update(username='xxx')       返回受影响的行数：1更新或0未更新
 
-
 ---------------------------------------------------------------------------
 查询：
 User.objects.get(id=1) 
@@ -81,7 +80,7 @@ User.objects.filter().order_by('-id')  结果排序,降序加减号
 查询条件：
 包含：contains
 以xx结尾： endswith
-以xxx开头：startswith
+以xx开头：startswith
 判空：isnull
 范围：字段__in = [1,2,3]
 
@@ -128,10 +127,9 @@ ajax默认是异步请求
 ajax里面加'async': false可以为同步
 dataType：预期返回的数据类型
 
-
 ----------------------------------------------------------------------------------------------
 模板：
-模板变量：数字、字母、下划线、点组成，**不能以下划线开头**
+模板变量：数字、字母、下划线、点组成，不能以下划线开头
 解析顺序：
 {{ user.name }} 字典---属性----对象
 {{ user.0 }} 字典----列表
@@ -178,7 +176,7 @@ csrf只针对post请求
 动态生成url地址
 应用url：namespace=xxx
 视图url：name=xxx
-前端：{% url 'xx：xx'  参数=  参数=%}
+前端：{% url 'xx：xx'  参数=  参数= %}
 View：redirect(reverse('xxx : xxx'， arsg=(参数)， kwargs={'xx': xx}))
 
 动态加载静态文件：
@@ -237,7 +235,6 @@ return redirect('user:index')  # 反向解析
 return HttpResponseRedirect(reverse('user:index'))  # 注意：这里使用反向必须加reverse不然报错
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 9、原生sql查询data =  User.objects.raw("select * from 表名 where 条件")  可以执行任何sql语句，与user无关
 防止sql注入，不要使用format，应该使用%s：sql = "select * from user where username=%s"      user.objects.raw(sql,[username, nane, djf])  列表里面放参数。
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -250,7 +247,6 @@ cookies_time = datetime.datetime.now() + datetime.timedelta(hours=3)
 res.set_cookie('username', user.username, expires=日期)  # 设置cookie，max_age=秒数
 return res
 获取cookies：request.COOKIES.get()
-
 
 设置session：
 依赖于cookies，存入什么类型，取出来就是什么类型
@@ -271,8 +267,6 @@ request.session.set_expiry(秒)
 默认14天
 0：关闭浏览器过期
  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- 
- 
  
  自定义数据库   settings.py
  DATABASES = {
@@ -363,11 +357,11 @@ form.py文件
 class RegisterForm(forms.Form): # 最大长度      # 不能为空       # 提示的错误信息
     username = forms.CharField(max_length=15, required=True, error_messages={
         'required': '用户名不能为空',
-        'max_length': '用户名长度不能超过15给字符'
+        'max_length': '用户名长度不能超过15个字符'
     })
     password = forms.CharField(min_length=3, required=True, error_messages={
         'required': '密码不能为空',
-        'max_length': '密码长度不能少于三个字符'
+        'min_length': '密码长度不能少于三个字符'
     })
 	
 2、在视图调用表单类
@@ -381,7 +375,6 @@ else:
 3、html页面渲染
 {{ form.字段名.errors }}
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 django内置用户认证
 
@@ -435,15 +428,16 @@ django中间件
 导包
 from django.utils.deprecation import MiddlewareMixin  # 自定义中间件要继承的父类
 
-定义类，下面的三个方法比较常用（可实现：统计、黑名单、白名单、界面友好话（只有本地登录才能看到异常））
+定义类，下面的三个方法比较常用（可实现：统计、黑名单、白名单、界面友好化（只有本地登录才能看到异常））
 class MyMiddieware(MiddlewareMixin):
      # 在每个请求前调用
      def process_request(self, request):
 	 
      # 每个响应返回浏览器之前调用()
      def process_response(self, request, response):
+                 return response
 	 
-	 # 视图抛出异常时执行，返回None或HttpResponse对象
+      # 视图抛出异常时执行，返回None或HttpResponse对象
      def process_exception(self, request, response):
 	 
 2、在settings里面注册自定义中间件，一般放在最后面
@@ -451,8 +445,7 @@ class MyMiddieware(MiddlewareMixin):
      路径        .py文件          自定义的类  
     'user.MyMiddieware.MyMiddieware',
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	
+		
 django缓存，适用于页面经常被访问，但页面数据不会经常改变的地方
 
 settings配置，二选一
@@ -472,10 +465,9 @@ CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://192.168.1.101:6379/2',  # redis地址（无密码），后面表示使用第二个数据库
-        # 'LOCATION': 'redis://密码@192.168.1.101:6379/2',  # redis地址（有密码），后面表示使用第二个数据库
+        # 'LOCATION': 'redis://密码@IP:端口号/2',  # redis地址（有密码），后面表示使用第二个数据库
     }
 }
-
 
 from django.views.decorators.cache import cache_page 
 # 页面缓存
@@ -510,8 +502,7 @@ def my_cache(request):
         cache.set('all_data', my_data, 20)  # cache.set(key, value, timeout(秒))
     return render(request, 'cache.html', locals())
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	
+		
 邮箱验证激活账号
 
 1、token加密
@@ -519,7 +510,7 @@ from itsdangerous import URLSafeTimedSerializer as utsr
 import base64
 from django.conf import settings as django_settings
 
- 路由需要穿token值：path('active/<token>/', views.emial_active, name='active'),
+ 路由需要传token值：path('active/<token>/', views.emial_active, name='active'),
 
 # 产生token
 class Token:
@@ -542,7 +533,6 @@ class Token:
 
 # 定义为全局对象， SECRET_KEY是settings.py里面的
 token_confirm = Token(django_settings.SECRET_KEY)
-
 
 2、发送激活邮件
 	# 邮箱验证激活账号开始
@@ -603,7 +593,7 @@ from django.core.mail import send_mail          # 发送邮件
 from itsdangerous import TimedJSONWebSignatureSerializer          # 生成token
 from itsdangerous import SignatureExpired            # token超时发生的异常
 2、
-serializer = TimedJSONWebSignatureSerializer('SECRET_KEY', 3600)               # 实例化，超时时间3600秒
+serializer = TimedJSONWebSignatureSerializer(SECRET_KEY, 3600)               # 实例化，超时时间3600秒
 info = {'uid': user.uid}            # 要加密的字典（最好是能唯一标识的）
 token = serializer.dumps(info)           # 加密，生成token
 token = token.decode('utf-8')       #  生成的token默认是byte类型，需要解码
@@ -619,7 +609,7 @@ send_mail('账号激活', '内容（空）', '寄件人', ['收件人列表'], html_message=html)
  解密
     try:
         # uid = token_confirm.confirm_validte_token(token)   # 方法一，解密token，将uid取出来
-        serializer = TimedJSONWebSignatureSerializer('SECRET_KEY', 3600)  # 方法二
+        serializer = TimedJSONWebSignatureSerializer(SECRET_KEY, 3600)  # 方法二
         info = serializer.loads(token)  # 解密，加密的时候是字典，解密的时候还是字典
         uid = info.get('uid')
     except SignatureExpired as e:   # token过期的错误SignatureExpired
@@ -633,8 +623,7 @@ send_mail('账号激活', '内容（空）', '寄件人', ['收件人列表'], html_message=html)
     return redirect(reverse('user:login'))  # 激活成功，重定向到登录页面
 	
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-cleery异步发送邮件：
+celery异步发送邮件：
 1、任务发出者（发邮件）， 
 2、任务队列（redis）， 
 3、任务处理者（worker）
@@ -658,7 +647,6 @@ from U.settings import EMAIL_FROM  # 服务器发送邮件的邮箱
 # main一般为tasks的路径                   中间人redis地址，使用6号数据库
 app = Celery(main='celery_tasks_tasks', broker='redis://127.0.0.1/6')
 
-
 # 定义任务函数，发送注册激活邮件
 @app.task
 def send_register_active_emial(to_emial, username, token):
@@ -673,8 +661,7 @@ def send_register_active_emial(to_emial, username, token):
 
     # 发送邮件
     send_mail('账号激活','', EMAIL_FROM, [to_emial], html_message=html)
-	
-	
+		
 视图里面发送邮件：send_register_active_emial.delay(request.POST.get('emial'), username, token)
 2、
 处理者（worker）也要一分项目代码，代码看上面注释
@@ -682,7 +669,6 @@ def send_register_active_emial(to_emial, username, token):
 启动worker（任务处理者）不同电脑或同一台电脑： 在项目目录下：celery -A celery包名.py文件名  worker  -l  日志等级（info）
 在windows下要安装：pip install eventlet, 启动：celery -A celery_tasks.tasks worker -l info -P eventlet
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 	
 django前后端分离：  drf
 安装：pip install djangorestframework
@@ -695,8 +681,7 @@ from rest_framework import serializers  # 序列化器
 class QbSerializers(serializers.Serializer):
     id = serializers.IntegerField()
     text = serializers.CharField()
-	
-	
+
 # 通过模型生成序列化器
 from app.models import Data
 
@@ -713,7 +698,7 @@ class QbSerializers(serializers.ModelSerializer):
     class Meta:
         model = Data       # 模型类
         # fields = '__all__'            # 所有字段
-        # fields = ['id', 'text']         # 自定义需要的字段，使用列表或元组： fields = ('id', 'text')
+        # fields = ['id', 'text']       # 自定义需要的字段，使用列表或元组： fields = ('id', 'text')
         exclude = ['id']         # 排除的字段
 
     # 单字段验证：validate_字段名，value为字段形参
@@ -732,8 +717,6 @@ class QbSerializers(serializers.ModelSerializer):
         if re.search(r'反政府', attrs['text']):  # 如果有不允许的字样，抛异常
             raise serializers.ValidationError('有不允许的字')
         return attrs
-
-	
 	
 views.py下
 
@@ -741,7 +724,6 @@ from rest_framework.generics import GenericAPIView  # 类视图要继承的父类
 from app.models import Data  # 数据表模型
 from app.serializers import QbSerializers  # 自定义的序列号类
 from rest_framework.response import Response  # 响应
-
 
 # 从数据库查询，转换成json数据传递给前端（序列化）
 class InfoView(GenericAPIView):
@@ -778,7 +760,6 @@ class InfoView(GenericAPIView):
         # 以json格式返回给前端
         return Response(ds.data)
 
-
 # 接受前端传过来的json数据，转换成对象存入数据库（反序列化），这里需要用到验证
 class AddView(GenericAPIView):
     queryset = Data.objects.all()
@@ -792,10 +773,10 @@ class AddView(GenericAPIView):
         if ds.is_valid():
 
             # 验证通过，保存到数据库
-            ds.save()  # 调用的时create，直接创建并保存
+            ds.save()  # 调用的是create，直接创建并保存
             return Response({"code": 1, 'msg': 'ok'})
         else:
-            # 每通过，返回错误信息
+            # 没通过，返回错误信息
             return Response({'code': 0,'msg': ds.errors})
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -837,7 +818,6 @@ REST_FRAMEWORK = {
 authentication_classes = (MyAuthentications,)
 
 
-	
 权限
 myPermissions.py
 
@@ -877,8 +857,7 @@ class MyThrottle(SimpleRateThrottle):
         else:
             return 1  # 返回其他，有限制
 
-
-			
+		
 在视图类里局部节流
 throttle_classes = (MyThrottle,)
 

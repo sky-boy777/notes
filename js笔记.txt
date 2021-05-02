@@ -1,4 +1,4 @@
-弱类型或动态语言，解释性语言
+弱类型或动态语言，解释性语言，隐式转换
 行内、内嵌、外部
 单行注释//，多行/**/
 ；分号结束
@@ -35,7 +35,7 @@ var  name, age=18;   声明多个
 字母、数字、下划线、$，大小区分，不能数字开头，不能关键字，保留字
 驼峰命名法：myNameIs
 不能有空格
-不要用name做变量名，有特殊含义
+不要用name做变量名，有特殊含义，window.name为""
 ----------------------------------------------------------------------
 数据类型：
 赋值后确定变量类型，根据等号右边值判断，重新赋值类型也会变
@@ -109,7 +109,7 @@ e++ + ++e =22：10  12
 
 短路运算：
 123 && 456   返回456
-0 && 123       返回 123，0为false
+0 && 123       返回 0，0为false
 或运算返回true那个
 
 赋值：%=、+=、-+、/=
@@ -126,7 +126,7 @@ if (条件表达式) {
 switch语句：
 执行效率比 if 语句高
 switch（表达式）：{
-    case value1：// 要全等于
+    case value1：// 要全等于===
              语句1；
              break；
     default：
@@ -235,7 +235,9 @@ for (i  in  obj){
 
 Math:
 随机数random()返回 [0, 1) 浮点数、PI、max()、min()、abs()、round()、向下取整floor()、向上取整ceil()
-随机整数公式：return Math.floor(Math.random() * (max - min + 1)) + min;
+随机整数公式：
+return Math.floor(Math.random() * (max - min + 1)) + min;
+       向下取整floor(0.874*(20-10+1)) + 10 == 19
 
 Date：
 var data = new Date()  // 返回当前时间
@@ -264,6 +266,7 @@ push(元素)  末尾推入，返回长度
 unshift(元素)     开头加入，返回长度
 pop()    末尾弹出，返回弹出元素，一次一个
 shift()   开头弹出，返回弹出元素，一次一个
+arr.splice(2, 3，'e', 'b')      从下标2的位置删除3个元素，并从2的位置插入值e跟b（可选）
 sort(排序的fun)    排序
 indexOf(元素)     返回第一个满足的索引，没有返回 -1
 lastIndexOf(元素)   从后往前找索引
@@ -303,7 +306,7 @@ ul.getElementsByTagName('li')     获取元素里面的元素
 
 H5新增：
        getElementsByClassName('类名')
-       document.querySelector('#id、.class')   获得第一个
+       document.querySelector('#id')   获得第一个
        document.querySelectorall()   返回所有选择到的，伪数组
 
 获取特殊元素：
