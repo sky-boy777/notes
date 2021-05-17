@@ -37,7 +37,7 @@ OSI七层:
 包：头head+数据data，一层层加头：以太网头+ip头+tcp头+应用层头+应用层数据
 ARP协议：将IP地址解析成mac地址
 端口port：0~65535
-IP+mac：唯一标识一台计算机，加端口号能唯一标识一台计算机的应用
+IP+mac地址：唯一标识一台计算机，加端口号能唯一标识一台计算机的应用
 路由协议
 
 tcp三次握手：
@@ -439,7 +439,7 @@ python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 g = (i for i in range(10))
 next(g) <==> 0
 
-width open('aa.txt', 'r') as f:
+with open('aa.txt', 'r') as f:
     g = (i for i in f)  # 生成器方法读取文件，效率最高
 
 迭代器：不依赖索引取值，基于上一次的结果继续，需要时创建一个值，节省内存空间，生成循环。
@@ -503,7 +503,7 @@ index（'值'）        第一次出现位置的索引
 remove（'值'）    删除首个出现的值
 copy()                  复制
 reverse()              反转
-sort(reverse=True，key=func)       升序排序，  reverse=True降序，key排序的函数
+sort(reverse=True，key=func)       排序，  reverse=True降序，key排序的函数
 列表比较：
 元素依次比较
 数字跟字符串比较会报错
@@ -590,6 +590,10 @@ fun(1, 2)
 
 方式二：res = (lambda x:x+1)(2)   相当于立即执行函数
 方式三：[lambda x: x+1 for i in range(10)]
+
+类型提示：
+def fun(name:str, age:int)->int:        
+    pass
 ------------------------------------------------------
 def func():
     print(x)
@@ -669,6 +673,14 @@ test()
 ------------------------------------------------------------------
 help(对象)  查看帮助信息
 
+绝对导入：从包开始
+相对导入：从当前位置开始，不能超出包的位置
+循环导入问题
+
+print(__file__)  # 当前文件的绝对路径
+
+判断文件是否存在：os.path.exists(文件路径)
+删除文件：os.remove(文件路径)
 
 
 

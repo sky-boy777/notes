@@ -803,7 +803,7 @@ systemctl  start  nginx  启动
     备份数据库（注意：要在cmd下执行）：mysqldump -u root -p 数据库名 > flask_blog.sql
     导入数据库：mysql -u root -p flask_blog < flask_blog.sql
 2、在服务器安装python，mysql，nginx，创建虚拟环境
-3、ssh上传项目:scp -r flask_blog byc@47.112.208.199:/home/byc/flask，  安装号项目需要的python包，pip install uwsgi
+3、ssh上传项目:scp -r flask_blog byc@47.112.208.199:/home/byc/flask，  安装好项目需要的python包，pip install uwsgi
 
 WSGI一种协议
 uWSGI服务器

@@ -1,0 +1,59 @@
+分布式版本控制
+多人同时开发
+
+git clone ...git                    克隆
+git push origin 分支名称    推送到远程库
+git pull origin 分支名称      拉取远程库
+或
+git push
+git pull
+
+编辑文件都在工作区
+进入一个文件夹执行命令：git init   初始化一个版本库
+git reflog                       查看操作记录
+
+git add 文件或目录         将修改放入暂存区
+git commit -m '提交'      把暂存区的所有修改提交，做一次版本记录
+
+git status                        查看状态   
+git log                            查看版本记录
+
+  撤销修改
+git checkout --文件    工作区的撤销
+git reset HEAD 文件    暂存区的撤销
+git checkout --文件     暂存区的撤销
+已提交的使用版本回退
+      
+版本回退
+git reset --hard HEAD^           前一个^,前两个^^
+git reset --hard 版本序列号
+
+对比文件不同
+git diff HEAD --文件                         工作区和版本库的文件对比
+git diff HEAD HEAD^  --code.txt     两个版本中文件的对比
+
+删除文件
+rm 文件
+git rm 文件
+git commit
+
+分支
+git branch                    查看当前在哪个分支下工作
+git branch dev             创建dev分支
+git checkout  dev         切换到dev分支
+git checkout -b dev     创建并切换到一个新分支
+git branch -d dev         删除dev分支
+git merge dev              合并某分支到当前分支
+合并时可能产生分支冲突，需要手动解决
+git merge --no-ff -m '不使用快速提交'
+git stash              把当前工作现场存起来，后面再恢复现场
+git stash list         列出保存的工作现场
+git stash pop       恢复工作现场
+
+
+
+
+
+
+
+
