@@ -40,10 +40,6 @@ linux严格区分大小写
 查看文件内容：cat，more，head，tail，less
 du -sh 文件    统计大小
 
-定时任务：
-*   *    *  *    *
-分 时 日 月 星期
-
 命令 [-选项] [参数]
 ls
 ls -a 显示隐藏文件
@@ -52,6 +48,8 @@ ls -l  显示文件详细信息
 文件类型："-"二进制文件，"d"目录，"l"软连接文件
 ls -lh    文件大小用K显示
 ls -ld     显示当前目录的信息
+
+head [选项]  默认显示前10条，head 5   前五条
 
 mkdir 目录1 目录2
 -p    递归创建多级目录
@@ -62,6 +60,9 @@ rm -rf 文件或目录，-r删除目录，-f强制删除，不提示
 rm "目   录"      删除中间有空格的目录或文件 
 
 touch创建文件，或vi，vim
+
+whoami    我是谁
+who am i   详细一点我是谁
 
 链接link：
 ln 源文件 目标文件，-s软链接
@@ -98,7 +99,7 @@ find [搜索范围] [匹配条件]
 -cmin  -5                 5分钟内被更改过的文件属性
 -mmin  文件内容
 条件查找
--a    and：find  / i* -a a*       与                   
+-a    and：find  / i*   -a    a*       与                   
 -o    or
 -type    根据文件类型查找
 -inum   根据i节点查找
@@ -125,12 +126,14 @@ date  输出时间或配置时间
 df -h   查看分区的情况
 
 压缩解压：
+gzip 只能压缩文件，不保留源文件
 gzip 文件               压缩，文件.gz
 gunzip 文件.gz      解压  
-gzip 只能压缩文件，不保留源文件
 
 tar -cvf  文件名.tar  要压缩的文件         -c打包，-v显示详细信息，-f文件名（必须）
 tar -xvf  文件名.tar                                 解压
+
+tar -zcvf  文件名.tar.gz 要压缩的文件     压缩   
 tar -zxvf   aa.tar.gz                                -x解包，-f指定解压文件，-z解压缩.tar.gz文件
 
 zip -r  aa.zip   aa                                   -r压缩目录，保留源文件
@@ -166,7 +169,7 @@ shutdown [选项] 时间
 -r 重启
 关机：halt，poweroff，init 0
 重启reboot，init 6
-系统运行级别1~6：init 0~6
+系统运行级别0~6：init 0~6
 logout ：退出登录
 
 vi跟vim：
@@ -187,7 +190,7 @@ vi跟vim：
     :r !命令
     :set nu   显示行号
 插入模式
-编辑模式
+末行模式
 
 软件包管理：
 1、源码包：脚本安装包，可以看到源代码
@@ -217,10 +220,10 @@ grounpremove  软件组名           卸载软件组
 
 源码包安装一般放在/usr/local/下面
 /etc/rc.d/init.d/xxx start     绝对路径开启服务，源码包安装方式
-service xxx start                 开启服务，rpm包安装
+service xxx start                 开启服务，rpm包安装方式
 
 make               编译
-make insatll     编译安装
+make install     编译安装
 源码安装的只要直接删除目录就是卸载了
 
 脚本安装包
@@ -257,10 +260,6 @@ uptime       linux连续运行时间
 groupadd 组                        添加组
 groupmod [选项] 组名         修改用户组 
 groupdel  组名                     删除，不允许有初始用户存在
-
-whoami：我是谁
-
-权限管理：
 
 文件系统管理：
 df -a               查看所有分区， -a
@@ -414,16 +413,105 @@ while [ 条件表达式 ]        条件成立循环
 
 until [ 条件表达式 ]         条件不成立循环
 
+------------------------------------------------
+服务分类：rpm安装服务，源码包安装服务
+chkconfig --list    查看服务自启动状态，查看所有rpm包安装的服务
+独立服务的启动：
+1、service 独立服务名  start/stop/restart/status
+2、/etc/init.d/独立服务名 start/stop/restart/status       红帽
+service --status-all         列出所有rpm包的服务状态
+
+自启动：
+1、chkconfig [--level 运行级别2345] [独立服务名] on/off   
+2、ntsysv   管理自启动，不能管理源码包服务，红帽专有
+3、修改/etc/rc.d/rc.local文件管理自启动，推荐
+
+rpm包安装服务基于xinetd（超级守护进程）服务，了解，现在很少了
+
+源码包安装服务的启动：
+使用绝对路径启动，可以查看安装说明查看启动方法
+绝对路径/启动脚本 start/stop
+--------------------------------------------------------------
+进程管理：
+判断服务器健康状态
+查看系统所有进程：
+ps aux    BSD操作系统格式前面不要加-，     linux标准命令格式：   ps -le
+top   默认三名刷新一次
+top [选项]              -d指定更新秒数
+pstree                    显示进程树
+kill -l                       显示所有信息
+kill [-9]  进程号        -9强制杀死进程
+killall  [选项][信号] 进程名        按进程名杀死进程 ，-i询问，-I忽略大小写
+pkill  [-9]  进程名                     -t按终端号踢出用户          
+w                                            查看已登录用户   
+
+工作管理：
+放入后台，命令后添加 &符号，ls &
+&后台运行，ctrl+z后台暂停
+jobs [-l]         查看后台的工作，-l显示pid
+fg  [%]工作号        后台暂停的工作恢复到前台执行
+bg [%]工作号         放到后台执行
+top跟vi不能恢复到后台执行，因为这个有跟用户交互
+
+系统资源查看：
+vmstat [刷新延时 刷新次数]             监控系统资源
+dmesg                                            查看开机时内核检测信息 ，dmesg | grep CPU
+free []                                              查看内存使用状态
+cat /proc/cpuinfo                           查看cpu信息
+uptime                                            查看系统运行了多长时间
+uname [选项]                                  查看系统与内核相关信息，-a查看所有，-r查看内核，-s查看内核名称
+file /bin/ls                                      判断当前系统位数
+lsof [选项]                                      列出进程使用或打开的文件信息，-c字符串，-u用户名，-p pid
+
+系统定时任务：
+crond
+service crond start       启动
+chkconfig crond on      自启动
+crontab [选项]               -e编辑crontab定时任务，-l查询crontab任务，-r删除当前用户所有的crontab任务
+
+*   *    *   *    *
+分 时  日 月 星期
+逗号表示不连续时间，-号表示连续时间，*/n每隔多久执行一次
+0 5 1,15 * *     每月1号和15号凌晨5点0分执行命令
+40 4 * * 1-5    每周一到周五的凌晨4点40分执行命令
+*/10 4 * * *     每天凌晨4点，每10分钟执行一次
+
+0 5 1,15 * * /sbin/shutdown -r now     每月1号和15号凌晨5点0分执行重启命令
+
+日志管理：
+/var/log/xxx         日志存放目录
+lastb         查看二进制文件
+lastlog      最后一次登录的用户
+last           查看用户的登录、注销信息、系统重启关机事件
+
+rsyslogd日志服务：
+
+运行级别：
+init 0-6   改变运行级别
+runlevel   查看当前，最后一个，前一个表示上一次的运行级别
+
+备份与恢复：
+增量备份，完全备份
+dump [选项] 备份后的文件名  源文件或目录
+-0-9级别
+
+restore [模式选项] [选项]
+四种模式：
+-C比较
+-i进入交互模式
+-t查看模式
+-r还原
+
+选项：-f指定备份文件的文件名
 
 
+服务管理：
+service 服务名 start、 stop、 restart、 reload、 status
+centos7.0后使用systemctl
 
+防火墙：iptables
 
-
-
-
-
-
-
+telnet ip地址 端口                          测试某个端口
 
 
 

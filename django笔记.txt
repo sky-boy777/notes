@@ -74,6 +74,7 @@ all()                全部
 filter(条件)     满足条件的
 exclude(条件)    不满足条件的
 User.objects.filter().order_by('-id')  结果排序,降序加减号
+User.objects.filter().count()             计数
 
 查询集：惰性查询：实际使用才查询。缓存：第一次查询时缓存起来
 
@@ -141,18 +142,19 @@ dataType：预期返回的数据类型
 date：'Y年-m月-d日'  格式化日期
 length  长度
 default  默认值，管道前为False时使用
-
+---------------------------------------------------------------------
 自定义过滤器：
 在项目目录下新建python包：名字必须是templatetags
-使用时先加载：{% load filters %}
-导入Library
+使用时先加载：{% load 过滤器模块名 %}      # py文件
+导入：
+from django.template import Library
 
 register = Library()
 
-@register.filter
+@register.filter(name='过滤器名字，没有则用函数名')
 def xxx(num)  最多两个参数，最少一个
     return num%2 == 0
-
+---------------------------------------------------------------------
 多行注释：
 {% comment %}
 {% endcomment %}
@@ -193,9 +195,7 @@ request.META['REMOTE_ADDR']  获取请求的ip地址
 3、固定的方法：
     1、__init__:      服务器启动后第一个请求调用，只一次
     2、process_request(self, request):     产生请求对象，进行url匹配前调用
- url匹配
     3、process_view(self, request, view_func, *args, **kwargs)  每个请求前调用
- 调用视图函数
     4、process_response(self, request, response):   调用视图后，返回浏览器之前调用
                  return response
     process_exception(self, request, exception):   视图函数出现异常时调用，***调用顺序跟注册顺序相反
@@ -1006,15 +1006,16 @@ django允许跨域的处理, 在settings下配置
 # 处理跨域请求
 CORS_ALLOW_CREDENTIALS = True  # 允许将cookie包含在跨站点HTTP请求中。默认为False。
 # 以下两个二选一就行
-# CORS_ORIGIN_ALLOW_ALL = True  # 为True表示允许所有主机，将不使用白名单,默认为False,
-# 跨域请求白名单(可以跨域请求的主机或域名)
+# 1、CORS_ORIGIN_ALLOW_ALL = True  # 为True表示允许所有主机，将不使用白名单,默认为False
+
+# 2、跨域请求白名单(可以跨域请求的主机或域名)
 CORS_ORIGIN_WHITELIST = [  
     # 'https://sub.example.com',  # URI方案+主机名+端口，或特殊值'null'或 'file：//'之一。默认端口（HTTPS = 443，HTTP = 80）在此处是可选的。
     'http://localhost',
     'http://127.0.0.1:8000',
 ]
 
-CORS_ALLOW_METHODS = [  # 允许的请求方式
+CORS_ALLOW_METHODS = [       # 允许的请求方式
     'DELETE',
     'GET',
     'OPTIONS',

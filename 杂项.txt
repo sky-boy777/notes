@@ -112,5 +112,7 @@ function (msg) {
 35、快速排序：low、height游标，一个mid值，大的放在右边，小的放在左边，再递归执行快排
 36、二叉排序数：根左边的小，右边大
 37、人工智能方面网站：图灵机器人、科大讯飞、百度api
-38、cmd-->tasklist查看进程，linux使用ps -aux
+38、cmd-->tasklist查看进程，linux使用ps aux
+39、缓存，缓冲区别：缓存cache用来加锁数据从硬盘 "读取"，缓冲buffer用来加速数据 " 写入"硬盘
+40、3V：海量Volume、多样Variety、实时Velocity。3高：高并发、高可扩、高性能
 

@@ -1,100 +1,144 @@
-k-v形式数据
-C语言编写
-支持网络
-基于内存（数据在内存中），支持持久化
-支持数据备份、主从
+redis：REmote DIctionary Server（远程字典服务器）
+完全开源免费，C语言编写，遵守BSD协议
+一个高性能的k-v形式分布式内存数据库，基于内存（数据在内存中），支持持久化的NoSQL数据库
+也被称为数据结构服务器
+
+特点：
+支持数据持久化，将内存中的数据保存在磁盘，重启的时候加载使用
+不仅仅支持简单的key-value类型（string）的数据，还提供list，set，zset，hash等数据结构的存储
+支持数据的备份，即master-slave模式的数据备份
+
+中文：http://www.redis.cn/
+
 读110000次每秒，写81000
 原子性操作，支持几个操作合并后原子性执行
 key过期时间
+单进程
+
+关系型数据库有ACID，NoSQL数据库有CAP
+CAP：Consistency强一致性、Availability可用性、Partition tolerance分区容错性
 
 应用场景：
 缓存
 
 6379端口号
 默认16个数据库，0-15
+索引从0开始
 
 安装：
 wget 包
 解压
 
 启动、停止、重启：
-service redis start
+service redis start    
 stop
 restart
 kill -9 进程id
 
 客户端：redis-cli
-测试：ping
-切换数据库： select  3
 
-数据类型：
-list
-set
-zset  有序集合
-hash  哈希
-string
+http://redisdoc.com/      redis命令参考大全
+
+五大数据类型：
+**list              列表，底层的链表
+**hash           哈希，键值对集合，一个string类型的field的value的映射表，适合存储对象
+**string          字符串，一个key对应一个value，value最多是512M
+set                  集合，无序无重复，它是通过HashTable实现的
+zset                有序集合，每个元素都会关联一个double类型的分数，通过这个数升序排序
+                       成员唯一，分数可重复
 ----------------------------------------------------------------------------
-string：
-最多512M
+测试：ping
+select  3           切换数据库
+dbsize               查看当前数据库的key的数量
+keys *                查看当前数据库的key的数量 
+keys f*               支持通配符
+flushdb              清空当前库
+flushall               清空全部库（慎用）
+help                    帮助
 
-设置：
-set key value
-setex key  秒数  value   过期时间
-mset k1 v1 k2 v2  设置多个
-append key value  追加
+redis键：
+clear                   清屏
+move  k  2          k移动到2号库
+expire k  秒         给键设置过期时间
+ttl key                  查看还有多少秒过期
+type key              查看key是什么类型
+del key                 删除
+incr key                数字加1，一定要数字，下同
+decr key               减1
+incrby key 3          加3
+decrby key 3         减3
+
+string：
+getrange key start end                   截取，0到-1表示全部
+setrange key start end                    替换
+set key value                                   设置，会覆盖
+setex key  秒数  value                     同时设置过期时间
+setnx key  value                              设置，如果key不存在
+mset k1 v1 k2 v2                             设置多个
+msetnx k1 v1 k2 v2                          不存在则设置
+append key value                            追加
 
 获取：
 get key
-mget k1 k2
-
-keys * 查看所有
-keys 'a*'  查看以a开头的
-exists key  判断是否存在 1存在，0
-type key   对应值类型
+mget k1 k2                                获取多个
 
 删除：
-del key1  key2  多个删除
-expire key  秒数    设置过期时间
-ttl key  查看剩余时间
+del key1  key2                 多个删除
 
 ----------------------------------------------------------------------------------
 hash：
+kv模式，但v是一个键值对
 用于存储对象，结构：属性、值(必须string类型)
+
 设置单个：
 hset key field value
-hset  user   name   张三
-hset  user   age   18
-多个：
-hset  kye   field value field value
+hset user name 张三
+hsetnx key age 18                                    不存在则添加
+hset  kye   field value field value              设置多个
 
 获取：
-hkeys  key  获取属性
-hget  key   field  获取值
-hmget key  filed filed...    获取多个值
-hvals  key   获取对应key所有属性值
+hkeys  key                                 获取属性
+hget  key   field                         获取值
+hmget key  filed filed...             获取多个值
+hvals  key                                  获取对应key所有属性值
+hkeys key                                  所有key
+hgetall key                                获取全部
 
 删除：
 del key
-hdel key  f1   f2..
+hdel key f1 f2..
+
+hlen key                          获取个数
+hexists key k1                 是否存在
+hincrby key age 2           key里面的age加2
+hincrbyfloat key age 0.5    加浮点数
 
 -------------------------------------------------------------------------
 list:
 里面元素为str类型
 按插入排序
 
+lpop key                  左边弹出一个
+rpop key
+
 插入：
-linsert key berfore或after   哪个元素    要插入的元素
-linsert key berfore b  4   在b前面插入3
-左：lpush 列表对应key   v1  v2...
-右：rpush 列表对应key   v1  v2...
+linsert key berfore/after b  4                在b前面或后面插入3
+左：lpush key   v1  v2...
+右：rpush key   v1  v2...
+lset key 2 value                                     给key中索引为2的设置值value
 
 获取：
-lrange key  开始  结束位置        包括开始结束位置
+lrange key start end          包括开始结束位置，0到-1全部
 lrange key  0 -1  全部
 设置指定索引值：lset  key  4  value
+lindex key 2                                    按索引2获取
+llen key                                            长度
 
 删除：
-lrem  key   3  value
+lrem  key 3 value                        删除3次value
+ltrim key1 start end                   截取，然后重新赋值给key1
+rpoplpush 源列表 目的列表        从原列表弹出一个插入目的列表
+
 数字为删除的的个数
 大于0从头往尾
 小于0相反
@@ -108,11 +152,22 @@ string类型
 
 添加：
 sadd  key(集合名字)   v1  v2...
+smove k1 k2 num                           将k1里的值num移动到k2
+
 获取：
-smembers key  所有
+smembers key                       获取所有
+sismember key member        查看是否有指定member 
+scard key                                获取集合元素个数
+srandmember key count       随机获取count个数
 
 删除：
-srem  key   v1 v2...
+del key
+srem key v1 v2...
+spop key count               随机弹出count个，没有默认弹出一个
+
+差集：sdiff key1 key2         在第一个不在第二个的
+交集：sinter
+并集：sunion
 -------------------------------------------------
 zset:
 有序
@@ -125,15 +180,222 @@ string类型
 zadd  key  权值  v1  权值  v2  ...
 
 获取：
-zrange  key  start  stop     -1最后一个
-zrangebyscore   key   min  max     权值范围获取
-
-zscore  key   value   查看成员权值
+zrange key start stop                       0到-1
+zrangebyscore key min max            权值范围获取
+zcard key                                          获取个数
+zcount key min max                         获取范围内的个数
+zrank key num                                  获取num下标  
+zscore  key   value                            查看成员权值
+zrevrange key 0 -1                            逆序获取下标
+zrevrangebyscore key min max        范围内获取权值
 
 删除：
-zrem  key   v1   v2...
+zrem  key v1 v2...
 zremrangebyscore  key   min   max   权值范围之间删除
 --------------------------------------------------------------------------------------------------------
+命令行：
+config get requirepass                         查看密码
+config set requirepass '123456'           设置密码
+auth 123456                                         认证
+config get dir                                        获取在哪个路径启动
+save                                                       只管保存，其余不管，全部阻塞
+bgsave                                                   redis会在后台异步进行快照操作，同时还可以响应客户端
+                                                               请求。lastsave命令获取最好一次成功执行快照的时间
+shutdown                                              关闭redis服务
+
+*****配置文件：
+redis.conf
+1K => 1000 bytes
+1Kb => 1024 bytes
+
+daemonize yes
+
+过期策略：
+volatile-lru：LRU最近最少使用算法移除key，只对设置了过期时间的键
+allkeys-lru：使用LRU算法移除key
+volatile-random：在过期集合中移除随机的key，只对设置了过期时间的键
+allkeys-random：移除随机的key
+volatile-tty：移除那些ttl值最小的key，即那些最近要过期的key
+noeviction：不移除，针对写操作，只是返回错误信息（一般不使用）
+
+maxmemory-samples 5             样本数量，默认5，redis检查5个样本并选择lru那些
+
+常见配置：
+daemonize yes                           yes表示启用守护进程，默认不启用
+pidfile /var/run/redis.pid            守护进程方式运行时，pid默认写入的文件
+port 6379                                    端口号
+bind 127.0.0.1                             绑定的主机地址
+timeout 300                                客户端闲置后多长时间关闭连接，0表示关闭该功能
+loglevel verbose                         日志级别debug、verbose、notice、warning
+logfile stdout                               日志记录方式
+databases 16                               设置数据库数量
+保存快照：
+save 900 1                                   900秒修改了一次
+save 300 10
+save 60 10000
+save ""                                         不保存快照
+
+dbfilename dump.rdb                  指定本地数据库文件名
+dir ./                                              指定本地数据库存放目录
+slaveof <masterip> <masterport>     设置本机为slav服务时，redis启动时自动从master同步数据
+masterauth <master-password>        当master服务设置了密码保护时，slav服务连接master的密码
+requirepass foobared                          设置redis连接密码，客户端使用auth <password>命令提供密码
+maxclients 128                                     最大客户端连接数量，0不作限制，达到数量会关闭新的连接
+maxmemory <bytes>                          指定reids最大内存限制，vm机制把key放入内存，value放在swap区
+appendonly yes                                   是否每次更新操作后进行日志记录
+appendfilename "appendonly.aof"        指定更新日志文件名
+
+appendfsync eerysec                           指定更新日志条件，共三个可选值
+no：表示等操作系统进行数据缓存同步到磁盘（快）
+always：每次更新操作后手动调用fsync()将数据写入磁盘（慢，安全）
+everysec：每秒同步一次（折中，默认值）
+
+
+持久化：aof和rdb
+rdb（Redis DataBase）：
+官网介绍：在指定的时间间隔内将内存中的数据集快照写入磁盘，行话Snapshot快照，恢复时将快照文件直接
+读到内存里。
+是什么：
+redis会单独创建（fork）一个子进程来进行持久化，先将数据写入到一个临时文件，待持久化过程结束
+再用这个临时文件替换上次持久化好的文件。整个过程中，主进程是不进行任何IO操作的，这就确保了
+极高的性能。如果进行大规模数据的恢复，且对于数据恢复完整性不是非常敏感的，那rdb方式要比aof
+方式更加高效，rdb的缺点是最好一次持久化后的数据可能丢失。
+
+fork的作用是复制一个与当前进程一样的进程。新进程的所有数据（变量、环境变量、程序计数器等）
+数据都和原进程一致，但是是一个全新的进程，并作为原进程的子进程
+
+rdb保存的是dump.rdb文件
+
+aof：
+官网介绍：以日志的形式记录每个写操作，将redis执行过的所有写指令记录下来，读不记录，只允许
+                 追加文件但不可以改写文件redis启动之初会读取该文件重新构建数据，换言之，redis重启
+                 的话就根据日志文件的内容将写指令从前到后执行一次以完成数据的恢复工作
+劣势：
+相同数据集的数据而言aof文件要远大于rdb文件，恢复速度慢于rdb，aof运行效率慢于rdb，每
+秒同步策略效率较好，不同步效率和rdb相同
+
+小总结：
+aof文件是一个只进行追加的日志文件，redis在aof文件体积变得过大时，自动在后台多aof进行重写
+aof文件有序的保存了对数据库执行所有写入操作，这些写入操作以redis协议的格式保存，因此aof
+文件的内容非常容易被人读懂，对文件进行分析也很轻松
+
+对于相同的数据集来说，aof文件的体积通常要大于rdb文件，根据所使用的fsync策略，aof的速度可
+能会慢于rdb
+
+
+大总结：
+1、rdb持久化方式能够在指定的时间间隔对你的数据进行快照存储
+2、aof持久化方式记录每次对服务器的写操作，当服务器重启的时候会重新执行这些命令来恢复原始的数据，
+aof命令以redis协议追加保存每次写的操作到文件末尾。redis还能对aof文件进行后台重写，使得aof文件
+的体积不至于过大
+3、只做缓存：如果你希望你的数据在服务器运行的时候存在，你也可以不使用任何持久化方式
+4、同时开启两种持久化方式
+      当redis重启的时候会优先载入aof文件来恢复原始数据，因为一般情况aof文件保存的数据集比rdb完整
+      rdb的数据不实时，同时使用两者时服务器重启也只会找aof文件，建议同时使用两种，因为rdb更适合
+      用于备份数据库（aof在不断变化不好备份），快速重启，而且不会有aof可能潜在的bug，留着作为一
+      个万一的手段
+5、性能建议
+一般rdb文件只保留一份，15分钟备份一次就够了，只保留save 900 1这条规则
+enalbe aof，最恶劣情况也只丢失不超过两秒的数据，启动脚本简单load自己的aof文件就可以了，代价是带
+来持续io，应该尽量减少aof rewrite的频率，aof重写的基础大小64M太小，改为5G以上
+如果不用enable aof，仅靠主从复制实现高可用性也可以，可以省掉一大笔io，也减少了
+rewrite时带来的系统波动，代价是如果主从同时down掉，会丢失十几分钟的数据，启动
+脚本也要比较两个master/slave中的rdb文件，载入较新的那个，新浪微博使用了这种架构
+
+事务：
+是什么：一次可以执行多个命令，本质是一组命令的集合。一个事务中的所有命令都会序列化，按顺序地串化
+执行而不会被其它命令插入，不许加塞
+
+能干嘛：一个队列中，一次性、顺序性、排他性的执行一系列命令
+
+面试：redis部分支持事务
+
+redis事务命令：
+discard                       取消事务
+exec                           提交事务，执行所有事物块内的命令
+multi                          开启事务，标记一个事务块的开始
+unwatch                    取消watch命令对所有key的监控
+watch key [key...]      监控一个或多个key，如果在事务执行之前这个key被其它命令所改动，则事务被打断
+
+三阶段：开启multi、入队queue命令不会执行直到exec、执行exec
+三特性：
+1、单独的隔离操作：事务中的所有命令都会序列化、按顺序地执行。事务在执行的过程中，不会被其它客户端
+发送来的命令请求打断
+2、没有隔离级别的概念：队列中的命令没有提交之前都不会在实际的被执行，因为事务提交前任何指令都不会
+被实际执行，也就不存在"事务内的查询要看到事务里的更新，在事务外查询不能看到"这个问题
+3、不保证原子性：redis同一个事物中如果有一条命令执行失败，其后的命令仍然会执行，没有回滚
+
+multi    开启事务
+一些命令
+exec      提交事务
+
+wacth监控：
+乐观锁
+悲观锁
+CAS
+先监控watch key再开启事务multi，如果期间别人改了key，在最后提交事务的时候会返回nil，类似乐观锁
+
+
+redis的发布订阅（了解）：
+是什么：进程间的一种通信模式，发送者pub发送消息，订阅者sub接收消息
+subscribe k1 k2           订阅，当有新消息时会收到
+psubscribe k*              通配符订阅多个
+publish k1 v1              发布
+
+-----------------------------------------------------------------------------------
+主从备份：
+是什么：行话：主从复制，主机数据更新后根据配置和策略，自动同步到从机的机制。master写为主，slave读为主
+能干嘛：读写分离、容灾备份
+
+打开从机配置修改：
+修改端口号不能跟主相同，6380
+slaveof  主ip  主port
+
+ info replication      查看主从情况
+
+从机只能读，不能写，不然跟主的数据不一样，主机down掉，从机原地待命，不会上位，从机死了，重启
+需要重新连接（ SLAVEOF host port），除非你配置进redis.conf文件
+
+SLAVEOF host port          从机连接主机
+SLAVEOF no one             使当前机器设置为master主，用在主机挂了的时候
+
+
+复制原理：
+slave启动成功连接到master后会发送一个sync命令，master接到该命令后启动后台的存盘进程，同
+时手机所有接收到的用于修改数据集命令，在后台执行完毕之后，master将传送整个数据文件到slave，
+以完成一次完全同步。
+全量复制：而slave服务在接收到数据库文件数据后，将其存盘并加载到内存
+增量复制：master继续将新的所有收集到的修改命令依次传给slave完成同步
+但是只有重新连接master，一次完全同步（全量复制）将被自动执行
+
+
+***哨兵模式（sentinel）：
+后台监控主机是否故障，如果故障，根据投票数自动将从转为主
+
+新建sentinel.conf文件，名字不能错，写入：
+sentinel monitor 被监控数据库名字(自定义) 127.0.0.1 6379 1
+数字1表主键挂掉后slave投票看让谁成为主，票数多成为主
+
+之前的主回来后，会自动变为从
+一组sentinel能同时监控多个master
+
+启动哨兵：
+redis-sentinel /xx/sentinel.conf
+
+复制缺点：
+延时，由于所有的写操作都是先在master上操作，然后同步更新到slave上，所有从master同步
+到slave机器有一定延迟，当系统很忙的时候，延迟问题会更加严重，slave机器数量增加也会
+使这个问题更加严重
+
+
+集群：
+通过网络连接的计算机，共同对外提供服务，像一个独立的服务器
+软件层面：一台计算机，多个redis
+硬件层面：一个redis，多台计算机
+
+redis集群配置：
+
+-----------------------------------------------------------------------------------------------
 python交互：
 安装：pip   install   redis
 from redis  import StrictRedis
@@ -145,18 +407,11 @@ sr = StrictRedis(host='localhost', port=6379, db=0)     默认sr = StrictRedis()
 sr.delete(v1,v2)   返回删除的个数
 
 sr.keys()   获取所有键
------------------------------------------------------------------------------------
-主从备份：
-读写分离
-打开从配置修改：
-从使用6378端口号
-slaveof  主ip  主port
 
-集群：
-通过网络连接的计算机，共同对外提供服务，像一个独立的服务器
-软件层面：一台计算机，多个redis
-硬件层面：一个redis，多台计算机
-
-redis集群配置：
+管道操作：
+pl = sr.pipeline()
+pl.set()                 # 放入管道，不执行
+......
+pl.execute()        # 执行管道里的全部
 
 
