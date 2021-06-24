@@ -5,7 +5,7 @@ redis：REmote DIctionary Server（远程字典服务器）
 
 特点：
 支持数据持久化，将内存中的数据保存在磁盘，重启的时候加载使用
-不仅仅支持简单的key-value类型（string）的数据，还提供list，set，zset，hash等数据结构的存储
+不仅仅支持简单的key-value类型（string）的数据，还提供list，hash，set，zset等数据结构的存储
 支持数据的备份，即master-slave模式的数据备份
 
 中文：http://www.redis.cn/
@@ -18,8 +18,7 @@ key过期时间
 关系型数据库有ACID，NoSQL数据库有CAP
 CAP：Consistency强一致性、Availability可用性、Partition tolerance分区容错性
 
-应用场景：
-缓存
+应用场景：缓存，队列
 
 6379端口号
 默认16个数据库，0-15
@@ -30,9 +29,7 @@ wget 包
 解压
 
 启动、停止、重启：
-service redis start    
-stop
-restart
+service redis start | stop | restart
 kill -9 进程id
 
 客户端：redis-cli
@@ -40,7 +37,7 @@ kill -9 进程id
 http://redisdoc.com/      redis命令参考大全
 
 五大数据类型：
-**list              列表，底层的链表
+**list              列表，底层是链表
 **hash           哈希，键值对集合，一个string类型的field的value的映射表，适合存储对象
 **string          字符串，一个key对应一个value，value最多是512M
 set                  集合，无序无重复，它是通过HashTable实现的
@@ -50,7 +47,7 @@ zset                有序集合，每个元素都会关联一个double类型的
 测试：ping
 select  3           切换数据库
 dbsize               查看当前数据库的key的数量
-keys *                查看当前数据库的key的数量 
+keys *                列出当前数据库的key 
 keys f*               支持通配符
 flushdb              清空当前库
 flushall               清空全部库（慎用）
@@ -94,7 +91,7 @@ kv模式，但v是一个键值对
 hset key field value
 hset user name 张三
 hsetnx key age 18                                    不存在则添加
-hset  kye   field value field value              设置多个
+hset  key   field value field value              设置多个
 
 获取：
 hkeys  key                                 获取属性
@@ -122,24 +119,23 @@ lpop key                  左边弹出一个
 rpop key
 
 插入：
-linsert key berfore/after b  4                在b前面或后面插入3
+linsert key berfore/after b  4                在b前面或后面插入4
 左：lpush key   v1  v2...
 右：rpush key   v1  v2...
 lset key 2 value                                     给key中索引为2的设置值value
 
 获取：
 lrange key start end          包括开始结束位置，0到-1全部
-lrange key  0 -1  全部
-设置指定索引值：lset  key  4  value
-lindex key 2                                    按索引2获取
-llen key                                            长度
+lset  key  4  value               设置指定索引值
+lindex key 2                        按索引2获取
+llen key                              长度
 
 删除：
 lrem  key 3 value                        删除3次value
 ltrim key1 start end                   截取，然后重新赋值给key1
 rpoplpush 源列表 目的列表        从原列表弹出一个插入目的列表
 
-数字为删除的的个数
+数字为删除的个数
 大于0从头往尾
 小于0相反
 等于0全部移除
@@ -200,7 +196,7 @@ auth 123456                                         认证
 config get dir                                        获取在哪个路径启动
 save                                                       只管保存，其余不管，全部阻塞
 bgsave                                                   redis会在后台异步进行快照操作，同时还可以响应客户端
-                                                               请求。lastsave命令获取最好一次成功执行快照的时间
+                                                               请求。lastsave命令获取最后一次成功执行快照的时间
 shutdown                                              关闭redis服务
 
 *****配置文件：
@@ -211,12 +207,12 @@ redis.conf
 daemonize yes
 
 过期策略：
-volatile-lru：LRU最近最少使用算法移除key，只对设置了过期时间的键
-allkeys-lru：使用LRU算法移除key
-volatile-random：在过期集合中移除随机的key，只对设置了过期时间的键
-allkeys-random：移除随机的key
-volatile-tty：移除那些ttl值最小的key，即那些最近要过期的key
-noeviction：不移除，针对写操作，只是返回错误信息（一般不使用）
+volatile-lru：          LRU（最近最少使用）算法移除key，只对设置了过期时间的键
+allkeys-lru：           使用LRU算法移除key
+volatile-random： 在过期集合中移除随机的key，只对设置了过期时间的键
+allkeys-random：  移除随机的key
+volatile-tty：          移除那些ttl值最小的key，即那些最近要过期的key
+noeviction：          不移除，针对写操作，只是返回错误信息（一般不使用）
 
 maxmemory-samples 5             样本数量，默认5，redis检查5个样本并选择lru那些
 
@@ -227,8 +223,9 @@ port 6379                                    端口号
 bind 127.0.0.1                             绑定的主机地址
 timeout 300                                客户端闲置后多长时间关闭连接，0表示关闭该功能
 loglevel verbose                         日志级别debug、verbose、notice、warning
-logfile stdout                               日志记录方式
-databases 16                               设置数据库数量
+logfile stdout                              日志记录方式
+databases 16                              设置数据库数量
+
 保存快照：
 save 900 1                                   900秒修改了一次
 save 300 10
@@ -237,19 +234,18 @@ save ""                                         不保存快照
 
 dbfilename dump.rdb                  指定本地数据库文件名
 dir ./                                              指定本地数据库存放目录
-slaveof <masterip> <masterport>     设置本机为slav服务时，redis启动时自动从master同步数据
+slaveof <masterip> <masterport>     设置本机为slav（从）服务时，redis启动时自动从master同步数据
 masterauth <master-password>        当master服务设置了密码保护时，slav服务连接master的密码
 requirepass foobared                          设置redis连接密码，客户端使用auth <password>命令提供密码
 maxclients 128                                     最大客户端连接数量，0不作限制，达到数量会关闭新的连接
 maxmemory <bytes>                          指定reids最大内存限制，vm机制把key放入内存，value放在swap区
 appendonly yes                                   是否每次更新操作后进行日志记录
-appendfilename "appendonly.aof"        指定更新日志文件名
+appendfilename "appendonly.aof"      指定更新日志文件名
 
-appendfsync eerysec                           指定更新日志条件，共三个可选值
+appendfsync everysec                           指定更新日志条件，共三个可选值
 no：表示等操作系统进行数据缓存同步到磁盘（快）
 always：每次更新操作后手动调用fsync()将数据写入磁盘（慢，安全）
 everysec：每秒同步一次（折中，默认值）
-
 
 持久化：aof和rdb
 rdb（Redis DataBase）：
@@ -262,13 +258,13 @@ redis会单独创建（fork）一个子进程来进行持久化，先将数据�
 方式更加高效，rdb的缺点是最好一次持久化后的数据可能丢失。
 
 fork的作用是复制一个与当前进程一样的进程。新进程的所有数据（变量、环境变量、程序计数器等）
-数据都和原进程一致，但是是一个全新的进程，并作为原进程的子进程
+都和原进程一致，但是是一个全新的进程，并作为原进程的子进程
 
 rdb保存的是dump.rdb文件
 
 aof：
 官网介绍：以日志的形式记录每个写操作，将redis执行过的所有写指令记录下来，读不记录，只允许
-                 追加文件但不可以改写文件redis启动之初会读取该文件重新构建数据，换言之，redis重启
+                 追加文件但不可以改写文件，redis启动之初会读取该文件重新构建数据，换言之，redis重启
                  的话就根据日志文件的内容将写指令从前到后执行一次以完成数据的恢复工作
 劣势：
 相同数据集的数据而言aof文件要远大于rdb文件，恢复速度慢于rdb，aof运行效率慢于rdb，每
@@ -281,7 +277,6 @@ aof文件有序的保存了对数据库执行所有写入操作，这些写入�
 
 对于相同的数据集来说，aof文件的体积通常要大于rdb文件，根据所使用的fsync策略，aof的速度可
 能会慢于rdb
-
 
 大总结：
 1、rdb持久化方式能够在指定的时间间隔对你的数据进行快照存储
@@ -303,21 +298,23 @@ rewrite时带来的系统波动，代价是如果主从同时down掉，会丢失
 脚本也要比较两个master/slave中的rdb文件，载入较新的那个，新浪微博使用了这种架构
 
 事务：
-是什么：一次可以执行多个命令，本质是一组命令的集合。一个事务中的所有命令都会序列化，按顺序地串化
+是什么：
+一次可以执行多个命令，本质是一组命令的集合。一个事务中的所有命令都会序列化，按顺序地串化
 执行而不会被其它命令插入，不许加塞
 
-能干嘛：一个队列中，一次性、顺序性、排他性的执行一系列命令
+能干嘛：
+一个队列中，一次性、顺序性、排他性的执行一系列命令
 
 面试：redis部分支持事务
 
 redis事务命令：
-discard                       取消事务
-exec                           提交事务，执行所有事物块内的命令
 multi                          开启事务，标记一个事务块的开始
 unwatch                    取消watch命令对所有key的监控
 watch key [key...]      监控一个或多个key，如果在事务执行之前这个key被其它命令所改动，则事务被打断
+discard                       取消事务
+exec                           提交事务，执行所有事物块内的命令
 
-三阶段：开启multi、入队queue命令不会执行直到exec、执行exec
+三阶段：开启multi、入队queue命令不会执行，直到exec、执行exec
 三特性：
 1、单独的隔离操作：事务中的所有命令都会序列化、按顺序地执行。事务在执行的过程中，不会被其它客户端
 发送来的命令请求打断
@@ -334,7 +331,6 @@ wacth监控：
 悲观锁
 CAS
 先监控watch key再开启事务multi，如果期间别人改了key，在最后提交事务的时候会返回nil，类似乐观锁
-
 
 redis的发布订阅（了解）：
 是什么：进程间的一种通信模式，发送者pub发送消息，订阅者sub接收消息
@@ -359,22 +355,20 @@ slaveof  主ip  主port
 SLAVEOF host port          从机连接主机
 SLAVEOF no one             使当前机器设置为master主，用在主机挂了的时候
 
-
 复制原理：
 slave启动成功连接到master后会发送一个sync命令，master接到该命令后启动后台的存盘进程，同
-时手机所有接收到的用于修改数据集命令，在后台执行完毕之后，master将传送整个数据文件到slave，
+时收集所有接收到的用于修改数据集命令，在后台执行完毕之后，master将传送整个数据文件到slave，
 以完成一次完全同步。
-全量复制：而slave服务在接收到数据库文件数据后，将其存盘并加载到内存
+全量复制：slave服务在接收到数据库文件数据后，将其存盘并加载到内存
 增量复制：master继续将新的所有收集到的修改命令依次传给slave完成同步
-但是只有重新连接master，一次完全同步（全量复制）将被自动执行
-
+但是只要重新连接master，一次完全同步（全量复制）将被自动执行
 
 ***哨兵模式（sentinel）：
 后台监控主机是否故障，如果故障，根据投票数自动将从转为主
 
 新建sentinel.conf文件，名字不能错，写入：
 sentinel monitor 被监控数据库名字(自定义) 127.0.0.1 6379 1
-数字1表主键挂掉后slave投票看让谁成为主，票数多成为主
+数字1表示主机挂掉后slave投票看让谁成为主，票数多成为主
 
 之前的主回来后，会自动变为从
 一组sentinel能同时监控多个master
@@ -383,10 +377,9 @@ sentinel monitor 被监控数据库名字(自定义) 127.0.0.1 6379 1
 redis-sentinel /xx/sentinel.conf
 
 复制缺点：
-延时，由于所有的写操作都是先在master上操作，然后同步更新到slave上，所有从master同步
+延时，由于所有的写操作都是先在master上操作，然后同步更新到slave上，所以从master同步
 到slave机器有一定延迟，当系统很忙的时候，延迟问题会更加严重，slave机器数量增加也会
 使这个问题更加严重
-
 
 集群：
 通过网络连接的计算机，共同对外提供服务，像一个独立的服务器
@@ -410,6 +403,7 @@ sr.keys()   获取所有键
 
 管道操作：
 pl = sr.pipeline()
+pl.multi()              开启多个语句的记录（事务），可选
 pl.set()                 # 放入管道，不执行
 ......
 pl.execute()        # 执行管道里的全部

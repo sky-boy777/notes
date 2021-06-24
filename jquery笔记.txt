@@ -10,9 +10,9 @@
 
 入口函数：
 DOM结果渲染完毕才执行
-1、$(document.ready(function){});
-2、$(function(){});
-$是jQuery的别名，相当于jQuery(function(){});，相当于window
+1、$(document.ready(function){   });
+2、$(function(){   });
+$是jQuery的别名，相当于jQuery(function(){  });，相当于window
 
 jquery对象：
 $('div')
@@ -38,11 +38,11 @@ $('ul li:first')
 父、子、兄：
 $('xx').parent()   最近一级父元素
 parents('选择器')        指定父元素
-children('xx')      子选择: ul>li   
+children('xx')       子选择: ul>li   
 find('xx')              后代选择: ul li
 siblings('xx')        兄弟，除了自身
 nextAll()              
-eq(2)                   选择第二个元素
+eq(2)                      选择第二个元素
 hasClass('类名')     是否有某个类名，返回布尔值
 
 jQuery排他思想：
@@ -52,7 +52,7 @@ $('xx').siblings().css('类名', '')    去掉兄弟的类名
 使用$(this)，为自身 
 $('xx').mouseover(function(){ })    鼠标经过
 $('xx').click(function(){})
-change()改变事件
+           change()改变事件
 
 $(this).index()     当前元素的索引号
 show()   显示     
@@ -61,19 +61,19 @@ hide()     隐藏
 样式操作：
 $('xx').css('color')    返回color属性
 $('xx').css('color'，'red')    设置属性，字符串要引号，数组不用 
-$('xx').css({  //   设置多个，使用大驼峰，属性不用加引号，值要
+$('xx').css({                        //   设置多个，使用大驼峰，属性不用加引号，值要
        color: 'red',
        width: 300
-        backgrouncColor: 'red'
+       backgrouncColor: 'red'
 })
-$('xx').addClass('类名')        添加类，追加方式
+$('xx').addClass('类名')         添加类，追加方式
 $('xx').removeClass('类名')   删除类
 $('xx').toggleClass('类名')     切换类
 
 jQuery效果：
-show(1000，回调)   一秒显示
-hide(参数，回调函数)
-toggle(1000)   一秒切换显示隐藏
+show(1000，回调)        一秒显示
+hide(参数，回调函数)   隐藏
+toggle(1000)                一秒切换显示隐藏
 滑动：
 slideDown(参数)     下滑
 slideUp()                 上滑
@@ -82,7 +82,7 @@ slideToggle()           切换
 鼠标事件切换：
 hover(鼠标经过函数, 离开的函数)     
 hover(一个函数)    经过离开都会运行
-停止动画：写到动画前面hover().stop()，结束上一次动画
+停止动画：写到动画前面hover().stop()，结束上一次动画，用于放在用户操作太快
 
 淡入淡出：
 fadeIn(参数)         淡入
@@ -95,18 +95,18 @@ animate({left: 200}, 速度, 切换效果，回调函数 )
 
 jQuery属性：
 $('xx').prop('href')    获取属性
-prop('href'，'www.biadu.con')    设置属性 
-attr('index')     获取元素自定义属性
+prop('href'，'www.biadu.com')    设置属性 
+attr('index')        获取元素自定义属性
 attr('index', 2)    设置
 data('name', '张三')    在指定元素上存取数据，不会修改DOM结构
 data('index')     获取H5自定义属性值2，data-index = 2
 
 jQuery内容文本值：
-$('xx').html()   获取、设置内容，包括内部的html标签
-$('xx').text()     获取、设置文本内容
+$('xx').html()       获取、设置内容，包括内部的html标签
+$('xx').text()        获取、设置文本内容
 $('input').val()    获取、设置value值
 
-xxx.substr(1)    字符串截取函数，从1的位置开始截取
+xxx.substr(1)      字符串截取函数，从1的位置开始截取
 xxx.toFixed(2)    保留两位小数
 
 jquery元素操作：
@@ -116,10 +116,10 @@ $.each('div'或数组或对象, function(索引, 元素或值){  })
 
 创建元素：
 xx.append($('<h1>xxx</h1>'))  创建并追加，子元素
-prepend($('<h1>xxx</h1>'))    放到最前面
+prepend($('<h1>xxx</h1>'))     放到最前面
 after('内容')         内容后面，兄弟元素
 before('内容')      内容前面
-remove()              删除
+remove()             删除
 empty()        清空子元素
 html("")        清空子元素
 
@@ -127,8 +127,8 @@ jQuery事件：
 $('xx').click(function(){})
 
 绑定事件：on
-$('xx').on('事件1 事件2'， function(){})    // 多个事件
-$('xx').on({   //  多个事件，执行不同函数
+$('xx').on('事件1 事件2'， function(){})       // 多个事件，都会触发函数
+$('xx').on({        //  多个事件，执行不同函数
     click: function(){},
     change: function(){}
 })
@@ -137,9 +137,9 @@ $('xx').on({   //  多个事件，执行不同函数
 $('ul').on('click', 'li', function(){})  // 给ul下面的li绑定事件，on可以给未来创建的li元素动态添加事件 
 
 事件解绑：
-$('xxx')off()                 无参数则解除全部事件   
-$('xxx')off('click')         解除点击事件
-$('ul')off('click'，'li')    解绑事件委托
+$('xxx').off()                 无参数则解除全部事件   
+$('xxx').off('click')         解除点击事件
+$('ul').off('click'，'li')    解绑事件委托
 
 只触发一次的事件：
 $('xx').one('click')      
@@ -154,8 +154,8 @@ event
 xxx.click(function(e){})
 
 jQuery拷贝对象：
-$.extend(xx, yy)     把yy拷贝给xx对象，会覆盖xx里面的数据，默认浅拷贝
-$.extend(true，xx, yy)          参数true，为深拷贝
+$.extend(xx, yy)               把yy拷贝给xx对象，会覆盖xx里面的数据，默认浅拷贝
+$.extend(true，xx, yy)     参数true，为深拷贝
 
 多库共存：
 1、$符改为jQuery
@@ -170,17 +170,13 @@ jquery之家
 bootstrap依赖jQuery
 
 转为json格式数据：
-JOSN.stringify(对象)     转为json
+JOSN.stringify(对象)         转为json
 JSON.parse(json字符串)    json转为对象
 
-存取本地数据：
-localStorage.getItem('xx')    取
-localStorage.setItem('xx')     存
-
 jQuery位置：
-height(参数)   高度，有参数为设置，无则获取
-width()    元素本身的宽度
-innerWidth()    加上padding宽度
+height(参数)            高度，有参数为设置，无则获取
+width()                    元素本身的宽度
+innerWidth()           加上padding宽度
 outerWidth(true)    padding、border宽度，true表示加上margin宽度
 
 offset().top/left    偏移文档位置left 、top
@@ -189,8 +185,8 @@ offset({ top: 200, left: 200 })    设置偏移
 position()    只能获取最近带有定位的父级偏移
 
 $(window).scroll(function(){})       页面滚动事件
-scrollTop(参数)    滚动的头部距离，有参数为设置
-scrollLeft（参数） 滚动距离
+scrollTop(参数)     滚动的头部距离，有参数为设置
+scrollLeft(参数） 
 
 返回顶部：
 $('body, html').stop().animate(function(){  scrollTop: 0 })    元素才能做动画，文档不行

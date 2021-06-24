@@ -24,7 +24,7 @@ linux严格区分大小写
 /etc : 配置文件保存位置
 /home:用户家目录
 /lib:系统调用函数库保存位置
-/lost+found:意外关键，而产生的一些碎片文件
+/lost+found:意外关机，而产生的一些碎片文件
 /media: 挂载目录
 /mnt: 挂载目录
 /misc: 挂载目录
@@ -44,7 +44,6 @@ du -sh 文件    统计大小
 ls
 ls -a 显示隐藏文件
 ls -l  显示文件详细信息
-三种关系：u所有者，g所属组，o其他人
 文件类型："-"二进制文件，"d"目录，"l"软连接文件
 ls -lh    文件大小用K显示
 ls -ld     显示当前目录的信息
@@ -68,7 +67,7 @@ who am i   详细一点我是谁
 ln 源文件 目标文件，-s软链接
 软链接：相当于window快捷方式，全是rwx，能跨分区
 硬链接：会同步更新，两个，删除了一个还有一个，不能跨分区
-echo ”dfjdk“ >> 文件        输出重定向到文件
+echo "dfjdk" >> 文件        输出重定向到文件
 
 权限管理：
 u所有者，g所属组，o其他人
@@ -137,13 +136,13 @@ tar -zcvf  文件名.tar.gz 要压缩的文件     压缩
 tar -zxvf   aa.tar.gz                                -x解包，-f指定解压文件，-z解压缩.tar.gz文件
 
 zip -r  aa.zip   aa                                   -r压缩目录，保留源文件
-unzip  aa.aip                                         解压
+unzip  aa.zip                                         解压
 
 bzip2  -k 文件                                        -k保留源文件，.bz2
 bunzip2  -k 文件.bz2                              -k保留源文件
 
 网络命令：
-write 用户名     给用户发信息，Ctrl+D保存结束，用户要登录才能
+write 用户名     给用户发信息，Ctrl+D保存结束，对方用户要登录才能
 wall  hello        给所有用户发，广播
 ping -c             -c指定发送次数
 ifconfig            查看网卡信息，配置ip：  ifconfig eth0  192.168....
@@ -163,12 +162,12 @@ umount  设备文件                                                  卸载，�
 关机重启：
 shutdown [选项] 时间
 -h 20:30   
--h now 马上关机                                          
--c 取消前一个关机命令
--h 关机
--r 重启
+-h now      马上关机                                          
+-c              取消前一个关机命令
+-h             关机
+-r              重启
 关机：halt，poweroff，init 0
-重启reboot，init 6
+重启：reboot，init 6
 系统运行级别0~6：init 0~6
 logout ：退出登录
 
@@ -193,15 +192,15 @@ vi跟vim：
 末行模式
 
 软件包管理：
-1、源码包：脚本安装包，可以看到源代码
+1、源码包：脚本安装包，可以看到源代码，需要编译，慢
 2、二进制包（rpm包，系统默认包），已编译的，看不到源码，缺点是依赖多
 
 模块依赖查询网站：www.rpmfind.net，.so结尾的到这个网站查依赖
 rpm包依赖：树形依赖a-b-c，环形依赖a-b-c-a
 安装
-rpm -ivh 包全名             rpm安装，-i安装
-rpm -Uvh  包全名          升级
-rpm -e  包全名               卸载
+rpm -ivh 包全名            rpm安装，-i安装
+rpm -Uvh  包全名         升级
+rpm -e  包全名             卸载
 rpm -q   包全名            查询，-qa查询全部，-qi查询软件信息，-qp查询未安装包信息，-l列表
 rpm -qRp 包全名          查询未安装的包的依赖信息
 
@@ -214,11 +213,11 @@ search  包名         搜索
 -y remove 包名    卸载，依赖包也会卸载，尽量不要卸载
 grouplist              软件组列表
 groupinstall 软件组名                 安装软件组
-grounpremove  软件组名           卸载软件组
+groupremove  软件组名             卸载软件组
 
 注释缩进比较严格
 
-源码包安装一般放在/usr/local/下面
+源码包安装一般放在"/usr/local/"下面
 /etc/rc.d/init.d/xxx start     绝对路径开启服务，源码包安装方式
 service xxx start                 开启服务，rpm包安装方式
 
@@ -237,14 +236,14 @@ root:x:0:0:root:/root:/bin/bash
 
 UID：0超级用户，1-499系统用户，500-65535普通用户
 
-影子文件：/etc/shadow
-/etc/group     组信息文件
+/etc/shadow     影子文件
+/etc/group       组信息文件
 /etc/gshadow  组密码文件
 
 需要root用户权限
-useradd [选项] 用户    添加用户
-passwd  用户    设置密码，root权限
-passwd             修改自己的密码
+useradd [选项] 用户        添加用户
+passwd  用户                  设置密码，root权限
+passwd                           修改自己的密码
 passwd -l 用户      锁定用户
 passwd -u 用户     解锁用户
 chage                   修改用户密码状态
@@ -298,7 +297,7 @@ ls > 文件
 ls; cd aa;         都会执行，即使有报错
 ls && ps         短路
 ls ||  ps            短路
-grep              过滤
+grep               过滤
 more             显示一屏
 
 通配符：正则
@@ -312,7 +311,7 @@ $(ls)        引用系统命令，反引号` ls`一样
 
 变量：
 字母数字下划线，不能数字开头
-a=2       等号两边不要空格 ，默认是字符类型
+a=2       ***等号两边不要空格 ，默认是字符类型
 echo $a
 name='张   三'
 变量叠加：a=${name}222--->张   三222
@@ -354,7 +353,7 @@ cut -d “;” -f  3      分号分隔，第三列
 printf '%s %s\n' 1 2      格式化输出,\n换行
 print                              末尾有换行
 %s                                  字符串
-%i                                    整数
+%i                                  整数
 %8.2f                              浮点型，共8位，2位小数
 
 sed -n '2p' aa.txt            输出文件第二行
@@ -363,9 +362,9 @@ sed '2c xxx' aa.txt           第二行替换为xxx，c替换
 sort [选项] 文件名           排序
 wc                                  统计
 
-test -e /root/aa.txt                  判断文件是否存在，或[ -e /root/aa.txt]                       
-[ 1 -eq 2 ] && echo yes || echo no       判断1==2，真返回yes，否则no
-1==2 && echo yes || echo no       判断1==2，真返回yes，否则no
+test -e /root/aa.txt                                判断文件是否存在，或[ -e /root/aa.txt]                       
+[ 1 -eq 2 ] && echo yes || echo no       判断1==2，真返回yes，否则no，||短路运算
+1==2 && echo yes || echo no              判断1==2，真返回yes，否则no，||短路运算
 -lt，-gt，-ne
 ---------------------------------------------------------------------
 条件判断：
@@ -382,17 +381,17 @@ else
     程序
 fi
 ---------------------------
-case $a in        开头
+case $a in                开头
     "yes")
               echo "y"
               ;;
      "no")
              ........
              ;;
-       *)           其它
-esac                结尾
+       *)                     其它
+esac                       结尾
 --------------------------------
-for i in （ls /）  或  值1 值2
+for i in （ls /）         或  值1 值2
       do
              echo $i
       done
@@ -433,14 +432,14 @@ rpm包安装服务基于xinetd（超级守护进程）服务，了解，现在�
 绝对路径/启动脚本 start/stop
 --------------------------------------------------------------
 进程管理：
-判断服务器健康状态
+用来判断服务器健康状态
 查看系统所有进程：
-ps aux    BSD操作系统格式前面不要加-，     linux标准命令格式：   ps -le
-top   默认三名刷新一次
-top [选项]              -d指定更新秒数
-pstree                    显示进程树
-kill -l                       显示所有信息
-kill [-9]  进程号        -9强制杀死进程
+ps aux                                    BSD操作系统格式前面不要加-，     linux标准命令格式：   ps -le
+top                                         默认三名刷新一次
+top [选项]                               -d指定更新秒数
+pstree                                    显示进程树
+kill -l                                       显示所有信息
+kill [-9]  进程号                       杀死进程， -9强制
 killall  [选项][信号] 进程名        按进程名杀死进程 ，-i询问，-I忽略大小写
 pkill  [-9]  进程名                     -t按终端号踢出用户          
 w                                            查看已登录用户   
@@ -448,10 +447,10 @@ w                                            查看已登录用户
 工作管理：
 放入后台，命令后添加 &符号，ls &
 &后台运行，ctrl+z后台暂停
-jobs [-l]         查看后台的工作，-l显示pid
+jobs [-l]                 查看后台的工作，-l显示pid
 fg  [%]工作号        后台暂停的工作恢复到前台执行
 bg [%]工作号         放到后台执行
-top跟vi不能恢复到后台执行，因为这个有跟用户交互
+**top跟vi不能恢复到后台执行，因为这个需要跟用户交互
 
 系统资源查看：
 vmstat [刷新延时 刷新次数]             监控系统资源
@@ -460,34 +459,34 @@ free []                                              查看内存使用状态
 cat /proc/cpuinfo                           查看cpu信息
 uptime                                            查看系统运行了多长时间
 uname [选项]                                  查看系统与内核相关信息，-a查看所有，-r查看内核，-s查看内核名称
-file /bin/ls                                      判断当前系统位数
-lsof [选项]                                      列出进程使用或打开的文件信息，-c字符串，-u用户名，-p pid
+file /bin/ls                                       判断当前系统位数
+lsof [选项]                                       列出进程使用或打开的文件信息，-c字符串，-u用户名，-p pid
 
 系统定时任务：
 crond
-service crond start       启动
+service crond start        启动
 chkconfig crond on      自启动
 crontab [选项]               -e编辑crontab定时任务，-l查询crontab任务，-r删除当前用户所有的crontab任务
 
 *   *    *   *    *
 分 时  日 月 星期
-逗号表示不连续时间，-号表示连续时间，*/n每隔多久执行一次
-0 5 1,15 * *     每月1号和15号凌晨5点0分执行命令
-40 4 * * 1-5    每周一到周五的凌晨4点40分执行命令
-*/10 4 * * *     每天凌晨4点，每10分钟执行一次
+","逗号表示不连续时间，"-"号表示连续时间，"*/n"每隔多久执行一次
+0 5  1,15   * *       每月1号和15号凌晨5点0分执行命令
+40 4 * * 1-5         每周一到周五的凌晨4点40分执行命令
+*/10 4 * * *          每天凌晨4点，每10分钟执行一次
 
 0 5 1,15 * * /sbin/shutdown -r now     每月1号和15号凌晨5点0分执行重启命令
 
 日志管理：
 /var/log/xxx         日志存放目录
-lastb         查看二进制文件
-lastlog      最后一次登录的用户
-last           查看用户的登录、注销信息、系统重启关机事件
+lastb                     查看二进制文件
+lastlog                 最后一次登录的用户
+last                      查看用户的登录、注销信息、系统重启关机事件
 
 rsyslogd日志服务：
 
 运行级别：
-init 0-6   改变运行级别
+init 0-6     改变运行级别
 runlevel   查看当前，最后一个，前一个表示上一次的运行级别
 
 备份与恢复：
@@ -495,7 +494,7 @@ runlevel   查看当前，最后一个，前一个表示上一次的运行级别
 dump [选项] 备份后的文件名  源文件或目录
 -0-9级别
 
-restore [模式选项] [选项]
+restore [模式选项] [选项]                     恢复
 四种模式：
 -C比较
 -i进入交互模式
@@ -503,7 +502,6 @@ restore [模式选项] [选项]
 -r还原
 
 选项：-f指定备份文件的文件名
-
 
 服务管理：
 service 服务名 start、 stop、 restart、 reload、 status

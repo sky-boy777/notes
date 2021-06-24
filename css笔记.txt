@@ -2,7 +2,7 @@ font-family：'微软雅黑', '宋体'；
 font-size: 20px;
 font-weight: 400;       设置h1标签
 font-style: normal;      设置字体不倾斜
-font:     font-style     font-weight       font-size/line-height     font-family;       复合属性
+font:   font-style   font-weight   font-size/line-height   font-family;       复合属性
 color：red；
 color：rgb（22，22，33）；
 color：#ffffff；
@@ -65,7 +65,7 @@ id
 
 border：1px solid #fff         边框复合写法，无序
 三角形：border-top：1px solid red；  border-bottom：1px solid red；  然后填充盒子颜色，点线：dotted
-border-collapse：collapse；     合并相邻边框，常用于表格
+border-collapse：collapse；        合并相邻边框，常用于表格
 padding：上      右    下   左          四个值
 padding：上    左右   下                 三个值
 padding没有加宽高不会撑开盒子大小
@@ -95,7 +95,7 @@ border-radius：上  右   下   左；       复合写法
 父级元素添加：overflow：hidden；   缺点溢出隐藏
 
 父级元素添加伪元素：
-.clearfix: after {         添加伪元素，额外标签法升级办
+.clearfix: after {         添加伪元素，额外标签法升级版
     content: "";
     display: block;
     height: 0;
@@ -157,9 +157,8 @@ vertical-align：middle；        图片跟文字对齐，中线对齐，只对�
 解决图片底部孔隙：默认是基线对齐，改为vertical-align：middle；
 
 溢出文字添加省略号：
-
-1、white-space：nowrap； 强制一行内显示
-2、overflow：hidden；       溢出隐藏
+1、white-space：nowrap；    强制一行内显示
+2、overflow：hidden；          溢出隐藏
 3、text-overflow：ellipsis；   溢出使用省略号
 
 浮动会使文字有环绕效果
@@ -168,14 +167,15 @@ vertical-align：middle；        图片跟文字对齐，中线对齐，只对�
 3d
 开启透视
 -------------------------------------------------------
-@keyframes 动画名字{      创建动画
+@keyframes 动画名字{          创建动画
     0%{   }
+    25%{  }
     100%{  }
 }
 使用动画：animation：动画名字 10s linear infinite；
 -------------------------------------------------------------
-transform: rotateY(30deg);           旋转
-transform：translate（x, y）；    移动
+transform: rotateY(30deg);            旋转
+transform：translate（x, y）；      移动
 transform-style：preserve-3d；    开启三d立体空间
 
 浏览器私有前缀：

@@ -80,7 +80,7 @@ unfefined + true = NaN
 
 获取变量类型：
 typeof  变量名
-**typeof null   = object类型
+**typeof null       object类型
 
 数据类型转换：
 转为字符串：变量.toString()、String(变量)、
@@ -98,13 +98,14 @@ false：' ', 0, NaN, null, undefind
 其余true
 -------------------------------------------------------------------------
 运算符：
-+-*/%
++ - * / %
 浮点数运算有精度问题
 ++i、i--
 e=10
 e++ + ++e =22：10  12
 
-值和数据类型的比较：===、!==
+同时比较值和数据类型：===、!==
+比较值：==，!=
 逻辑运算：&&、||、！
 
 短路运算：
@@ -126,7 +127,7 @@ if (条件表达式) {
 switch语句：
 执行效率比 if 语句高
 switch（表达式）：{
-    case value1：// 要全等于===
+    case value1：            // 要全等于===
              语句1；
              break；
     default：
@@ -137,7 +138,9 @@ switch（表达式）：{
 在浏览器控制台sources可以断点调试
 关键字：continue、break
 for(var i=0; i<10; i++){}
+
 while(表达式){}
+
 do{
 } while(条件表达式)
 
@@ -145,10 +148,10 @@ return可以退出循环
 ----------------------------------------------------------------
 数组：
 var arr = new Array();
-var arr = [1,2, '张三'，true];  // 存任意类型
-arr[0]   // 取不到为undefined
-arr.length  // 长度
-arr.length = 5  // 多出来的为空undefined
+var arr = [1,2, '张三'，true];           // 存任意类型
+arr[0]                                             // 取不到为undefined
+arr.length                                     // 长度
+arr.length = 5                              // 多出来的为空undefined
 
 遍历：
 var sum;
@@ -170,7 +173,7 @@ arguments：
 
 作用域：
 **在函数内部未声明就赋值的变量属于全局变量
-全局变量在浏览器关闭销毁，占内存
+全局变量在浏览器关闭时销毁，占内存
 局部变量函数代码使用完毕后销毁，节省内存
 es6有块级作用域
 
@@ -197,13 +200,13 @@ js对象：
 
 创建对象object：  // ES5
 var obj = {};
-bar obj = new Object（）;  // 区分大小写
+var obj = new Object（）;  // 区分大小写
 obj.age = 18;
 obj.fun = function (){ }
 var obj = {
     name：'李四'，
     age：'19'，
-    fun：function () {  // 方法
+    fun：function () {       // 方法
         // 代码
     }
 }
@@ -216,7 +219,7 @@ function Obj(name，age){  //  名字自定义
     this.方法 = function(){ }
 }
 使用：
-var obj = new Obj(name，age)；// 返回一个对象
+var obj = new Obj(name，age)；  // 返回一个对象
 obj.name
 obj['age']
 obj.fun()
@@ -224,8 +227,8 @@ obj.fun()
 遍历对象：
 for....in
 for (i  in  obj){
-    alert(i);  //  属性名key
-    obj[i];  // 属性值value
+    alert(i);        //  属性名key
+    obj[i];          // 属性值value
 }
 对象无序
 
@@ -233,84 +236,111 @@ for (i  in  obj){
 查文档：MDN、W3C
 自定义对象、内置对象、浏览器对象
 
+
 Math:
-随机数random()返回 [0, 1) 浮点数、PI、max()、min()、abs()、round()、向下取整floor()、向上取整ceil()
+随机数random()返回 [0, 1) 浮点数、PI、max()、min()、abs()、round()四舍五入、向下取整floor()、向上取整ceil()
 随机整数公式：
 return Math.floor(Math.random() * (max - min + 1)) + min;
        向下取整floor(0.874*(20-10+1)) + 10 == 19
 
-Date：
-var data = new Date()  // 返回当前时间
+
+日期Date：
+var d = new Date()     // 返回当前时间：Sat Jun 19 2021 11:15:09 GMT+0800 (中国标准时间)
 Date(2021，10，1)
 Date('2021/10/1')
 Date('2021-10-1')
-data.getFullYear() + '年'
-getMonth() + '月' // 0~11月份，+1
-getDate()
-getDay() + '日'  // 周日返回0，0~6
-getHours()  // 时
-getMinutes()  // 分
-getSeconds()  // 秒
+
+d.getFullYear() + '年'
+d.getMonth() + '月'               // 0~11月份，+1
+d.getDate()                           // 返回几号
+d.getDay() + '日'                   // 星期，周日返回0，0~6
+d.getHours()                         // 时
+d.getMinutes()                     // 分
+d.getSeconds()                    // 秒
 
 时间戳：
+d.valueOf()、d.getTime()     1970年1月1日至今的毫秒数
+Date.now()                            H5新增
+
 秒杀倒计时：时间戳/60/60/24 = 天
-1970年1月1日至今的毫秒数：valueOf()、getTime()
-H5新增：Date.now()
 
-Array：
+
+数组Array：
 var arr = new Array(长度)；
-length
-reverse(数组)  // 反转
-arr instanceof Array   // 判断是否是数组或，H5新增：Array.isArray(参数)
-push(元素)  末尾推入，返回长度
-unshift(元素)     开头加入，返回长度
-pop()    末尾弹出，返回弹出元素，一次一个
-shift()   开头弹出，返回弹出元素，一次一个
-arr.splice(2, 3，'e', 'b')      从下标2的位置删除3个元素，并从2的位置插入值e跟b（可选）
-sort(排序的fun)    排序
-indexOf(元素)     返回第一个满足的索引，没有返回 -1
-lastIndexOf(元素)   从后往前找索引
-toString(arr)  转换为字符串
-arr.join(分割符)
-数组去重：if (newArr.indexOf(arr[i]) === -1){ newArr.push(arr[i]) }
+let arr = [长度];
+arr.length
+reverse()                      // 翻转
+arr instanceof Array    // 判断是否是数组或，H5新增：Array.isArray(参数)
+push(元素)                  // 末尾推入，返回长度
+unshift(元素)              // 开头加入，返回长度
+pop()                         // 末尾弹出，返回弹出元素，一次一个
+shift()                        // 开头弹出，返回弹出元素，一次一个
+splice(2, 3，'e', 'b')   // 从下标2的位置开始删除3个元素，并从2的位置插入值e跟b（可选），返回被删元素
+sort(排序的fun)                 // 排序，fun可选，默认升序
+indexOf(元素)                   // 返回第一个满足元素的索引，没有返回 -1
+lastIndexOf(元素)             // 从后往前找元素的索引
+toString()                         // 返回转换的字符串
+arr.join('分割符')               // 返回分隔好的字符串
 
-String：
-基本包装类型
-不可变，拼接字符串会重新开辟空间，占用内存
-length
-str.indexOf(查找的字符， [开始位置..])
-charAt(index)  根据索引返回字符
-charCodeAt(index)   根据索引返回字符ASCII码，判断用户按下哪个键
-H5新增：str[index]
-concat(str1，str2...)   连接字符串
-substr(开始，取几个)    截取  
-replace(被替换， 替换为)    替换第一个
-split(分隔符)    分隔转为数组
-toUpperCase()   大写
-toLowerCase()   小写
+数组去重：
+判断是否能找到元素的索引indexOf，不在则添加push
+if (newArr.indexOf(arr[i]) === -1){ 
+    newArr.push(arr[i]) 
+}
+
+遍历：
+for (i in arr){
+    alert(i)         // 索引
+    alert(arr[i])  // 值
+}
+
+for (var i=0; i<arr.length; i++){ 
+    alert(arr[i]); 
+}
+ES5新增方法：
+数组方法：遍历
+arr.forEach(function(value, index, arr){})   里面是一个函数
+map()                                                         遍历，跟forEach相似，返回一个数组
+filter(function(value, index, arr){})             筛选，返回一个新数组
+some(function(value, index, arr){})           查找满足条件的第一个元素，返回布尔值
+every()                                                       跟some相似，所有元素符合返回true，否则false
+
+
+字符String：
+基本包装类型，不可变，拼接字符串会重新开辟空间，占用内存
+s.length
+s.indexOf(查找的字符， [开始位置..])     返回找到的第一个字符的索引，找不到返回-1
+str[index]                                               H5新增，根据索引返回字符，找不到返回undefined
+s.charAt(index)                                     根据索引返回字符，找不到返回""
+charCodeAt(index)                               根据索引返回字符的ASCII码，找不到返回NaN，判断用户按下哪个键
+concat(str1，str2...)                              连接字符串，相当于+
+substr(开始，取几个)                            截取  
+replace(被替换， 替换为)                      替换第一个
+split(分隔符)                                         分隔转为数组
+toUpperCase()                                    大写
+toLowerCase()                                    小写
 -------------------------------------------------------------------------------------
 API：应用程序接口
 Web API：浏览器的api（BOM、DOM）
 --------------------------------------------------------------------------------------------
-**************************************DOM：
+***********DOM：
 文档对象模型
 文档：document，一个页面
 元素：element，标签
 
 获取元素：
-document.getElementById('id名')    大小写区分，返回element对象
-console.dir(元素)  打印元素对象的属性和方法
-
-var ul = getElementsByTagName('ul')    Elements加s，获取标签ul[0]，伪数组
-ul.getElementsByTagName('li')     获取元素里面的元素
+document.getElementById('id名')                      大小写区分，返回element对象
+console.dir(元素)                                                  打印元素对象的属性和方法
+var ul = getElementsByTagName('ul')                Elements加s，获取标签ul[0]，伪数组
+ul.getElementsByTagName('li')                           获取元素里面的元素
 
 H5新增：
        getElementsByClassName('类名')
-       document.querySelector('#id')   获得第一个
-       document.querySelectorall()   返回所有选择到的，伪数组
+       document.querySelector('#id')      返回第一个
+       document.querySelectorall()         返回所有选择到的，伪数组
 
 获取特殊元素：
-document.body;   body元素
+document.body;                          body元素
 document.documentElement;    html元素
 
 事件：
@@ -318,14 +348,14 @@ document.documentElement;    html元素
 2、事件类型： 点击onclick，                  2、绑定事件原
 3、事件处理程序:  函数处理，                 3、添加事件处理程序
 btn.onclick = function(){}
-btn.onfocus    获得焦点
-btn.onblur      失去焦点
+btn.onfocus                 获得焦点
+btn.onblur                   失去焦点
 btn.onmouseover       鼠标经过
 btn.onmouseout         鼠标离开
 
 操作DOM元素：
 可读写
-xxx.innerText = 'xxx'     获取或去除换行空格、改变元素内容，文本
+xxx.innerText = 'xxx'                           获取或去除换行空格、改变元素内容，文本
 xxx.innerHTML = '<h1>xxx</h1>'    获取保留空格换行、识别html标签，使用比较多，W3C标准
 
 元素属性操作：
@@ -335,7 +365,7 @@ xxx.title = '这是一张图片'；
 表单元素操作：
 this.属性 = 'xxx'
 xxx.value = '输入内容'
-xxx.disable = true                        禁用按钮
+xxx.disable = true                            禁用按钮
 xxx.type = 'password' 或 'text'        密码显示切换列子 ，使用flag标志判断
 
 元素样式操作：
@@ -344,7 +374,7 @@ xxx.style.backgroundColor = 'xxx';
 xxx.style.display = 'none';
 xxx.style.backgroundPosition = '0 '+ num +'px'         背景定位
 xxx.className = 'aa'        改变class类名，会覆盖，适合样式改变多的情况
-xxx.checked = false     复选框状态，布尔值
+xxx.checked = false          复选框状态，布尔值
 
 自定义属性操作：
 主要针对开发人员自定义的属性
@@ -352,11 +382,11 @@ xxx.getAttribute('nav')                获取属性
 xxx.setAttribute('index'，1)        设置属性，index = 1
 xxx.removeAttribute('index')      移除属性
 
-H5自定义属性规范：data-开头
+H5自定义属性规范："data-"开头
 
 H5新增：
 ie11 以上兼容
-xxx.dataset.属性或[ ]      返回所有data开头的属性数组，去掉data-
+xxx.dataset.属性   或xxx.dataset[]，返回所有data开头的属性数组，去掉data-
 data-item-list
 xxx.dataset.itemList       驼峰命名法获取
 
@@ -371,24 +401,25 @@ xxx.dataset.itemList       驼峰命名法获取
 xxx.parentNode        距离最近的父节点，找不到返回null
 
 子节点操作：
-xxx.chileNodes          所有孩子节点，包含元素、文本节点，返回数组
-***xxx.children           只返回子元素节点，返回数组，实际开发常用
+xxx.chileNodes                 所有孩子节点，包含元素、文本节点，返回数组
+***xxx.children                 只返回子元素节点，返回数组，实际开发常用
 xxx.firstChild                    第一个子节点，包括文本
-xxx.firstElementChild       返回第一个子元素节点
+xxx.firstElementChild       第一个子元素节点
 实际开发使用，无兼容问题：xxx.children[0]      第一个子节点
                                              xxx.children[xxx.children.length - 1]    最后一个
 
 兄弟节点操作：
-xxx.nextSibling              下一个，包含文本
-previousSibling              上一个，包含文本
-nextElementSibling        下一个元素节点   
+xxx.nextSibling                 下一个，包含文本
+previousSibling                上一个，包含文本
+
+nextElementSibling          下一个元素节点   
 previousElementSibling   上一个元素节点
 
 创建节点：
 1、创建   2、添加
 var d = document.createElement('div')      创建，innerHTML采用数组拼接创建的快，字符串拼接慢
-xxx.appendChild(d)                追加
-insertBefore('d', xxx)             指定插入位置，前面插入
+xxx.appendChild(d)                      追加，末尾
+xxx.insertBefore('d', xxx)              指定插入位置，前面插入
 
 删除节点：
 xxx.removeChild('孩子节点')
@@ -409,7 +440,7 @@ DOM事件流：
 3、冒泡阶段：从里到外层，从小到大
 xxx.addEventListener('click'， function(){ }，true)      第三个参数为true则处于捕获阶段，从外到里执行
 xxx.addEventListener('click'， function(){ }，false)      false或空为冒泡阶段，从里到外执行
-实际开发关注冒泡
+****实际开发关注冒泡
 
 没有冒泡的事件：
 onblur、onfocus、onmouseenter、onmouseleave
@@ -430,7 +461,7 @@ return false              没有兼容问题 ，只限于传统注册方式: onc
 阻止冒泡：e.stopPropagation()     有兼容问题
     
 事件委托：
-**在父节点 ( ul ) 上绑定监听器，利用冒泡原理影响每个子节点 ( li )
+**在父节点 ( ul ) 上绑定监听器，利用冒泡原理影响每个子节点 ( li )，点击li，冒泡到ul
 
 鼠标事件：
 e.clientX 、e.clientY      可视区域鼠标坐标
@@ -438,18 +469,19 @@ e.pageX、e.pageY         ***页面文档鼠标坐标
 
 键盘事件：
 xxx.addEventListener('keyup'， function(){ }) 
-keyup         按键弹起，不区分大小写键盘
 keydown     按下时，最先执行，不区分大小写键盘
 keypress      按下时，不识别功能键：alt、ctrl...，区分大小写键盘
+keyup          按键弹起，不区分大小写键盘
     
 e.keyCode    返回ASCII码，可以判断用户按下那个键
+
 -----------------------------------------------------------------------------------------------
 BOM对象模型 ：
 兼容性比较差，核心对象 window，顶级对象，全局对象
 函数跟变量都是window对象的方法跟属性 
 特殊：window.name  // name 属性可设置或返回存放窗口的名称的一个字符串。
 
-window.onload = function() { }        页面加载完毕才执行代码，传统方式，只执行最后一个
+window.onload = function() { }                           页面加载完毕才执行代码，传统方式，只执行最后一个
 window.addEventlistener('load', function(){})     监听方式，能在页面执行多个       
 document.addEventlistener('DOMContentLoaded', function(){ })    DOM加载完毕就执行，比load快
 window.onresize    浏览器大小发生变化事件，用于响应式布局   
@@ -458,10 +490,10 @@ window.onresize    浏览器大小发生变化事件，用于响应式布局
 回调函数：回头调用
 setTimeout(fun, 2000)    延时2000毫秒
 var time1 = setTimeout(function(){}, 2000)     起名    
-clearTimeout(time1)    清除定时器
+clearTimeout(time1)    清除定时器，一定要有名字
 
 var time2 = setInterval(function(){}, 3000）    间隔时间反复调用函数
-clearInterval(time2)                清除
+clearInterval(time2)     清除定时器，一定要有名字
 
 this指向：
 全局环境指向window
@@ -481,27 +513,28 @@ H5后有同步异步任务
 location对象：
 获取url
 ***location.href     获取地址，赋值会跳转
-***search     返回参数 ：?a=1&b=2
-host         域名
-port         端口
-hash        返回#后面的内容
-pathname        路径
-loaction.assign('url')      跳转，可以后退
-replace()                        跳转，不能后退
+***search               返回参数 ：?a=1&b=2
+host                       域名
+port                       端口
+hash                      返回#后面的内容
+pathname             返回路径/xx/xx，不包括域名跟后面参数部分
+loaction.assign('url')      跳转到当前域下的其它路径，可以后退，
+replace('url')                  跳转，不能后退
 reload(true)                   刷新页面，true强制刷新
 
+-----------------------------------------------------------------------------------------------
 navigator：
 浏览器的相关信息：userAgent...
 
 history:
 历史记录，浏览器前进后退按钮
-history.forward()   前进
-history.back()        后退
-history.go（参数） 前后后退的步数
+history.forward()    前进
+history.back()         后退
+history.go（参数） 前后后退的步数，1前进，-2后退两步
 ----------------------------------------------------------------------------------
 元素偏移offset：
 以带有定位的父级为主
-xxx.offsetTop     xxx距离顶部距离
+xxx.offsetTop      xxx距离顶部距离
 xxx.offsetLeft      xxx距离左边距离
 offsetWidth      自身元素宽，包含padding、width、border，用于获取元素位置
 offsetHeight     自身元素高
@@ -518,13 +551,9 @@ clientWidth       包括padding，不包含边框，不带px单位，用于获�
 元素滚动距离：
 xxx.scrollWidth      自身实际宽度，不包含边框，不带px单位，用于获取元素滚动距离
 document.addEventListener('scroll '， function(){ })     页面滚动事件
-xxx.scrollTop 、xxx.scrollLeft       元素滚动距离
+xxx.scrollTop 、xxx.scrollLeft        元素滚动距离
 window.pageYOffset                    页面被滚动的距离
 
-鼠标事件区别：
-mouseenter：不会冒泡
-mouseover：冒泡
-mouseleave：不会冒泡
 ----------------------------------------------------------------------
 动画原理：
 1、获得盒子当前位置
@@ -552,16 +581,16 @@ window.scroll(x, y);
 触屏事件touch
 touchstrart    触摸时触发
 touchmove    滑动时触发
-touchend       离开时触发
+touchend       结束（离开）时触发
 
 对象e：
 e.touches[0]    正在触摸的手指的一个列表
 e.targetTouches[0]   正在触摸的当前DOM元素的手指列表
 
 classList   返回元素的类名
-xxx.classList.add('类名')    追加方式
-                     remove('类名')     删除类名
-                      toggle('类名')     切换类名
+xxx.classList.add('类名')          追加方式添加类
+                    remove('类名')    删除类名
+                    toggle('类名')     切换类名
 
 click事件在移动端会有300ms延迟，因为移动端有双击放大页面
 fastclick.js插件可以解决延时
@@ -575,13 +604,13 @@ sessinoStorage      约5M，关闭浏览器窗口死亡，同页面共享，键�
 sessinoStorage.setItem(key， value)    设置
                            getItem(key)                获取
                            removeItem(key)         删除
-                            clear()                         清除所有
+                           clear()                          清除所有
 
 localStorage          约20M，永久生效，多窗口共享
 localStorage.setItem(key，value)          设置
                            getItem(key)                获取
                            removeItem(key)         删除
-                            clear()                         清除所有
+                           clear()                          清除所有
 ----------------------------------------------------------------------------
 *****************************************************面向对象OOP：
 1、封装
@@ -591,12 +620,12 @@ localStorage.setItem(key，value)          设置
 ES6中的类和对象：
 class 声明一个类，属性和方法都要用this.xxx，构造方法里this指向实例对象，方法里指向调用者，比如按钮
 class 类名{    
-    constructor(name){      // 构造函数，必须要有
-           this.name = name;  // 属性
+    constructor(name){         // 构造函数，必须要有，类似python的__init__方法
+           this.name = name;   // 属性
      }   
-     fun(参数){ }   // 定义方法 
+     fun(参数){ }                    // 定义方法 
  }    
-obj = new 类名(参数);     // new 实例化一个对象
+obj = new 类名(参数);      // new 实例化一个对象
 obj.fun(参数)
 
 继承：
@@ -605,8 +634,8 @@ class Son extends 父类名{
     constructor(参数){
          super(参数);     // 调用父类的构造函数 ，可以传参，必须放在构造函数最前面
          this.xxx = xxx;
-         this.init()    // 初始化方法，不是必须
-         this.fun();   // 调用方法，this
+         this.init()    // 初始化方法，实例化对象时就执行，不是必须
+         this.fun();   // 调用方法
      }   
      init(){
               // 初始化方法
@@ -622,29 +651,29 @@ xxx.insertAdjacentHTML('beforeend', 元素)      插入元素，支持追加
 -----------------------------------------------------------------------------
 ES5构造函数和原型：
 必须和new一起使用
-function Obj(age, uname){  // 定义构造函数
-        this.age = age;    // 实例成员
-        this.uname = uname;
+function Obj(age, uname){        // 定义构造函数
+        this.age = age;                   // 实例成员
+        this.uname = uname;         // this.name特殊，建议不要使用，相当于window.name
          this.fun = function(){}
 }
-var obj = new Obj(xxx, xxx)
-Obj.age  // 不能通过构造函数访问实例成员
-Obj.sex = '男'    // 创建静态成员，只能通过构造函数访问
+var o = new Obj(xxx, xxx);
+o.age;                   // 不能通过构造函数Obj.age访问实例成员，相当于python实例属性
+Obj.sex = '男';     // 创建静态成员，只能通过构造函数访问，相当于python类属性
 
-构造函数存在浪费内存，因为构造函数里有如果定义了方法，每new一个对象都会在内存中开辟一块空间
+构造函数存在浪费内存，如果构造函数里定义了方法，则每new一个对象都会在内存中开辟一块空间
 
 构造函数原型prototype：
 *****为了实现类的继承而有的东西，原型是一个对象
 ******作用是共享方法，节约内存，一般是公共方法定义在原型对象上，因为new里面的方法会重新开辟内存空间
 Obj.prototyep.fun = function () {}    定义一个共享方法，节约内存，公共的方法
-obj.__proto__                                     指向构造函数的prototype对象
-Obj.prototyep == obj.__proto__      true
+o.__proto__                                       指向构造函数的prototype对象
+Obj.prototyep == o.__proto__         true
 
 constructor构造函数
-obj.__proto__.constructor    指向Obj，创建它的构造函数
+o.__proto__.constructor        指向Obj，创建它的构造函数
 Obj.prototyep.constructor   也指向Obj
 Obj.prototyep = { 
-     constructor: Obj,   // 因为这是以对象的形式赋值，会覆盖原来的constructor，所以要手动指向原来Obj对象，这样做方便定义共享方法
+     constructor: Obj,             因为这是以对象的形式赋值，会覆盖原来的constructor，所以要手动指向原来Obj对象，这样做方便定义共享方法
      f1：function(){},
      f2:   function(){},
 }
@@ -657,47 +686,46 @@ js成员按照原型链查找，相当于继承的查找，就近原则使用
 指向调用者
 
 原型的应用，扩展内置对象：
-Array.prototypes.sum = function(){}  // 给数组增加方法
-Array.prototypes = {}   // 不要这样做，会覆盖里面的全部方法
+Array.prototypes.sum = function(){}   // 给数组增加方法
+Array.prototypes = {}                          // 不要这样做，会覆盖里面的全部方法, 除非constructor: Array重新指向
 
-fn.call(要指向的对象，其它参数)  // call方法可以修改this指向 
+fn.call(要指向的对象，其它参数)          // call方法可以修改this指向 
 
 ES6前使用继承：
 使用call()方法实现继承
 fn.call()   // 可以调用fn函数
-function A(x, y){ this.x = x; this.y = y}
+function A(x, y){ 
+    this.x = x; 
+    this.y = y；
+}
 function B(x, y){
     A.call(this, x, y)   // 改变this指向，实现了继承
 }
 obj = new B(x, y);
 
 继承父类的方法：
-B.prototype = A.prototype  // 这样会有问题，修改了子原型对象，父原型对象也会修改
-
 B.prototype = new A()
 B.prototype.constructor = B  // 利用对象的方式修改原型对象要指回B
 obj = new B()
-obj.fun  // 这样就可以使用A的fun方法了
+obj.fun         // 这样就可以使用A的fun方法了
+
+B.prototype = A.prototype  // 这样会有问题，修改了子原型对象，父原型对象也会修改
+
 -----------------------------------------------------------------
 ES5新增方法：
-数组方法：遍历
-arr.forEach(function(value, index, arr){})   里面是一个函数
-map()  遍历，跟forEach相似，返回一个数组
-filter(function(value, index, arr){})   筛选，返回一个新数组
-some(function(value, index, arr){})    查找满足条件的第一个元素，返回布尔值
-every()   跟some相似，所有元素符合返回true，否则false
-
 字符串方法：
 xxx.trim()     去掉两边空格，返回新字符串
 
 对象方法：
-arr = Object.keys(obj)   把对象的属性放入数组，返回
-Object.defineProperty(对象，属性，{   // 修改对象的属性
-                             value: "xxx",  //  值
-                              writable: false， //  是否可以修改
-                              enumerable： false，  // 枚举，是否允许遍历出来，
-                              configurable：false      //  是否允许删除，或再次修改
-})   
+arr = Object.keys(obj)                                 // 把对象obj的属性放入数组，返回
+arr = Object.values(obj)                              // 值放入数组返回
+
+Object.defineProperty(对象，属性，{          // 修改对象的属性
+                              value: "xxx",                    //  值
+                              writable: false，             //  是否可以修改
+                              enumerable： false，    // 是否可枚举，是否允许遍历出来，
+                              configurable：false       //  是否允许删除，或再次修改
+                          })   
 -----------------------------------------------------------------------
 函数进阶：
 函数也是对象
@@ -710,6 +738,7 @@ var fun = xxx.bind(obj, xx,xx)      只是绑定，不会调用，返回新函�
 xxx.call(obj, xx, xx...)     会调用函数
 apply(obj, [xx,xx...])      会调用函数，求最大值应用：var max = Math.max.apply(Math, 数组)
 
+------------------------------------------------------------------------------------
 ES5严格模式：
 ie10以上才支持
 1、为脚本开启严格模式
@@ -726,7 +755,7 @@ function(){
 
 规范：
 变量必须先声明
-不能随意删除以定义的变量
+不能随意删除已定义的变量
 ***全局作用域的函数this指向undefined
 函数不能有重复形参
 函数不能在非函数的代码块声明：for...、if...
@@ -756,40 +785,32 @@ const    定义常量
 
 数组方法：
 var arr = Array.from(伪数组，函数(可选)对数组内每个值加工)     将伪数组转换为数组
-var s = arr.find(item=> item.id == 2)         查找第一个符合条件的值，不存在返回undefined
-findIndex(item => item >5)         查找第一个符合条件的值的索引，没有返回 -1
-arr.includes(value)   是否包含某个元素，布尔值
+var s = arr.find(item=> item.id == 2)         返回第一个符合条件的值，不存在返回undefined
+arr.findIndex(item => item >5)                   返回第一个符合条件的值的索引，没有返回 -1
+arr.includes('值')                                           是否包含某个元素，返回布尔值
 
 字符串：
 判断某个参数是否在开头还是结尾
 str.startsWith(value)
 str.endsWith(value)
+
 模板字符串：
-反引号
-str = `aaaa${变量名}`
+str = `aaaa${变量名}`       反引号
 
 集合set：
-add（value）   添加值，返回set本身。 例：var set = new Set();    set.add('aa').add('bb')   链式添加
-delete（value）返回布尔值，
-has（value）     返回布尔值，判断是否有value
-clear（）          清除所有元素
+var set = new Set();
+add(value)         添加值，返回set本身。 set.add('aa').add('bb')   链式添加
+delete(value）   删除，成功返回true
+has(value）       返回布尔值，判断是否有value
+clear(）             清除所有元素
 
 set.forEach（value）遍历
 
 -----------------------------------------------------------------
 js使用正则：
-1、var r = new RegExp(/xxx/)
+1、var r = new RegExp(/正则/)
 2、var r = /正则/
-r.test('字符串')    正则验证字符串，返回布尔值
-+，至少一次
-？，零次或一次
-*，零次到多次
-{n，m} 范围，{3，} 大于3次
-[abc], 其中一个
-[^abc], 取反
-（abc){3} ，小括号优先级，abc重复三次
-\w，字母、数字、下划线 ,\W取反
-\s，空格，\t\r\n\v\f
+r.test('字符串')           正则验证字符串，返回布尔值
 
 替换：
 var s = str.replace(正则，替换的字符)   返回新字符串
@@ -799,5 +820,14 @@ i：忽略大小写
 gi：全局匹配 + 忽略大小写
 
 
++，至少一次
+？，零次或一次
+*，零次到多次
+{n，m} 范围，{3，} 大于3次
+[abc], 其中一个
+[^abc], 取反
+(abc){3} ，小括号优先级，abc重复三次
+\w，字母、数字、下划线 ,\W取反
+\s，空格，\t\r\n\v\f
 
 

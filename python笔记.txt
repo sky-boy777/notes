@@ -1,4 +1,4 @@
-安装：pip install -r requirements.txt
+﻿安装：pip install -r requirements.txt
 导出：pip freeze > requirements.txt
 
 python的传递都是内存地址或引用传递
@@ -87,14 +87,27 @@ nginx使用，linux使用
 协程切换任务资源很小，效率高
 多进程、多线程根据cpu核数不一样可能是并行的，但协程是在一个线程中，所以是并发
 
-进程池：
-大量任务要执行时，创建一堆进程，形成进程池
+进程池、线程池：
+大量任务要执行时，创建一堆进程，形成进程池 (不用的时候休眠，就不会有销毁)
 优点：重复利用，减少创建和销毁的开销
 使用：一般在测试时进行压力测试使用
+会降低效率，因为池满后只能排队
+
+线程池中线程数：系统没什么压力，简单的异步场景使用cpu核心数，适当增加
+
+from multiprocessing import Pool      
+if __name__ == '__main__':
+pool = Pool(5)             # 进程池，最多5个进程
+for i in range(8):           # 8个任务，多出来的排队等待
+    pool.apply_async(fun, args=(参数, )，callback=回调函数)    # 非阻塞式，返回值给callback
+    # pool.apply(fun, args=(参数，))                                           # 阻塞式，并发，一个不结束，另一个不能进来
+pool.close()   关闭
+pool.join()     # 主进程守护
+
 
 开放封闭原则：
 封闭:已实现的功能代码块
-开放：对扩展开发
+开放：对扩展开放
 
 浏览器访问一个url过程：
 域名解析
@@ -110,7 +123,7 @@ nginx使用，linux使用
 2、标记清除：解决相互引用(循环引用)带来内存泄漏，引用计数一直不能为0
 3、分代回收：给一个权重，高的会隔很长时间才扫描一遍，解决引用计数的每次全部扫描缺点，但不能及时回收垃圾
 
-python进程是真正的并行
+python多进程是真正的并行
 
 http协议：请求和应答
 
@@ -124,8 +137,11 @@ http协议：请求和应答
 
 封装、继承、多态：python可以多继承
 
-GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一个线程在cup执行（上锁）
-只能是 并发，多核cpu使用多进程就是并行
+GIL：
+Cpython，互斥锁，阻止同一进程下多个线程不能同时执行，无法利用多核优势
+GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一
+个**线程**在cup执行（上锁）只能是并发，多核cpu使用进程就是并行
+进入IO，GIL会自动释放
 
 互斥锁：逻辑上避免线程间死锁
 
@@ -133,69 +149,74 @@ GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻
 赋值操作只是指向，浅拷贝跟深拷贝一个元组则是指向，如果元组里面有列表，
 则深拷贝就是深拷贝，浅拷贝还是指向。
 
-
 服务器（nginx）----WSGI协议--------web应用（django）
 
-面向切面编程：
-只管一点点地方，其它已经做好了
+面向切面编程：只管一点点地方，其它已经做好了
 
-python动态导入模块方式：ss = __import__("变量")
-
-格式化输出：print(f'{name}')
-
+------------------------------------------------------------------------
 python进程：
+进程是程序运行的实体
+稳定性高，一个进程崩溃，不会影响其它进程
+进程创建开销大
 内存中申请内存空间，把代码丢进去运行，资源单位
-****windows下创建进程会导入包含了目标函数的脚本文件，
-要在if __name__ == '__main___'下面，才不会导致无限循环创建进程
+windows下创建进程会导入包含了目标函数的脚本文件，要在if __name__ == '__main___'下面，
+才不会导致无限循环创建进程
 linux下是重新拷贝一份代码运行，不会出现这种问题
+
 创建进程：
 from multiprocessing import Process
-p = Process(fun, (a,))
-p.start()    # 告诉操作系统创建进程
-p.join()     # 主进程等待子进程执行结束才继续运行
+p = Process(target=fun, args=(a,))
+p.start()           # 告诉操作系统创建进程
+p.join()            # 主进程等待子进程执行结束才继续运行
 p.terminate()  # 杀死当前进程
-p.is_alive()  # 判断进程是否存活
+p.is_alive()      # 判断进程是否存活
 p.daemo = True  # 设置为守护进程
+p.run()            # 只是执行了任务，没有创建进程
 
-自定义类然后继承自Process也可以创建进程
+自定义类然后继承自Process也可以创建进程，重写run方法
 os.getpid()  # 查看当前进程的进程号
 os.getppid()  # 父进程号
 
 孤儿进程：子进程存活，父进程死亡
 守护进程：守护着某个进程，跟随它死亡
 互斥锁：使用前先加锁，牺牲效率，并发变成串行，保证安全
-行锁：锁住一行
-表锁：锁住一个表
 
 线程：
-执行单位
-join()  # 主线程等待子线程结束才结束
-同一个进程下多个线程数据共享
-active_count()  # 统计当前正在活跃的线程数
-守护线程：
-t.daemon()
-主线程等待所有非守护线程结束才结束
+执行单位，新建----（就绪，运行，阻塞）----结束
+同一个进程下多个线程共享进程资源
+from threading import Thread
+
+t = Thread(target=fun, targs=(参数，))  # 创建
+t.start()             # 开启
+t.join()              # 主线程等待子线程结束才结束
+t.active_count()  # 统计当前正在活跃的线程数
+t.daemon()      # 守护线程：主线程等待所有非守护线程结束才结束
+
+多线程同步：
+数据量大的时候加锁，量少的时候有GIL锁
+线程间通信：生产者消费者（队列）
+lock = threading.Lock()
+lock.acquire(timeout=5)     锁，超时时间
+......                   执行任务
+lock.release()   释放锁
+
 
 协程：
 单线程下实现并发，在代码层面的切换，程序遇到IO后在代码层面切换，yield切换
 gevent模块：
-简写加分号
-from gevent import monkey;monkey.patch_all()
+greenlet实现了协程，需要人工切换，而gevent模块一旦遇到IO则字典切换任务
+pip insatll gevent
+
+from gevent import monkey;monkey.patch_all()      # 猴子补丁，替换sleep，简写加分号
 from gevent import spawn
+
+g = spawn(fun，其它参数)
+g.join()  # 主进程等待，或gevent.joinall(g, g1, g2...)
 
 计算密集型用进程
 IO密集型用线程，因为线程切换开销小，进程切换开销大
+
 ****一般多进程下面开多线程下面开协程
-
-线程池、进程池：
-避免无限制创建，跟销毁带来的开销
-会降低效率，因为池满后只能排队
-
-GIL：
-Cpython，互斥锁，阻止同一进程下多个线程不能同时执行，无法利用多核优势
-GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一
-个**线程**在cup执行（上锁）只能是并发，多核cpu使用进程就是并行
-进入IO，GIL会自动释放
 
 递归锁：
 所有人都可以加锁跟释放锁，里面会有个计数器，加锁+1，释放-1，但只能有一个人能执行
@@ -241,49 +262,118 @@ is：比较id、地址
 提升程序解耦合度，扩展性增强
 缺点：设计复杂
 
-私有，对外不对内，外界不能访问、子类也不能访问：
-类定义的时变形才发生一次，之后定义的__开头的属性就是普通属性
+class AA([父类]):     # 定义类，驼峰命名
+    """这是一个类"""
+    
+    name = 'xxx'        # 类属性   
+    __age = 18          # 私有
+    
+    def __init__(self，age, name):   # 初始化方法，双下划线开头结尾：魔法方法
+
+        super.__init__(name)                      # 方法一，调用父类__init__初始化方法
+        super.(AA, self).__init__(name)       # 方法二
+        父类.__init(self, name)                    # 方法三，使用父类名直接调用
+
+        self.age = age         # 实例属性
+        self.__xxx = xxx       # 私有
+
+    def fun(self):        # 普通方法
+        super().fun()    # 调用父类的方法，同名
+        self.run()          # 调用方法
+
+    @classmethod
+    def fun(cls):       # 类方法，类来调用，类方法里面只能使用类属性
+        cls.xx = xx     # 类属性
+        cls.__age = 19  # 修改私有类属性，只能在类里面更改
+
+    @staticmethod
+    def func():         # 静态方法，只能访问类的属性跟方法
+        类名.属性或方法
+　　
+obj = 类名()  　# 实例化
+obj.方法()      # 使用方法
+obj.xx = 'xx'   # 添加对象属性
+类名.属性       # 查看类属性
+类名.类方法()   # 使用类方法
+类名.静态方法() # 使用静态方法
+
+同一个类里有多个相同的方法，后面的会覆盖前面的
+
+实例化发生的事：
+1、造一个空对象, __new__方法
+2、执行__init__方法
+3、返回初始化好的对象，__call__方法
+
+类能向上找到元类,对象不能向上找到元类
+
+魔法方法：
+双下划线开头和结尾,满足某种条件会自动调用
+
+def __new__(cls, *args, **kwargs)    # 实例化的魔法方法，向内存申请空间,单例设计模式使用到
+    return super().__new__(cls)
+
+def __init__(self)                   # 初始化
+def __str__（self）     # print打印对象会执行，返回字符串， return 'str方法'
+def __dict__
+def __del__     # 在del对象时会先执行(垃圾回收)，del obj或程序运行结束之前释放内存件
+def __call__(self, *args, **kwargs)     # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
+__doc__  # 
+       
+新式类：继承自Object，python3默认继承自Object
+经典类：不继承Object，python2
+
+私有，只有类内能使用，对外不对内，外界不能访问、子类也不能访问，继承不了，dir()看到变形后的
+类定义的时变形才发生一次，之后定义的双下划线"__"开头的属性就是普通属性
 私有属性：self.__age = 18
 私有方法：def __fun(self)：
 ***双下划线，不是真正意义上的私有
 访问：实例对象._类名.__属性名或方法
 
 为何要私有：
-外界会看到很多属性跟方法，会变得复杂
+不私有的话，代码提示或外界会看到很多属性跟方法，会变得复杂
 不想给外界直接使用，只能在内部开接口间接使用，可以在使用前附加逻辑
+
+外部访问：对象._类名__属性名,变形后的私有属性
 
 @property：
 类实现的装饰器，将方法当成属性使用
 
 使用方式：@property或老版本name = property(get_name(), set_name())
-@name.deleter   # del obj.name
+@property
+def name(self):      # 先使用property装饰，才能使用下面的
+    return self.__age
+
+@name.setter          # 能使用obj.name = '张三'
+def name(self, age):
+    if age:
+        self.__age = age
+    
+@name.deleter         # 能使用del obj.name
 def name(self):
 
-@name.setter    # obj.name = '张三'
-def name(self):
+is a 代表的是类之间的继承关系
+has a 代表的是对象和它的成员的从属关系，同一种类的对象，通过它们的属性的不同值来区别
 
 调用父类方法：
 super().父类方法     例：super().__init__()  # 参照属性最先发起者的mro顺序，新式类
 父类名.方法(obj, name, age)  
 
 继承的属性查找：
-类名.__mro__()    查看父类的方法调用顺序，C3算法计算继承顺序，形成一个列表
-先从当前对象找，然后到父类找，不是就近查找
+类名.__mro__    查看父类的方法调用顺序，C3算法计算继承顺序，形成一个列表
+先从当前对象找，然后到父类找，而不是就近查找
+
+新式类：广度优先查找，一条分支一条分支找，最后才是object，python3是广度优先
+经典类：从左至右，深度优先查找
 
 菱形继承或钻石：
     A           爷爷类，不是object类
-B       C      父类
+B       C       父类
     D           子类
 
 非菱形：
 A     B
 C     D    E
-       F
-新式类：广度优先查找，一条分支一条分支找，最后才是object
-经典类：深度优先查找
-
-新式类：继承自Object，python3默认继承自object
-经典类：不继承Object，python2
+      F
 
 继承：
 解决类与类之间的代码冗余问题，重用
@@ -317,7 +407,6 @@ hasattr(obj, 'age')  # 判断obj对象下是否有属性age，布尔值
 例子：
 getattr(obj, 'fun')()  # 获取obj对象的fun方法，并执行
 
-linux：一切皆文件
 
 类在内存中只有一份，实例对象有很多个
 类属性：aaa = 'bbb'，使用：类名.类属性，实例对象.类属性（不推荐），向上查找
@@ -348,32 +437,45 @@ class mymeta(type):  # 继承了type，称为元类
 class Obj(metaclass=mymeta):
     pass
 
-实例化发生的事：
-1、造一个空对象, __new__方法
-2、执行__init__方法
-3、返回初始化好的对象，__call__方法
+-------------------------------------------------------
+单例设计模式：
+一种开发模式
+只有唯一 一个实例对象，无论实例化多少个对象，内存地址都是相同的，省内存
 
-类能向上找到元类
-对象不能向上找到元类
+__new__方法，返回对象的引用
+def __new__(cls, *args, **kwargs):
+    obj = super().__new__(cls)   # 固定写法，返回super().__new__(cls)
+    return obj
 
-----------------------------------------------------
-类内置方法（魔法方法）：
-双下划线开头和结尾
-满足某种条件会自动调用
-__str__（self）  # print打印对象会执行，返回字符串， return 'str方法'
-__dict__
-__del__  # 在del对象时会先执行，del obj或程序运行结束之前释放内存，可以自定义关闭文件
-__new__  （cls，*args, **kwargs）# 创建一个空对象
-__call__(self, *args, **kwargs)    # 使对象能加括号调用，例：obj = Obj(), obj()
+重写父类的__new__方法实现单例模式：
+class Obj():
+    __obj = None  # 保存单例的地址
+    flag = False     # 定义一个标志，只执行一次初始化动作__init__
 
+    def __new__(cls, *args, **kwargs):
+        if cls.__obj is None:
+            cls.__obj = super().__new__(cls)  # 也可以使用object.__new__(cls)
+        return cls.__obj                               # 每次实例化对象都返回第一次实例的对象的引用
 
+    def __init__(self):                                 # 单例应该只初始化一次
+        if Obj.flag:
+            return
+        # 执行初始化动作
+        ......
+        # 将初始化标志置位True
+        Obj.flag = True
 ------------------------------------------------------
 python内置函数：
+在builtins.py文件里面
+
 a = [1,2]
 type(type(a)) == <class 'type'>
 
-***map(func, 可迭代对象)   得到生成器对象
-***filter(func, 可迭代对象)   过滤
+from functools import reduce
+res = reduce(lambds x，y：x+y, 可迭代对象，初始值(给第一个x))  # 将可迭代对象的每一个元素交给匿名函数运算
+
+***map(func, 可迭代对象)   得到生成器对象，list（map(func, 可迭代对象)）得到列表
+***filter(func, 可迭代对象)   过滤，结果需要转换为列表
 ***all（）                  全部为真返回True否则False
 ****dir（Foo）          查看有什么属性、方法
 ****divmod（10，3）计算商跟余数，返回（商，余数）
@@ -397,79 +499,83 @@ pow（10，2，3）平方，10的平方求余3
 round（1.4）四舍五入，返回整数
 slice（1，4，2）切片
 sum（）
-
+help(对象)  查看帮助信息
 
 排序依据字典value：
-res = sorted(dic, key=lambda k: dic[k])
-
--------------------------------------------------------
-单例设计模式：
-只有唯一 一个实例对象，无论实例化多少个对象，内存地址都是相同的，省内存
-__new__方法，返回对象的引用
-def __new__(cls, *args, **kwargs):
-    obj = super().__new__(cls)   # 固定写法，返回super().__new__(cls)
-    return obj
-
-使用__new__实现单例模式：
-class Obj():
-    obj = None
-    flag = False  # 定义一个标志，只执行一次初始化动作__init__
-
-    def __new__(cls, *args, **kwargs):
-        if cls.obj is None:
-            cls.obj = super().__new__(cls)
-        return cls.obj  # 每次实例化对象都返回第一次实例的对象的引用
-
-    def __init__(self):
-        if Obj.flag:
-            return
-        # 执行初始化动作
-        ......
-        # 将初始化标志置位True
-        Obj.flag = True
+res = sorted(dic, key=lambda k: dic[k])     按照关键字key排序
 
 async def：定义协程函数
+
 垃圾回收机制：引用计数、标记清除、分代回收
+sys.getrefcount(对象)      查看引用次数
 
 转为二进制：bytes（'hello', encode='utf-8'）
 
 python 三元表达式 ： a = 'b'  if  x>y  else  'c'
-列表生成式：[  ]
-字典生成式：  {}
-集合生成式：  {}
-没有元组生成式，因为元组不可变
-其它生成式：
-生成器表达式：
-g = (i for i in range(10))
-next(g) <==> 0
 
-with open('aa.txt', 'r') as f:
-    g = (i for i in f)  # 生成器方法读取文件，效率最高
+列表推导式：[表达式 for i in 列表 if 条件 for j in...]           可以多层嵌套
+字典推导式：  {key: value for key,value in dic.items()}
+集合推导式：  {i for i in range(10)}
+没有元组推导式，因为元组不可变
 
-迭代器：不依赖索引取值，基于上一次的结果继续，需要时创建一个值，节省内存空间，生成循环。
+--------------------------------------------------------------------------------------
+内置可迭代的对象：生成器，列表，元组，字典，集合，str
+from collections import Iterable
+isinstance(list1, Iterable)              # 判断对象是否是可迭代的
+
+iterable：可迭代的
+iterator：迭代器
+
+迭代器（Iterator）：
+迭代器是访问集合元素的一种方式，迭代器是一个可以机制遍历的位置的对象。
+迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。
+***可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator
+
+特点：
+迭代器只能往前不会后退，可以不依赖索引取值
 内置了__iter__方法的称为可迭代对象，__next__方法调用一次返回一个值，合起来成为迭代器对象
 缺点：迭代器对象不能按索引取值，不能倒退，有生命周期，取完值就没了
 
-生成器：一种迭代器，yield让代码挂起，下次从当前位置继续执行，yield后默认返回None
+iter(list1)               iter()函数可以将可迭代的变成一个迭代器
+***所以可迭代对象不一定是迭代器，生成器一定是迭代器
+
+生成器：
+生成器是一种迭代器，yield让代码挂起(暂停)，下次从挂起位置继续执行，yield后默认返回None
+用到的时候再生成，节约内存
+
+创建生成器：
+方式一：将列表推导式的括号改为小括号
+g = (i for i in range(10))       创建一个生成器
+next(g)                                 内置函数取值，一次产生一个值，取不到会报错
+g.__next__()                          取值，一次产生一个值，取不到会报错
+
+方式二：函数里面加yield关键字
 def func()
     print('********')
-    x = yield 1
-f = func()   # 调用函数得到一个生成器，函数体代码不会执行
-f.__next__()  # 执行__next__()方法得到yield后面的值
-f.send('一个值')   # 值给了x ，生成器刚开始不能传值，有next功能
-f.close()  # 关闭后无法send()传值
+    x = yield 1                    # 函数中出现yield关键字，则变成生成器，不是函数
+f = func()                          # 调用函数返回值是一个生成器，函数体代码不会执行
+v = f.__next__()                 # 执行__next__()方法得到yield后面的值，或next(f)
+v = f.send('值')                  # 值传给了x ，第一次send只能能传None值，有next功能
+f.close()                             # 关闭后无法send()传值
 
 for i in 可迭代对象，循环调用__iter__()得到迭代器对象，每次调用__next___()返回一个值给i
 
-解包：
-l = [1,2]
-x, y = l
+生成器应用：协程（交替执行，并发）
 
+with open('aa.txt', 'r') as f:
+    g = (i for i in f)     # 生成器方法读取文件，效率最高
+
+---------------------------------------------------------------------------------------------
 递归：
 python递归默认是1000层，可以修改
 两个阶段：
 1、回溯：一层层调用下去
 2、递推：满足某种条件，结束递归，一层层返回
+def sum(n):
+    if n==0:          # 递归出口
+        return 0
+    return n+sum(n-1)  # 累加求和
+
 
 数字类型int与float：
 int(1.23) <=> 1
@@ -517,7 +623,7 @@ del my_list[2]           删除索引为2的
 l.sort(reverse=True，key=func)       排序，  reverse=True降序，key排序的函数，不能同时有数字跟字符
 
 列表比较：元素依次比较，数字跟字符串比较会报错，字符串按ASCII码比较
-m = max(l)              找出最大值，比较，数字跟字符不能比较，最小值min()
+m = max(l，[key=lambad])              找出最大值，比较，数字跟字符不能比较，最小值min(), key可选
 s = sum(l)                求和，列表内只能是数字
 l = sorted（l）        排序，默认升序，reverse=True降序，数字跟字符不能比较         
 
@@ -638,6 +744,39 @@ f = frozenset({1,3})    不可变集合
 类型转换：
 str   转     int，list，set，tuple
 ----------------------------------------------------------------------------------------------
+
+文件操作：
+模式：
+r         默认读文本"rt"，读二进制"rb"(图片)，找不到文件报错
+w        写，覆盖原有内容，找不到文件则创建，"wb"写入二进制(图片)
+x         创建并以写方式打开,
+a         追加，文件不存在则创建文件进行写入
+b         二进制 
+t         默认
++        r+、w+、a+都是以读写方式打开文件
+U
+
+f = open(file, mode='r', encode='utf8')              打开文件，返回一个流
+读：
+content = f.read()                       读全部
+f.readable()                                  判断是否可读取
+f.readline()                                   读取一行，末尾有换行
+f.readlines()                                  读取多行，返回一个列表
+f.seek()
+f.seekable()
+f.name                                          返回打开的文件名
+
+写：
+f.write('xxx')                               返回3，写入的字符数，默认没有换行
+f.writelines(['xxx\n', 'yyy'])         迭代写入'\n'换行
+
+f.close()                                                                关闭文件
+
+with open(file, mode='r', encode='utf8') as f:     打开文件方式二，自动释放资源
+    with open(file, 'r') as f2:
+
+文件复制原理：读取一个文件内容到缓存，再写入到另一个文件
+
 文件修改两种方式：
 1、打开全部读入内存修改，再以w模式打开，将内存中的内容写入文件，速度快，不适合大文件
 2、打开两个文件，读入一行写入一行，最后使用os.remove(文件路径)删除旧文件，然后修改新文件名，占内存小
@@ -652,7 +791,126 @@ while True:
     print(t)
 f.close()
 
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+os模块：
+操作系统接口模块
+import os
+os.path.dirname(__file__)   当前所在的文件目录路径，绝对路径，str类型
+os.getcwd()                        同上
+os.path.join(os.path.dirname(__file__), '图片'，'图片2'，'aa.jpg')      路径拼接，可以多个
+os.path.isabs('xxx/xx/x.jpg')                                    判断是否是绝对路径
+os.path.abspath('a.txt')                                           获取文件的绝对路径，传入__file__当前文件绝对路径
+os.path.split('xx/xx/aa.jpg')                                     将文件路径和文件名切割
+os.path.splitext('xx/xx/aa.jpg')                                将文件路径和扩展名切割，('xx/xx/aa', ".jpg")
+os.path.getsize('xx/xx/aa.jpg')                                返回文件大小，单位：字节
+os.path.isfile()          是否是文件
+os.path.isdir()           是否是路径
+
+os.listdir(目录)                      返回目录下的所有文件，列表
+os.mkdir(目录)                      在目录下创建文件夹
+os.rmdir(目录)                       删除目录下的文件夹，只能删除空目录
+os.path.exists(r'c:')                判断是否是一个目录
+os.removedirs(目录)             只能删除空目录
+os.remove('xx/aa.txt')          删除文件
+os.chdir(r'd:')                        切换目录到D:\\盘
+
+删除非空文件夹：
+flist = os.listdir(目录)        列出文件夹下的所有文件，然后删除所有文件，再删除空目录
+for f in flist:
+    path1 = os.path.join(目录，文件名)       拼接文件
+    os.path.remove(path1)                          删除文件
+else:
+    os.rmdir(目录)                                         删除空文件夹
+
+
+sys模块：
+python自身的运行环境
+import sys
+sys.path               模块搜索路径，先从当前项目下，最后的第三方包site-packages
+sys.version           python版本
+sys.argv               一个列表，终端运行python xxx.py aa bb，将后面的参数放入这个列表  
+
+
+time模块：
+import time
+****t = time.time()                时间戳
+****time.sleep(3)                   睡眠3秒
+****time.strftime('%Y-%m-%d %H:%M:%S')        输出格式转换：'2021-06-15 17:08:53'
+time.ctime(t)                   时间戳转换成日期：'Tue Jun 15 17:01:48 2021'
+a = time.localtime(t)       时间戳转为元组形式：time.struct_time(tm_year=2021, tm_mon=6, tm_mday=15, 
+                                        tm_hour=17, tm_min=1, tm_sec=13, tm_wday=1, tm_yday=166, tm_isdst=0)
+time.mktime(a)               元组转成时间戳, 秒形式
+time.strptime('2020/11/23', '%Y/%m/%d')    转换成元组：time.struct_time(tm_year=2020, tm_mon=11, 
+                                                                        tm_mday=23, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=0, 
+                                                                        tm_yday=328, tm_isdst=-1)
+
+datetime模块
+import datetime
+datetime.date.today()             返回今天日期
+datetime.datetime.now()        返回现在日期时间
+datetime.timedelta(week=3)  返回3周后，可以加减的时间         
+
+random模块：
+import random
+random.random()                   [0-1)之间小数
+random.randrange(1, 10, 2)   1到10之间整数，步长2
+random.randint(1,5)                范围内的整数
+random.choice('xx')                 随机选取
+random.shuffle(列表)                 打乱列表顺序，无返回
+
+随机验证码：
+code = ''
+for i in range(4):
+    r1 = str(random.randint(0, 9))                 数字
+    r2 = chr(random.randint(65, 90))            大写字母，chr函数将数字转为字符
+    r3 = chr(random.randint(97, 122))          小写字母
+
+    code += random.choice([r1, r2, r3])
+
+
+hashlib模块：
+哈希加密，不可逆
+m5 = hashlib.md5('xxxxx'.encode('utf-8'))        md5加密，字符串要先编码
+m5.hexdigest()                                                   查看加密结果，32位
+sha1                 40位
+sha224             56位
+sha256             64位
+sha512             128位
+
+
+re模块
+正则表达式
+import re
+r = re.match('^xx$'， '字符串')      从开头开始匹配，没有返回None
+r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
+r = re.findall('^xx$'， '字符串')       匹配全部，找到全部
+r = re.sub(正则, '新内容'，'str')        替换
+r = re.split(正则，切割依据)             切割，返回列表
+r.group()                                        提取匹配到的内容
+
+贪婪匹配：尽可能多的匹配字符
+
+"." 匹配除换行符（\n）之外的所有字符
+"^"  开头
+"$"  结尾
+"*" 匹配前面0次或多次
+"?" 匹配前面0次或1次
+"+" 匹配前面1次或多次
+{m, n}  匹配前面的m次到n次，{m, }m次到多次
+[a-z0-9]    匹配其中一个，范围
+[^a-z]       取反
+\s             空白，大写相反，下同
+\d             数字
+\b            边界
+\w           [a-z0-9A-Z]
+"|"           或
+()             分组，r.group(1)提取第一组
+
+
+第三方模块：
+pip install 模块名
+pillow    处理图片
+----------------------------------------------------------------------------------------------------
 函数：
 申请内存空间保存函数体代码，内存地址绑定函数名，定义会检测语法
 func(1, 3) * 10        # 函数的返回值乘10
@@ -666,8 +924,9 @@ def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1
 fun(**字典)           解包字典，传给形参**kwargs再封包
 
 lambda匿名函数：
+lambda 参数：返回值
 精简，用在临时使用一次的场景
-方式一：fun = lambda x, y：x + y
+方式一：fun = lambda x, y：x + y          或者 lambda *args：print（args）,不能使用**kwargs
 fun(1, 2)
 返回：3
 
@@ -691,54 +950,77 @@ def func()
     x = 222
 func()
 报错，在定义前使用x，作用域
---------------------------------------------------------
-全局作用域：global用在改变不同作用域的不可变类型
-nonlocal：局部作用域的修改，不是本地，在当前层的外一层开始
-
+----------------------------------------------------------------------------------------------------
+global：全局作用域，用在改变不同作用域的不可变类型
+nonlocal：非局部作用域的修改，不是本地，在当前层的外一层开始，修改闭包的外部函数的值
+----------------------------------------------------------------------------------------------------
 闭包：
-拥有函数功能，还有函数数据
-一个函数里面有另一个函数，内部函数使用到外层函数的变量，返回内部函数
+特点：拥有函数功能，还有函数数据，一个函数里面嵌套另一个函数，内部函数使用到外层函数
+的变量，并且返回值是内部函数（不调用）
+
+有点像类
+
+缺点：
+作用域每那么直观，变量不会被垃圾回收，所以有一定的内存占用问题
+
+作用：
+可以使用同级作用域，读取其它函数内部变量，延长作用域
+
+总结：
+闭包看似优化了变量，原来需要类对象完成的工作，闭包也可以完成
+由于闭包引用了外部函数的局部变量，则外部函数的局部变量没有及时释放，消耗内存
+闭包的好处是使代码变得简洁，便于阅读
+闭包的理解装饰器的基础
+
 def fun(a):
+    c = 10
     def fun2(b):
-        print(a+b)
+        print(a+b+c)
     return fun2
 
-my_fun = fun(1)   my_fun得到fun的返回值fun2的函数引用
-my_fun(2)   执行fun2函数
-输出：3
+my_fun = fun(1)               my_fun得到fun的返回值fun2的函数引用
+my_fun(2)                         执行fun2函数
+输出：13
 
-nonlocal：在闭包里使用
 -------------------------------------------------------------------
-装饰器：
-改变原函数的指向，在不改变原代码，还是原来的调用方式上，给它加功能
-在闭包基础上，传入参数为函数的引用
-通用装饰器：有返回值，有不定参数
-def f1(func):     # 参数是一个函数对象
-    def wrapper(*args, **kwargs):   # 跟被装饰的函数参数跟返回值要一样
+装饰器(decorate)：
+不改变原代码，改变原函数的指向，还是原来的调用方式，在它执行的前后加功能
+在闭包基础上，传入**函数作为参数**
+
+***先执行装饰器，再执行被装饰的函数
+
+通用装饰器：有返回值，有不定参数：
+import functools
+
+def f1(func):                                   # 参数是一个函数对象
+    print('先执行这一行')
+    @functools.wraps(func)            # 这一句可以将__doc__的内容还是原来被装饰函数的内容 
+    def wrapper(*args, **kwargs):   # 跟被装饰的函数参数跟返回值要一样，封包
          ....
-         res = func(*args, **kwargs)
+         res = func(*args, **kwargs)  # 这里将*args、**kwargs拆包
          .....
          return res
     return wrapper
 
-@f1    #  等价于 test = f1(test)， f1的返回值是一个函数引用，@f1叫语法糖，因为更简洁了
+@f1          #  指向改变test = f1(test) <==> wrapper， f1的返回值是一个函数引用，"@f1"叫语法糖，因为更简洁了
 test()
 
 多个装饰器先装下层的，调用则先最外层一层一层下去：
 加载顺序：自下而上
 执行顺序：自上而下
-@f1  # fun = f1(fun = f2(fun))
-@f2  # fun = f2(fun)
-fun()
-先执行@f2
+
+@f1      # fun = f1(fun = f2(fun))
+@f2      # fun = f2(fun)
+fun()     # 先执行@f2
 
 带参数装饰器：
-在外面再包一层，先调用参数，在返回内层装饰器
+在装饰器外面再包一层，先调用参数，在返回内层装饰器
 def s(num)
     def f1(func):
         def wrapper(*args, **kwargs):
              ......
              res = func(*args, **kwargs)
+             print(num)  # 使用带参数装饰器的参数
              ......
              return res
         return wrapper
@@ -754,19 +1036,80 @@ test()
 @MyClass.静态方法
 test()
 ------------------------------------------------------------------
-help(对象)  查看帮助信息
+
+异常：
+try:
+    可能发生异常的代码
+except Exception as e：
+    pass
+except 异常类型 as 别名：
+    print(别名)
+......
+finally:
+    最后执行这里
+
+try结合return使用：
+def fun():
+    try:
+        return 11
+    except:
+        return 22
+    else:               # else要放在finally前面才不会有语法错误
+        pass           
+    finally:
+        ....
+        return 33   # 这里有return，则try跟except里面的return不会执行，
+                             没有return，则执行这里的语句后，才执行上面try或except里面的return
+fun()
+
+主动抛出异常：
+raise Exception('这是异常信息')
+try:
+    raise Exception('异常')
+except:
+    print('捕获异常')
+
+-----------------------------------------------------------------------------------
+
+python包：
+__init__.py文件：
+当导入包的时候会默认执行__init__.py文件里的东西
+
+from 模块 import *：可以使用模块里面的所有内容，如果没有定义__all__ = []
+from 包 import *： 该包中的内容(模块)是不能访问的，需要在__all__ = []定义可以访问的模块，一般
+                               在包的__init__.py中定义__all__ = []暴露
+
+在模块中使用__all__ = ['通过* 可以访问的模块']，可以限制在使用from aa import *导入的内容就是__all__里的内容
+
+python动态导入模块方式：ss = __import__("变量")
+
+if __name__ == '__main__'
+在当前模块打印__nam__的值是__main__
+在其它模块导入执行时__name__的值的模块名
 
 绝对导入：从包开始
 相对导入：从当前位置开始，不能超出包的位置
-循环导入问题
+
+大型项目中，模块之间相互导入，出现循环导入问题
+避免方法：
+1、重新架构
+2、将导入语句放在其它地方，比如函数里面（推荐）
+3、把导入语句放到最后
 
 print(__file__)  # 当前文件的绝对路径
 
-判断文件是否存在：os.path.exists(文件路径)
-删除文件：os.remove(文件路径)
 ----------------------------------------------------------------------------------
-更新笔记
+
 r'\'不能单独出现,或在末尾出现
+if 1：a += 2         可以这样写，后面只能一条语句
+
+格式化输出：print(f'{name}')
+
+LEGB：
+L：local 本地 局部变量
+E：encloseing 嵌套
+G：global 全局
+B：built-in 内置的
 
 
 

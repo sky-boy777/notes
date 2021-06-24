@@ -115,4 +115,5 @@ function (msg) {
 38、cmd-->tasklist查看进程，linux使用ps aux
 39、缓存，缓冲区别：缓存cache用来加锁数据从硬盘 "读取"，缓冲buffer用来加速数据 " 写入"硬盘
 40、3V：海量Volume、多样Variety、实时Velocity。3高：高并发、高可扩、高性能
+41、windows下在文件夹中的路径搜索框输入cmd回车能直接在当前路径打开cmd框
 

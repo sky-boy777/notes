@@ -3,16 +3,16 @@
 ---------------------------------------------------------
 js创建ajax：
 var xhr = new XMLHttpRequest();     创建ajax对象
-xhr.open('post', 'url');       构建请求
+xhr.open('post', 'url');                         构建请求
 xhr.setRequestHeader('Content-Type', 'application/json')   请求信息
-xhr.send();        发送
-xhr.onload = function(){         监听，请求有响应后会触发加载事件
+xhr.send();                                发送
+xhr.onload = function(){          监听，请求有响应后会触发加载事件
              xhr.responseText        获取响应数据，一般是json
-             xhr.status                  http状态码
+             xhr.status                    http状态码
 }
 ------------------------------------------------------------------------------
 json转化为js对象：
-JSON.parse(json字符串)    
+JSON.parse(json字符串)    转为js
 JSON.stringify(对象)
 
 get请求：
@@ -23,61 +23,60 @@ post请求：
 设置请求参数：key，value：
 1、xhr.open('post', 'http://www.baidu.com/'); 
 2、xhr.setRequestHeader('Content-Type', 'application/json')    固定写法，请求参数格式类型：application/x-www-form-urlencoded    
-3、xhr.send(JSON.stringify({name: 'xxx', age: 18}))      传递json格式数据：JSON.stringify()
+3、xhr.send(JSON.stringify({name: 'xxx', age: 18}))                     传递json格式数据：JSON.stringify()
 
 ajax状态码，send后会不断变化：
-0: 刚创建ajax对象，var  xhr = new XMLHttpRequest();
-1：已经对ajax对象进行了配置，xhr.open('post', 'url');  xhr.send();
+0:   刚创建ajax对象，var  xhr = new XMLHttpRequest();
+1：已经对ajax对象进行了配置，xhr.open('post', 'url');......  xhr.send();
 2：请求已发送
 3：已接收服务端部分数据
 4：接收完全部数据
 xhr.readyState      获取状态码
 
 ajax状态码发生变化时自动触发事件
-1、onload：只调用一次，不需要判断状态码，不兼容ie低版本
-2、onreadystatechange：调用多次，需要判断Ajax状态码，兼容ie低版本
+1、onload                          只调用一次，不需要判断状态码，不兼容ie低版本
+2、onreadystatechange    调用多次，需要判断Ajax状态码，兼容ie低版本
 xhr.onreadystatechange = function(){     
            xhr.readyState   // 获取状态码
 }    
-xhr.send()   先监听再发送
+xhr.send()         先监听再发送
 
 http状态码处理：
-xhr.status         获取http状态码，2xx, 4xx.....
+xhr.status                    获取http状态码，2xx, 4xx.....
 
 xhr.onerror = function(){}  网络中断时触发
 
 ie有缓存，只发生一次请求，后续相同请求只在缓存中查找数据
-请求添加随机字符串：Math.random()，0~1之间的小数
+请求添加随机字符串：Math.random()，[0~1)之间的小数
 
 application/x-www-form-urlencoded        // key=value&k=v
-application/json      // {'name'：'xxx', 'age': '18'}
+application/json                                          // {'name'：'xxx', 'age': '18'}
 
 var c = xhr.getResponseHeader('Content-Type')   获取响应头Content-Type的数据，判断返回数据的类型
 
 Object.assign(obj1, obj2)       obj2对象覆盖obj1的属性
-xxx.oninput = function(){}     用户输入时触发事件
+xxx.oninput = function(){}      用户输入时触发事件
 
 formData对象（H5新增）：
-模拟表单
-异步上传二进制文件
+模拟表单，异步上传二进制文件
 var form = document.getElementById('form')    获取表单元素
 var fd = new FormData(form)      new一个对象
 ...
 xhr.open('post', 'url');  
-xhr.send(fd)    发送表单中的数据
+xhr.send(fd)               发送表单中的数据
 
-fd.get('key')             获取表单中的数据key为表单中name     
+fd.get('key')               获取表单中的数据，key为表单中name     
 fd.set('key', 'value')   设置值，覆盖相同key
 fd.delete('key')          删除
-fd.append('key', 'value')   追加，不会覆盖相同key，服务器端只会接收最后一个
+fd.append('key', 'value')   追加，不会覆盖相同key，服务端只会接收最后一个
 
 formData二进制文件上传：
 var file = document.getElementById('file')    获取input表单type='file'元素
 var fd = new FormData()
-file.onchange = function(){   // 有文件上传时触发事件
-         fd.append('xxx', this.files[0])    文件下标
+file.onchange = function(){              // 有文件上传时触发事件
+         fd.append('xxx', this.files[0])    // 文件下标
 }
-只能post请求上传文件
+**只能post请求上传文件
 xhr.send(fd)
 
 xhr.upload.onprogress = function(e){      // 文件上传过程中会不断触发onprogress事件
@@ -91,7 +90,7 @@ xhr.upload.onprogress = function(e){      // 文件上传过程中会不断触�
 同源策略作用：
 保证用户信息的安全，防止恶意的网站窃取数据。
 
-浏览器端才有跨域
+浏览器端才有跨域，浏览器会尝试请求
 
 JSONP解决同源限制：
 ajax跨浏览器请求
@@ -104,8 +103,8 @@ ajax跨浏览器请求
 <script src='https://www.baidu.com？callback=fn'></script>  
 -----------------------------------------------------------------------------------------------------------
 ***CORS跨域资源共享：
-浏览器检测response中有没有响应头叫Access-Control-Allow-Orign：的，有则代表能正常跨域
-这个响应头是在后端添加的Access-Control-Allow-Orign：'*'
+浏览器检测response中有没有响应头Access-Control-Allow-Orign：，有则代表能正常跨域
+这个响应头是在后端添加的，Access-Control-Allow-Orign：'*'，*表示允许所有主机
 
 在服务端，设置允许跨域的主机（白名单）
 非同源，ajax跨浏览器请求
@@ -120,17 +119,17 @@ jQuery发送Ajax：
 $.ajax({ 
        type: 'get',
        url: 'url',
-       data:  {nane: 'xxx', age: 18}     //  内部自动转换为：data: 'name=xxx&age=xx'，json数据要先使用JSON.stringify()转换
+       data:  {nane: 'xxx', age: 18}     //  内部自动转换为：'name=xxx&age=xx'，json数据要先使用JSON.stringify()转换
        contentType: 'application/x-www-form-urlencoded ',    // json数据：application/json 
-       beforeSend：function(){},  // 发送前调用，可以验证内容，return false会终止发送
+       beforeSend：function(){},            // 发送前调用，可以验证内容，return false会终止发送
        success：function(response){},   // 根据响应头自动转换数据类型，响应头为application/json，会自动转为json对象
-       error：function(xhr){}  // 请求失败调用
+       error：function(xhr){}                  // 请求失败调用
 })；
 
 jquery发送jsonp请求：
 $.ajax({ 
        url: 'url',
-       dataType：'jsonp',   // jsonp
+       dataType：'jsonp',   
         success：function(response){},   
 })；
 
@@ -141,20 +140,20 @@ $.post('url', {name: xxx, age: xxx}, function(){})
 
 jQuery中Ajax全局事件：
 全局，相当于中间件，必须绑定在document上
-$(document).on('ajaxStart', function(){})   // 页面中有Ajax请求发送时触发
-$(document).on('ajaxComplete', function(){})  // 页面中Ajax请求完成时触发
+$(document).on('ajaxStart', function(){})              // 页面中有Ajax请求发送时触发
+$(document).on('ajaxComplete', function(){})      // 页面中Ajax请求完成时触发
 --------------------------------------------------------
 RESTful风格api：
-get：获取数据
+get：  获取数据
 post：发送处理数据
-put：保存数据
+put： 保存数据
 delete：删除数据
 
 请求地址使用名词：/users
 -----------------------------------------------------
 XML可扩展标记语言，用于传输数据和存储数据
-var x = xhr.responseXML()  获取xml类型数据
-x.getElementByTageName('xx')
+var x = xhr.responseXML()             获取xml类型数据
+x.getElementByTageName('xx')     获取数据
 
 
 

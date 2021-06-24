@@ -18,7 +18,7 @@ delete删除数据可以恢复，大量数据删除可能会报磁盘空间不�
 
 -------------------------------------------------------------------------------------------
 事物4大隔离级别，依次递增：
-1、读未提交：所以事物都可以读取其它未提交的事务执行结果，造成：脏读、不可重复读、幻读
+1、读未提交：所有事务都可以读取其它未提交的事务执行结果，造成：脏读、不可重复读、幻读
 2、读提交：事务提交前，其它只能拿到提交后的内容，大多数数据库的默认隔离级别，造成：不可重复度、幻读
 3、可重读：MySQL默认隔离级别， 同一个事务并发读取数据时，会看到同样的数据，造成：幻读。
 4、可串行化：强制事务排序，使之不可能相互冲突，解决幻读问题，再每个读数据上加共享锁，会导致大量超时和锁竞争。
@@ -39,18 +39,18 @@ delete删除数据可以恢复，大量数据删除可能会报磁盘空间不�
 mysqldump -uroot -p --all-databases --lock-all-tables  >  文件名.sql
 
 导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
-导入2：>source back.sql;
+导入2：>>source back.sql;
 
 安装：
 centos安装MySQL  官方安装指南：https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/#repo-qg-yum-fresh-install
 
 wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm  下载rpm软件包
 rpm -ivh mysql-community-release-el7-5.noarch.rpm  安装软件包
-yum update  更新
-yum install mysql-server  安装mysql
-systemctl start mysqld  启动
-systemctl status mysqld  查看运行状态
-mysqladmin --version  查看版本
+yum update                                     更新包
+yum install mysql-server                 yum在线安装mysql
+systemctl start mysqld                    启动
+systemctl status mysqld                 查看运行状态
+mysqladmin --version                    查看版本
 grep "temporary password is generated" /var/log/mysqld.log   查看临时密码
 
 修改密码策略
@@ -66,23 +66,23 @@ grep "temporary password is generated" /var/log/mysqld.log   查看临时密码
 ----------------------------------------------------------------------------------------------
 数据类型
 enum（“男”，“女”） 枚举，下标从1开始
-decimal（5，2）      小数类型  两位小数
-int unsigned      无符号整型
+decimal（5，2）        小数类型  两位小数
+int unsigned              无符号整型
 bit      二进制类型 8位   存0、1
 ---------------------------------------------------------
 
 创建数据库：create database 数据库名  default charset=utf8;
-创建表：create table if not exists 表名(字段1 类型 约束 约束...,字段2 类型 约束...);
+创建表：create table if not exists 表名(字段1 类型 约束 约束..., 字段2 类型 约束...);
 例如：create table aa(id int primary key auto_increment,  create_time varchar(15));
 
-删除：drop database 数据库名;
+删除：
+drop database 数据库名;
 drop table  表名;
 
 select database();  查看当前使用的数据库
-desc 表名； 查看表结构
+desc 表名；           查看表结构
 
-
-添加外键：ALTER   TABLE    当前表    ADD    FOREIGN KEY(当前表要添加外键的字段)    REFERENCES   目标表(id);
+添加外键：ALTER    TABLE    当前表名    ADD   FOREIGN KEY(当前表要添加外键的字段)    REFERENCES   目标表名(id);
 
 显示表：show tables from 数据库名；
 
@@ -91,7 +91,7 @@ desc 表名； 查看表结构
 重命名： alter table 表名 change 原名 新名 类型及约束 
 删除字段： alter table 表名 drop 字段名
 添加字段：alter table 表名 add 字段名 类型 约束;
-添加外键： alter table 表1 add foreign key （表1字段名） references 表2(字段名)
+添加外键： alter table 表1 add foreign key(表1字段名） references 表2(id)
 删除外键：alter table 表名 drop foreign key 外键字段名
 
 ********存储别的表的主键的字段叫外键
@@ -144,20 +144,19 @@ is null
 is not null
 
 排序：order by 字段1 asc，字段2 desc
-asc 升序 默认
-desc 降序
+asc      升序 默认
+desc    降序
 
 分页：limit 开始处，取多少个
-limit 0，5  从0开始取5个
+limit 0，5      从0开始取5个
 
 order by ... limit ...  排序前，分页后
 
-
 连接查询：
-inner join  内连接  
-left join 左连接  
-right join  右链接 
-on  连接处                                                  
+inner join   内连接  
+left join      左连接  
+right join   右链接 
+on              连接处                                                  
 select 表1.id, 表2.name from 表1 inner join 表2  on 表1.aid=表2.bid having 条件;
 结果集：用having
 
@@ -176,7 +175,6 @@ select * from 表名 where  条件=（select 字段 from 表名）
 自关联查询：同一个表
 select  * from 表 as a inner join 表 as b  on a.id=b.id having 表.字段=值
 
-
 聚合函数：
 select count(*) as 总数 form 表名 
 count
@@ -184,9 +182,9 @@ max
 min
 sum 
 avg
-round 结果四舍五入
+round     结果四舍五入
 表达式：select  sum(age)/count(*)  from 表名
-round（sum(age)/count(*)，2）保留两位小数
+round(sum(age)/count(*)，2）    保留两位小数
 
 分组：group by  一般跟聚合一起用
 select * from 表名 group by 能够标记分组的字段，如性别
@@ -208,8 +206,8 @@ python3使用pymysql模块连接数据库，2使用mysqldb模块
 5、关闭数据库连接
 
 视图：
-查询语句返回的结果，一般用来方便查询
-创建视图：create view 视图名(虚表) as select ......
+虚表，查询语句返回的结果，一般用来方便查询
+创建视图：create view 视图名 as select ......
 查看视图：show tables
 删除视图：drop view 视图名
 原表数据更改，视图数据会自动更改，相当于对原表的引用
@@ -232,6 +230,7 @@ ACID
 回滚：rollback；
 -------------------------------------------------------------------------------
 索引：
+数据结构
 B-tree，先查看数据在哪个范围
 一个特殊文件，包含数据表里所有记录的引用指针
 作用：加快查询速度，类似课本目录
@@ -240,7 +239,7 @@ B-tree，先查看数据在哪个范围
 
 给表创建索引：
 普通索引：create index 索引名 on 表名(字段名(长度)，字段2...)；可以多个字段或单字段，针对字符类型，查询字段前几个字符，整型不用写长度
-唯一索引：create unique index 索引名 on 表名（字段）；    只是为了避免数据重复，不能提高访问速度
+唯一索引：create unique index 索引名 on 表名（字段）；          只是为了避免数据重复，不能提高访问速度
 主键索引：使用primary key关键字
 
 删除索引：drop index 索引名 on 表名；
@@ -273,7 +272,6 @@ flush privileges；
 删除账户：
 drop user '用户名'@'主机'；
 
-
 MySQL主从：master，slave
 作用：
      1、数据备份
@@ -289,15 +287,15 @@ MySQL主从：master，slave
 更新笔记：
 
 查看版本
-select version();
+>>select version();
 mysql --version
 
 show databases；
 select database（）；        查看当前使用的数据库
 show tables；                     显示所有表
 use 库名；                           切换数据库
-show tables from 库名
-create table 表名（列名 类型）；
+show tables from 库名         查看某数据库里的所有表
+create table 表名(列名 类型);
 desc 表名；
 规范：关键字大写，表名、列名小写，如：SHOW TABLES；
 注释：
@@ -322,9 +320,9 @@ select distinct name from 表名           去重distinct，不能select distinc
 
 加号+：
 只能做数值运算
-select 100+'3' ；         结果103，字符会视图转换为数值运算
+select 100+'3' ；          结果103，字符会试图转换为数值运算
 select 'xxx'+100;          转换失败，将字符转为0
-select null+10；           一方为null，结果为null
+select null+10；          一方为null，结果为null
 
 concat()拼接函数
 select concat('xx','aa', 100) as 结果；       结果：xxaa100
@@ -344,14 +342,14 @@ select * from 表名 where 条件
 _： 任意一个，转义:     \_     或     '_$_%' escape '$'
 select * from user where name like '%张_';
 select * from 表名 id between 100 and 200；     闭区间，数据不能颠倒：select * from 表名 id between 200 and 100；
-select * from 表名 id in(1,2,3);        in里面不支持通配符
+select * from 表名 id in(1,2,3);         in里面不支持通配符
 select * from 表名 id is null；          不能使用id = null判断空，不能 id is 300；
 安全等于<=>：
 id <=> null           
 
 排序order by：
 一般放在查询语句最后，limmit字句除外
-order by 排序字段/表达式/别名/函数                         多字段排序用逗号
+order by 排序字段/表达式/别名/函数                  多字段排序用逗号
 
 select * from 表名 where 条件  order by 排序字段 desc或asc；
 select * from 表名 order by 排序字段 desc；
@@ -361,43 +359,43 @@ select 函数名(参数) [from 表];
 函数可以在条件后面
 
 字符函数：
-length('张三丰aaa')    长度，获取字节，中文字体占三个字节
-concat('aa', 'bb')         拼接
+length('张三丰aaa')      长度，获取字节，中文字体占2个字节
+concat('aa', 'bb')          拼接
 upper('jack')                转大写 
 lower('aa')                    转小写
 substr('abc', 开始，指定个数)        索引从1开始截取
-instr('原字符串'，'子串')              返回字串第一次出现的索引，否则返回0
-trim('a' from '      xxx      ')          去除前后a, 默认空格
-lpad('xxx', 10, '*')                        共10位，不够在左边填充*，rpad()相反
-replace('xxx', old, new)               替换
+instr('原字符串'，'子串')                 返回子串第一次出现的索引，否则返回0
+trim('a' from '      xxx      ')             去除前后a, 默认空格
+lpad('xxx', 10, '*')                           共10位，不够在左边填充*，rpad()相反
+replace('xxx', old, new)                 替换
 
 数学函数：
 round(1.65，2)                                 四舍五入，,小数点保留两位，负数先求绝对值，再加符号
 ceil(1.22)                                           向上取整，返回大于等于该参数的最小整数
-floor（1.22）                                    向下取整，返回小于等于该参数的最大整数
-truncate（1.222222，2）                 截断，小数点后留2位
-mod（10，3）                                  取余      
-rand（）                                            随机0-1                
+floor(1.22）                                      向下取整，返回小于等于该参数的最大整数
+truncate(1.222222，2）                 截断，小数点后留2位
+mod(10，3）                                  取余 ,10%3=1     
+rand(）                                           随机0-1,  16位小数             
 
 日期函数：
 now()                                    返回当前系统时间日期
-curdate()                              返回日期
+curdate()                               返回日期
 curtime（）                          返回时间
 year（'1998-10-1'）             年
-month()                                 月
-day（）                                  日
+month()                                月
+day（）                                日
 时，分，秒
 str_to_date('1998-1-1', '%Y-%m-%d')                                     字符串转日期       
 date_format('1998/1/23', '%Y年%m月%d日')                          日期转换为字符
 datediff（）                                           两个日期相差天数
-monthname（）                                       英文形式返回月
+monthname（）                                   英文形式返回月
 
 其它函数:
 version()
 database()
-user()
-password（'xxx'）                  返回加密
-md5（'xxx'）                           返回md5加密
+user()                                      当前用户名与主机
+password（'xxx'）                  返回加密后的
+md5（'xxx'）                          返回md5加密
 
 分组函数或聚合函数：
 都忽略null值
@@ -412,7 +410,7 @@ count（1或常量）   计算总行数，包含null，innodb下效率差不多�
 -----------------------------------------------------------------------
 分组查询group by：
 语法：
-select  分组函数，列（要求出现在group by的后面）
+select  分组函数，字段(要求出现在group by的后面）
 from   表
 where  条件
 group by  分组列表
@@ -424,7 +422,7 @@ having count（*）> 2
 
 特点：
 分组前筛选：    where        原始表                group by的前面
-分组后筛选         having     分组后的结果       group by的后面
+分组后筛选：    having      分组后的结果       group by的后面
 
 连接查询：
 笛卡尔乘积现象，两个表，表1m行，表2n行，结果=m*n行
@@ -432,8 +430,8 @@ sql92标准只有内连接
 sql99标准有全部
 内连接：
     等值连接：
-        select name，b.age                                 给表起别名，查询字段也要用别名限定
-        from 表1 as a，表2 as b 
+        select name，b.age                                 
+        from 表1 as a，表2 as b                           给表起别名，查询字段也要用别名限定
         where a.id = b.id and 其它条件
     非等值连接：
         ... where 表1.age > 18 and 表2.id < 50
@@ -453,7 +451,6 @@ sql99标准有全部
 
 select age，xxx from 表1 inner join 表2 on 表1.id = 表2.id
 
-
 子查询：
 在其它语句的select语句称为子查询
 select (子查询)
@@ -462,7 +459,7 @@ where (子查询)
 having (子查询)
 in/not in/any/all （子查询）
 select * from 表 where id > （子查询）and xxx=(子查询);
-select exists (子查询)；                                                         查看是否有结果
+select exists (子查询)；                            查看是否有结果
 
 行子查询：
 ... where (id, name) = (子查询)
@@ -508,13 +505,13 @@ update 表名 set 列名=值，..., where 条件;
 
 删除：
 delete from 表名 where 条件 limit 0 offset 5；        不加条件则删除整个表数据，有返回值，能回滚
-truncate table 表；                          删除整个表数据，不能加条件，效率高，删除整个表，再重新创建一个表，无返回值，不能回滚
+truncate table 表；     删除整个表数据，不能加条件，效率高，删除整个表，再重新创建一个表，无返回值，不能回滚，主键重新变1开始
 多表删除：delete 表名 from 表1 inner join 表2 on 连接条件 where 条件；
 
 
 数据定义语言DDL：
 库和表管理，create，alter，drop
-create database if not exists 库名 charset=utf8；       创建数据库
+create database if not exists 库名 charset=utf8mb4；创建数据库，utf8mb4支持表情
 alter database 库名 character set utf8；                      修改数据库字符集
 drop database 库名；                                                    删除库
 重命名库直接修改系统文件名
@@ -524,19 +521,18 @@ alter table 表名 change column 旧列 新列 类型 约束；     change重命
 alter table 表名 modify column 列名 类型 约束；              modify不修改列名，只修改类型或约束
 alter table 表名 add column 列名 约束 类型 [first|alter 字段名]；                   添加列,可以添加到指定地方
 alter table 表名 drop column 列名；                                 删除列
-alter table 表名 rename [to] 新表名；                                  修改表名
+alter table 表名 rename [to] 新表名；                                修改表名
 drop table if exists 表名；                                                  删除表
 
 create table 表名 like 要复制的表名；                                复制表结构
 create table 表名 select * from 要复制的表名；                 连数据一起复制
 create table 表名 select 列1，列2  from  要复制的表名 where 条件；       复制一部分数据
-create table 表名 select 列1，列2 from 要复制的表名 where 0；               仅复制某些字段，不要数据，where后面的条件设置为不成立
-
+create table 表名 select 列1，列2 from 要复制的表名 where 0；              仅复制某些字段，不要数据，where后面的条件设置为不成立
 
 数据类型：
 数值类型（单位：字节）：
 默认有符号，unsigned无符号类型，id int unsigned
-zerofill 零填充，int(7) 括号内的数字是显示的长度，不是数据类型长度
+zerofill 补零，int(7) 括号内的数字是显示的长度，不是数据类型长度
 tinyint                   1
 smallint                 2
 mediumint            3
@@ -553,7 +549,7 @@ text
 blob                               较大二进制
 binary、varbinary          较小二进制
 enum('男'，'女')             枚举
-set('a', 'b')                       集合 ,插入不区分大小写
+set('a', 'b')                      集合 ,插入不区分大小写
 
 日期类型：
 date                         日期
@@ -568,12 +564,12 @@ default                   默认值
 primary key           主键，具有唯一性，并且非空
 unique                   唯一键，可以为空，不重复
 cheak                     检查约束，MySQL不支持
-foreign key             外键约束，在从表添加，值必须来自主表的关联值
+foreign key            外键约束，在从表添加，值必须来自主表的关联值
 
 create table 表名(列1 类型 foreign key reference 主表(id)，...)；          外键约束，MySQL不支持这种
 
 create table 表名(列1 类型 约束，...)；                   列级约束
-create table 表名(列1 类型，...，[constraint] [约束名] primary key(id))；                          表级约束，不支持非空和默认
+create table 表名(列1 类型，...，[constraint] [约束名] primary key(id))；              表级约束，不支持非空和默认
 create table 表名(列1 类型，...，[constraint] [约束名]  foreign key(字段名) reference 主表(id))；   外键约束用表级约束方式创建
 
 主键和唯一的对比：
@@ -605,8 +601,7 @@ auto_increment                                      只能有一个，而且是k
 set auto_increment_increment=3         修改步长 
 alter table 表名 modify column id int auto_increment ；     修改表时添加自动增长                         
 
-
-事务控制语言TCl：
+事务控制语言TCL：
 innodb支持事务
 事务的ACID：
     1、原子性：不可再分隔工作单位，要么都发生，要么都不发生
@@ -624,12 +619,12 @@ update ....
 update ....
 savepoint a；                  设置保存点
 rollback to a；                 回滚到保存点
-commit；                        结束
+commit；                         提交事务
 
 多个事务一起访问相同的数据时产生的问题（并发）：
-脏读：对于更新来说的
+脏读：对于更新来说
 不可重复读
-幻读：对于插入来说的
+幻读：对于插入来说
 
 四大隔离级别：
 读未提交：造成脏读，幻读，不可重复读
@@ -640,13 +635,9 @@ commit；                        结束
 select @@tx_isolation;                                             查看当前隔离级别
 set session transaction isolation level 隔离级别；    设置隔离级别
 
-
 视图view：
 视图是一张虚表，一般用来查询的，而不是修改，只保存sql逻辑，参与空间小
-好处：
-重用sql语句
-简化复杂的sql操作
-保护数据，提高安全性，因为看不到基表的某些列
+好处：重用sql语句，简化复杂的sql操作，保护数据，提高安全性，因为看不到基表的某些列
 
 create view 视图名 as select查询语句；      创建
 select * from 视图名 where 条件；              查询
@@ -666,17 +657,16 @@ delete from 视图名 where 条件；
 包含分组函数、distinct、group by、having、union、union all的视图不能更新, 常量视图不能更新
 create view 视图名 as select ... group by...
 
-
 变量：
 系统变量 
     全局变量，针对整个服务器
     会话变量，针对当前的会话
 全局级别global，会话级别session，默认global
-show [global或session] variables；       查看所有系统变量，不写默认session
+show [global或session] variables；                               查看所有系统变量，不写默认session
 show [global或session] variables like '%char'；            筛选
-select @@[global或session].系统变量名；                     查看指定变量的值
+select @@[global或session].系统变量名；                    查看指定变量的值
 set [global或session].系统变量名=值；                           赋值
-set session 系统变量名=值；                                                  赋值
+set session 系统变量名=值；                                          赋值
 
 自定义变量：
 1、用户变量
@@ -688,9 +678,9 @@ set session 系统变量名=值；                                              
 set @变量名=值；
 set @变量名:=值；
 select @变量名:=值；
-select @变量名；                查看
+select @变量名；                                  查看
 select 字段 into 变量名 from 表；         赋值，将查询结果赋值给变量
-set @sum=@n+@m；                         运算赋值
+set @sum=@n+@m；                        运算赋值
 
 2、局部变量
 作用域：只在begin  end语句中有效，并且是第一句话***
@@ -704,7 +694,6 @@ select @变量名:=值；
 select 字段 into 变量名 from 表；                 将查询结果赋值给变量
 使用：
 select 变量名； 
-
 
 存储过程：
 一组预先编译好的SQL语句集合，提高代码的重用性，简化操作，减少了编译
@@ -727,7 +716,6 @@ call 存储过程名(实参或变量)[结束标志]                   调用存�
 drop procedure 存储过程名；                               一次只能删除一个存储过程
 show create procedure 存储过程名；                   查看存储过程信息，不能修改
 
-
 函数：
 只能有1个返回，而存储过程有0个或多个返回
 
@@ -742,7 +730,6 @@ end
 查看：show create function 函数名；
 删除：drop function 函数名；
 不能修改
-
 
 if函数：
 if(表达式1，表达式2，表达式3)                   类似三元表达式，true返回表达式2，否则返回表达式3
@@ -768,7 +755,6 @@ end [case]；
 
 作为独立的语句只能在begin end语句中，并且end后面加case
 
-
 if结构：
 必须在begin end语句中
 begin
@@ -776,7 +762,6 @@ begin
     elseif 条件2 then 语句；
     [else 语句；]
 end
-
 
 循环结构：
 需要放在begin end语句中
@@ -808,7 +793,7 @@ linux安装MySQL：下载rpm包的服务端，客户端
 rpm -ivh xxx.rpm               安装
 mysqladmin --version        查看是否安装成功
 service mysql start             启动
-service mysql stop              关闭
+service mysql stop             关闭
 
 在配置文件修改默认字符集
 windows下：my.ini
@@ -817,7 +802,7 @@ linux下:  /etc/my.cnf
 二进制日志log-bin         用来主从复制
 错误日志log-error
 查询日志log
-frm文件                       存放表结构
+frm文件                      存放表结构
 myd文件                     存放表数据
 myi文件                      存放表索引
 
@@ -828,19 +813,19 @@ MySQL逻辑架构：
 4、存储层
 
 存储引擎：
-show engines;                        查看存储引擎
+show engines;          查看存储引擎
 
 MyISAM：
-不支持主外键、事务，支持表锁锁住整个表，不适合高并发，只缓存索引，不缓存真实数据
+不支持主外键、事务，支持表锁（锁住整个表)，不适合高并发，只缓存索引，不缓存真实数据
 表空间小，关注性能（读），默认安装
 
 InnoDB：
-支持主外键，行锁，操作时只锁住某一行，不对其它行有影响，适合高并发操作，
+支持主外键，行锁，表锁，事务，操作时只锁住某一行，不对其它行有影响，适合高并发操作，
 缓存索引跟真实数据，对内存要求较高，内存大小对性能有决定性的影响，表空间大，关注事务，
 默认安装
 
 性能下降sql慢的原因：查询语句写的不好，关联查询太多join，索引失效，服务器调优及各个参数设置
-逻辑删除：1、为了数据分析，2、为了索引
+逻辑删除的原因：1、为了数据分析，2、为了索引
 
 索引：
 官方定义：索引（index）是帮助MySQL高效获取数据的数据结构。
@@ -851,9 +836,9 @@ InnoDB：
 
 优势：提高数据检索效率，降低IO成本，通过索引列对数据进行排序，降低数据排序成本，降低CPU的消耗
 劣势：
-1、索引也是一张表，保存了主键与索引字段，并指向实体表的记录，所有索引要占用空间
+1、索引也是一张表，保存了主键与索引字段，并指向实体表的记录，所以索引要占用空间
 2、降低更新表的速度，insert、update和delete，因为更新表除了保存数据，还要保存索引文件每次
-      更新添加了的索引字段，会调整因为更新带来的键值变化后的索引信息。
+     更新添加了的索引字段，会调整因为更新带来的键值变化后的索引信息。
 3、数据量大了，需要花时间去研究建立最优秀的索引
 
 索引分类：
@@ -903,18 +888,31 @@ R-Tree索引
 -------------------------------------------------------------------------
 执行explain select * from 表名\G;  出现如下：
 id: 1                                            
+select_type: SIMPLE
+table: duanzi
+partitions: NULL
+type: ALL
+possible_keys: NULL
+key: NULL
+key_len: NULL
+ref: NULL
+rows: 297
+filtered: 100.00
+Extra: NULL
+
+id: 1                                            
 select查询的序列号，包含一组数字，表示查询中select字句或操作的顺序
 三种情况：1、id相同，执行顺序上到下，
                  2、不同，如果是子查询，id的序号会递增，id值越大优先级越高，越先被执行，
                  3、id相同不同，同时存在，相同的上到下执行，不同的按id值大的
 
 select_type: SIMPLE
-查询类型：
-SIMPLE，简单的select查询，查询中不包含子查询或union
-PRIMARY，查询中若包含任何复杂的子部分，最为层查询则标记为PRIMARY
+查询类型
+SIMPLE，       简单的select查询，查询中不包含子查询或union
+PRIMARY，   查询中若包含任何复杂的子部分，最外层查询则标记为PRIMARY
 SUBQUERY，在select或where中包含了子查询
-DERIVED，在from列表中包含了子查询被标记为DERIVED（衍生），mysql会递归
-                  执行这些子查询，把结果放在临时表里
+DERIVED，    在from列表中包含了子查询被标记为DERIVED（衍生），mysql会递归
+                      执行这些子查询，把结果放在临时表里
 UNION，若第二个select出现在UNION之后，则被标记为UNION，若UNION包含
                 在from子句的子查询中，外层select将被标记为DERIVED
 UNION RESULT，从UNION表获取结果的select
@@ -923,9 +921,10 @@ table: duanzi
 表
 
 partitions: NULL
+
 type: ALL
 访问类型排序：最好 system，const，eq_ref，ref，range，index，all  最坏
-一般保证至少达到range级别，做好达到ref
+一般保证至少达到range级别，最好达到ref
 system，表只有一行记录（等于系统表），这是const类型的特例，平时不会出现，可以忽略不记
 const，常量，表示一次就找到了，const用于比较primary key或者unique索引，因为只匹配一次，
              所以很快，如将主键置于where列表中，mysql就能将该查询转换为一个常量
@@ -963,16 +962,16 @@ filtered: 100.00
 Extra: NULL
 包含不适合在其它列中显示但十分重要的额外信息
 ***using filesort，说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取
-                         mysql中无法利用索引完成的排序操作称为"文件排序"
+                              mysql中无法利用索引完成的排序操作称为"文件排序"
 ***using temporary，使用了临时表保存中间结果，MySQL在对查询结果排序是使用临时表，常见于排序
-                              order by和分组查询group by
+                                   order by和分组查询group by
 ***using index，表示相应的select操作中使用了覆盖索引(covering index)，避免访问了表的数据行，效率
                        不错，如果同时出现using where，表明索引被用来执行索引键值的查找；如果没有同时出现
                        using where，表明索引用来读取数据而非执行查找动作
 using where，使用了where过滤
 using join buffer，使用了连接缓存
 impossible where，where字句的值总是false，不能用来获取任何元组
-select talbes optimized away，
+select tables optimized away，
 distinct，
 
 覆盖索引：
@@ -989,14 +988,13 @@ join语句优化：
 保证join语句中被驱动表上join条件字段已经被索引
 当无法保证被驱动表的join条件字段被索引且内存资源充足的前提下，不用太吝啬JoinBuffer (缓冲) 的设置
 
-
 索引优化：
 1、全值匹配最好，例如=
 2、最佳左前缀法则：如果索引了多列，要遵守最左前缀法则，指的是查询从索引的最左前列开始并且
-                           不跳过索引中的列
+      不跳过索引中的列
 3、不在索引列上做任何操作 (计算、函数、手动或自动转换类型)，会导致索引失效而转向全表扫描
 4、存储引擎不能使用索引中范围条件右边的列
-5、尽量使用覆盖所有（只访问所有的查询（索引列和查询列一致）），减少select *
+5、尽量使用覆盖索引（只访问索引的查询（索引列和查询列一致）），减少select *
 6、mysql在使用不等于（!=或<>）的时候无法使用索引会导致全表扫描
 7、is null、is not null也无法使用索引
 8、like以通配符开头（'%abc...'）mysql索引失效会变成全表扫描的操作，%号加在右边才能避免索引失效，
@@ -1018,34 +1016,30 @@ group by 基本上都需要排序，会有临时表产生
 3、show profile查询sql在mysql服务器里面的执行细节和生命周期情况
 4、sql数据库服务器的参数调优
 
-
 order by排序优化：
 order by字句，尽量使用index方式排序，避免使用FileSort方式排序
 尽可能在索引列上完成排序操作，遵照索引建的最佳左前缀
-mysql支持两种排序方式，FileSort和Idex，index效率高，它指mysql扫描索引本身完成排序，FileSort
+mysql支持两种排序方式，FileSort和Index，index效率高，它指mysql扫描索引本身完成排序，FileSort
 方式效率低，order by满足两种情况，会使用index方式排序
 
 优化策略：
 增大sort_buffer_size参数的设置
 增大max_length_for_sort_data参数的设置
 
-
 group by优化：
 group by实质是先排序后进行分组，遵照索引建的最佳左前缀
-当无法使用索引列，增大Max_length_fro_sort_data参数的设置增大sort_buffer_size参数的设置
-where高于having，能写在where限定的条件就不要取having限定了
-
+当无法使用索引列，增大Max_length_fro_sort_data参数的设置，增大sort_buffer_size参数的设置
+where高于having，能写在where限定的条件就不要去having限定了
 
 ***慢查询日志：
 会记录比较慢的sql查询语句
 mysql默认关闭
-set global slow_query_log=1;            开启，当前数据库有效，重启失效
-show variables like 'long_query_time%';            查看，默认10秒
+set global slow_query_log=1;                             开启，当前数据库有效，重启失效
+show variables like 'long_query_time%';            查看，默认记录慢于10秒的sql
 select sleep(3);                                                    sql语句睡眠3秒
 
 mysql提供的日志分析工具mysqldumpslow：
 mysqldumpslow [选项]  /var.../atguigu-slow.log
-
 
 ***Show Profile：
 是mysql提供可以用来分析当前会话中语句执行的资源消耗情况，可以用于sql的调优的测量
@@ -1055,7 +1049,7 @@ show variables like 'profiling';                   查看是否开启
 set profiling=on；                                     开启
 show profiles；                                          查看执行过的sql命令的运行时间
 
-show profile cup，block io for query 3；  查看id为3的sql语句的完整生命周期
+show profile cpu，block io for query 3；  查看id为3的sql语句的完整生命周期
 all                                 显示所有开销信息
 block io                        显示块io相关开销
 context switches         上下文切换开销
@@ -1075,7 +1069,7 @@ locked                                               锁
 全局查询日志：
 在测试环境中用，不要在生产环境用
 方式一、在my.cnf中配置启用
-方式而、编码启用，set global general_log=1;   set global log_output='TABLE';
+方式二、编码启用，set global general_log=1;   set global log_output='TABLE';
 
 后续所编写的sql语句将会记录到mysql库里的general_log表，使用以下命令查看
 select * from mysql.general_log;
@@ -1088,7 +1082,6 @@ select * from mysql.general_log;
 
 读锁（共享锁）：针对同一份数据，多个读操作可以同时进行而不会互相影响
 写锁（排他锁）：当前写操作没有完成前，它会阻断其它写锁和读锁
-
 
 表锁（偏读）：
 偏向MyISAM存储引擎
@@ -1109,7 +1102,6 @@ table_locks_waited: 查询表级锁定争用而发生的等待次数(不能立�
 MyISAM的读写锁调度是写优先，这也是它不适合做写为主表的引擎，因为写锁后，其它线程不能做任何
 操作，大量的更新会使查询很难得到锁，从而造成永远阻塞
 
-
 行锁（偏写）：
 偏向innoDB存储引擎，开销大，加锁慢，会出现死锁，锁定粒度最小，发生锁冲突的概率最低，并发度也最高
 
@@ -1122,16 +1114,15 @@ innoDB也会对这个‘间隙’加锁，这种锁机制就是所谓的间隙�
 间隙锁危害：
 因为通过范围查找会锁定范围内所有索引键值，即使键值不存在，锁定后无法插入范围内的任何数据
 
-
 如何锁定一行：
 begin;
 select ...... for update;                 手动锁定一行
 commit;
 
 innodb存储引擎由于实现了行级锁定，虽然在锁定机制的实现方面所带来的性能损耗可以比表级锁高一些，
-但是在整体并发处理能力方面要远远由于MyISAM的表级锁定的，当系统并发量较高的时候，innodb的整
+但是在整体并发处理能力方面要远远优于MyISAM的表级锁定的，当系统并发量较高的时候，innodb的整
 体性能和MyISAM相比就会有比较明显的优势了，但是innodb的行级锁定同样也有其脆弱的一面，当我们
-使用不当的时候，可以回让innodb的整体性能表现不仅不能比MyISAM高，甚至可能回更差
+使用不当的时候，可以回让innodb的整体性能表现不仅不能比MyISAM高，甚至可能会更差
 
 show status like 'innodb_row_lock%';           查看行锁
 
@@ -1144,7 +1135,6 @@ show status like 'innodb_row_lock%';           查看行锁
 
 页锁（了解）：
 开销和加锁时间介于表锁和行锁之间，会出现死锁，锁定粒度介于表锁和行锁之间，并发度一般
-
 
 主从复制：
 要求mysql版本一致
