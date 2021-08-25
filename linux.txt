@@ -234,7 +234,7 @@ make install     编译安装
 root:x:0:0:root:/root:/bin/bash
 用户名称  密码标识  UID(用户id)  组id  用户说明  家目录  登录之后的shell
 
-UID：0超级用户，1-499系统用户，500-65535普通用户
+UID：0超级用户(管理员用户)，1-499系统用户，500-65535普通用户
 
 /etc/shadow     影子文件
 /etc/group       组信息文件
