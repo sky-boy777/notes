@@ -60,6 +60,9 @@ rm "目   录"      删除中间有空格的目录或文件
 
 touch创建文件，或vi，vim
 
+file xxx               查看文件类型
+dmesg               查看系统启动过程中的信息
+
 whoami    我是谁
 who am i   详细一点我是谁
 
@@ -68,6 +71,8 @@ ln 源文件 目标文件，-s软链接
 软链接：相当于window快捷方式，全是rwx，能跨分区
 硬链接：会同步更新，两个，删除了一个还有一个，不能跨分区
 echo "dfjdk" >> 文件        输出重定向到文件
+
+systemctl get-default       查看默认目标（运行级别），systemd使用目标而不是运行级别
 
 权限管理：
 u所有者，g所属组，o其他人
@@ -314,10 +319,11 @@ ls > 文件
 
 输出重定向<：wc [选项] [文件名]，Ctrl + d结束
 
-多行命令执行顺序：分号;   &&逻辑与，||逻辑或
+多行命令执行顺序：分号;   &&逻辑与-a，||逻辑或-o，!逻辑非
 ls; cd aa;         都会执行，即使有报错
 ls && ps         短路
 ls ||  ps            短路
+if [ "1"  -o  "2" ];then echo ok;fi
 grep               过滤
 more             显示一屏
 
@@ -364,9 +370,18 @@ source 配置文件        使生效，或 .配置文件
 
 支持正则的命令：
 ****************三剑客*********************************
-grep      过滤
-awk      列字符截取
-sed [选项] '[动作]' 文件名        字符截取
+grep      过滤，查找
+
+awk       列字符截取，awk详细：http://blog.chinaunix.net/uid-23302288-id-3785105.html
+一行一行处理文本
+awk -F ':' '{print $1}'  xxx       以冒号分隔，打印第一列 ，$0当前整行        
+awk '{print}'  xxx                   打印文件内容全部 
+awk '{print $1 "aaaaa" $2}' xxx  自定义输出
+awk -f xxx.sh xxx                  指定脚本
+
+sed [选项] '[动作]' 文件名        取行和替换
+sed -n 2,5p xxx                    打印2到5行
+sed -i 's/root/aaa/g' xxx       将文件内的root全部替换为aaa，分隔符可以用别的字符替换，sed -i 's#root#aaa#g' xxx
 
 \{n\}      匹配前一个字符n次
 
@@ -444,7 +459,7 @@ for i in （ls /）         或  值1 值2
       done
 
 s=0
-for (( i=1;i<=100;i=i+1 ))
+for (( i=1;i<=100;i++ ))  
    do
      s=$(( $s+$i ))
    done
@@ -530,11 +545,15 @@ lastb                     查看二进制文件
 lastlog                 最后一次登录的用户
 last                      查看用户的登录、注销信息、系统重启关机事件
 
+authconfig --test | grep hashing      查看shadow使用的加密机制
+
 rsyslogd日志服务：
 
 运行级别：
 init 0-6     改变运行级别
 runlevel   查看当前，最后一个，前一个表示上一次的运行级别
+/etc/inittab    永久更改启动运行级别
+runlevel         查看当前运行级别，左边是前一个运行级别，右边是当前
 
 备份与恢复：
 增量备份，完全备份

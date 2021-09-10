@@ -255,7 +255,7 @@ B-tree，先查看数据在哪个范围
 不同权限不同账号，保证数据安全
 常用数据库级别账号：对某个数据库能增删改查
 查看所有用户：use mysql; 
-                        desc user;
+                        select * from user;
 创建账号并授予权限：
 grant 权限列表 on 数据库 to '用户名'@'访问主机' identified by '密码'；
 
@@ -295,18 +295,17 @@ select database（）；        查看当前使用的数据库
 show tables；                     显示所有表
 use 库名；                           切换数据库
 show tables from 库名         查看某数据库里的所有表
-create table 表名(列名 类型);
-desc 表名；
-规范：关键字大写，表名、列名小写，如：SHOW TABLES；
+create table 表名(列名 类型); 创建表
+desc 表名；                          查看表结构
+规范：关键字大写，表名、列名小写，如：SELECT * FROM user WHERE name="张三"；
 注释：
-单行注释：#注释、--注释
-多行注释：/* 注释 */
+单行注释：#注释、--注释，多行注释：/* 注释 */
 
-SQL：
-DQL数据查询语言
-DML数据操作语言
-DDL数据定义语言
-TCL事物控制语言
+SQL(Structure Query Language)：结构化查询语言
+DQL：Data QueryLanguage数据查询语言
+DML：Data Manipulation Language数据操作语言
+DDL：Data Definition Language数据定义语言
+TCL：Transaction Control Language事物控制语言
 
 select `name` from 表名        反引号可以区别关键字
 select 100；                           常量
@@ -348,7 +347,7 @@ select * from 表名 id is null；          不能使用id = null判断空，不
 id <=> null           
 
 排序order by：
-一般放在查询语句最后，limmit字句除外
+一般放在查询语句最后，limmit子句除外
 order by 排序字段/表达式/别名/函数                  多字段排序用逗号
 
 select * from 表名 where 条件  order by 排序字段 desc或asc；
@@ -365,29 +364,29 @@ upper('jack')                转大写
 lower('aa')                    转小写
 substr('abc', 开始，指定个数)        索引从1开始截取
 instr('原字符串'，'子串')                 返回子串第一次出现的索引，否则返回0
-trim('a' from '      xxx      ')             去除前后a, 默认空格
-lpad('xxx', 10, '*')                           共10位，不够在左边填充*，rpad()相反
+trim('a'  from  'aaaaxxxaaaa')             去除前后a, 默认空格
+lpad('xxx', 10, '*')                           共10位，不够在左边填充*，rpad()在右边
 replace('xxx', old, new)                 替换
 
 数学函数：
 round(1.65，2)                                 四舍五入，,小数点保留两位，负数先求绝对值，再加符号
-ceil(1.22)                                           向上取整，返回大于等于该参数的最小整数
+ceil(1.22)                                           向上取整，返回大于等于该参数的最小整数，1.0返回1，1.1返回2
 floor(1.22）                                      向下取整，返回小于等于该参数的最大整数
 truncate(1.222222，2）                 截断，小数点后留2位
 mod(10，3）                                  取余 ,10%3=1     
 rand(）                                           随机0-1,  16位小数             
 
 日期函数：
-now()                                    返回当前系统时间日期
+now()                                    返回当前系统日期时间
 curdate()                               返回日期
 curtime（）                          返回时间
-year（'1998-10-1'）             年
-month()                                月
-day（）                                日
+year（'1998-10-1'）              返回年1998
+month('1998-10-1')                  月
+day（'1998-10-1'）                  日
 时，分，秒
 str_to_date('1998-1-1', '%Y-%m-%d')                                     字符串转日期       
 date_format('1998/1/23', '%Y年%m月%d日')                          日期转换为字符
-datediff（）                                           两个日期相差天数
+datediff（'2021-9-3','2021-9-1'）                                          两个日期相差天数，前面减后面
 monthname（）                                   英文形式返回月
 
 其它函数:
@@ -414,7 +413,7 @@ select  分组函数，字段(要求出现在group by的后面）
 from   表
 where  条件
 group by  分组列表
-[order by字句]  
+[order by子句]  
 
 分组后筛选having：
 group by xxx, xxx
@@ -480,7 +479,7 @@ having
 select
 order by
 limit
-每一条字句都会生成一个虚拟的表
+每一条子句都会生成一个虚拟的表
 
 联合查询union：
 将多条语句的结果合并成一个结果
@@ -492,11 +491,11 @@ DML数据操纵语言：
 insert，update，delete
 
 插入：
-insert into 表名(列名, ...) values(值，...);                             插入的类型要一致，一一对应 
-insert into 表名(列名, ...) values(值，...)，(值，....) ;            多条插入     
+insert into 表名(列名, ...) values(值，...);                               插入的类型要一致，一一对应 
+insert into 表名(列名, ...) values(值，...)，(值，....) ;               多条插入     
 insert into 表名 values(值，...);                                           全部插入，顺序要跟表一致
 insert into 表名 select ..... where ...;                                    查询结果插入表
-insert into 表名 select 1，'张三' union select 2，'李四'      插入
+insert into 表名 select 1，'张三' union select 2，'李四'        插入
 insert into 表名 set 列名=值，....;                                        set方式插入
 
 修改：
@@ -511,17 +510,18 @@ truncate table 表；     删除整个表数据，不能加条件，效率高，
 
 数据定义语言DDL：
 库和表管理，create，alter，drop
-create database if not exists 库名 charset=utf8mb4；创建数据库，utf8mb4支持表情
-alter database 库名 character set utf8；                      修改数据库字符集
+create database if not exists 库名 charset=utf8mb4；   创建数据库，utf8mb4支持表情
+alter database 库名 character set utf8；                        修改数据库字符集
 drop database 库名；                                                    删除库
 重命名库直接修改系统文件名
+*****mysql 8.0将utf8mb4作为默认字符集，mb4是most bytes 4 的缩写，专门用于兼容四字节字符，如Emoji表情，部分中文康熙的熙繁体。
 
-create table 表名（列1 类型 约束, 列2...);                          创建表
-alter table 表名 change column 旧列 新列 类型 约束；     change重命名列名，类型，约束
-alter table 表名 modify column 列名 类型 约束；              modify不修改列名，只修改类型或约束
-alter table 表名 add column 列名 约束 类型 [first|alter 字段名]；                   添加列,可以添加到指定地方
-alter table 表名 drop column 列名；                                 删除列
-alter table 表名 rename [to] 新表名；                                修改表名
+create table 表名（列1 类型 约束, 列2...);                             创建表
+alter table 表名 change [column] 旧列 新列 类型 约束；      change重命名列名，类型，约束
+alter table 表名 modify [column] 列名 类型 约束；              modify不修改列名，只修改类型或约束
+alter table 表名 add [column] 列名 约束 类型 [first|alter 字段名]；                   添加列,可以添加到指定地方
+alter table 表名 drop [column] 列名；                                 删除列
+alter table 表名 rename [to] 新表名；                                 修改表名
 drop table if exists 表名；                                                  删除表
 
 create table 表名 like 要复制的表名；                                复制表结构
@@ -533,10 +533,11 @@ create table 表名 select 列1，列2 from 要复制的表名 where 0；       
 数值类型（单位：字节）：
 默认有符号，unsigned无符号类型，id int unsigned
 zerofill 补零，int(7) 括号内的数字是显示的长度，不是数据类型长度
+mysql手册上有这么一句话:  M指示最大显示宽度。最大有效显示宽度是255。显示宽度与存储大小或类型包含的值的范围无关;
 tinyint                   1
 smallint                 2
 mediumint            3
-int、integer          4
+int、integer           4
 bigint                    8
 float                      4
 double                  8
@@ -588,17 +589,16 @@ unique：        保证唯一，能空，可以多个，可以多个字段组成
 修改表时添加约束：
 alter table 表名 modify column id int 约束类型；           列级约束
 alter table 表名 add primary kye(id);                              表级约束
-外键只能用表级约束
-alter table 表名 add foreign key(字段) references 主表(id);
+alter table 表名 add foreign key(字段) references 主表(id);   外键只能用表级约束
 
 修改表时删除约束：
 alter table 表名 modify column id int 约束类型；             列级约束
-                          drop primary key；                                 删除主键
-                          drop foreign key 外键字段；                   删除外键
+                          drop primary key；                              删除主键
+                          drop foreign key 外键字段；                 删除外键
 
 自动增长或标识列：
 auto_increment                                      只能有一个，而且是key（主键，外键...）    
-set auto_increment_increment=3         修改步长 
+set auto_increment_increment=3            修改步长 
 alter table 表名 modify column id int auto_increment ；     修改表时添加自动增长                         
 
 事务控制语言TCL：
@@ -632,21 +632,23 @@ commit；                         提交事务
 可重读：MySQL默认，造成幻读
 可串行化：无，但性能低下
 
-select @@tx_isolation;                                             查看当前隔离级别
-set session transaction isolation level 隔离级别；    设置隔离级别
+select @@tx_isolation;                                             查看当前隔离级别，MySQL8.0后select @@transaction_isolation;
+set session transaction isolation level 隔离级别；      设置隔离级别
+
+select null=null;         结果为null，假
 
 视图view：
 视图是一张虚表，一般用来查询的，而不是修改，只保存sql逻辑，参与空间小
 好处：重用sql语句，简化复杂的sql操作，保护数据，提高安全性，因为看不到基表的某些列
 
-create view 视图名 as select查询语句；      创建
+create view 视图名 as select查询语句；       创建
 select * from 视图名 where 条件；              查询
 修改视图:
-create or replace view 视图名 as select...;   
+create or replace view 视图名 as select...;   修改，不存在则创建
 alter view 视图名 as select...;
 
 drop view 视图名，视图名...;                      删除视图
-desc 视图名；                                             查看
+desc 视图名；                                           查看
 show create view 视图名；                        查看
 
 在视图中插入，更新数据，原始表也会改变
@@ -662,11 +664,11 @@ create view 视图名 as select ... group by...
     全局变量，针对整个服务器
     会话变量，针对当前的会话
 全局级别global，会话级别session，默认global
-show [global或session] variables；                               查看所有系统变量，不写默认session
+show [global或session] variables；                              查看所有系统变量，不写默认session
 show [global或session] variables like '%char'；            筛选
 select @@[global或session].系统变量名；                    查看指定变量的值
-set [global或session].系统变量名=值；                           赋值
-set session 系统变量名=值；                                          赋值
+set [global或session].系统变量名=值；                         赋值
+set session 系统变量名=值；                                        赋值
 
 自定义变量：
 1、用户变量
@@ -677,23 +679,15 @@ set session 系统变量名=值；                                          赋�
 有则更新，无则添加变量
 set @变量名=值；
 set @变量名:=值；
-select @变量名:=值；
-select @变量名；                                  查看
-select 字段 into 变量名 from 表；         赋值，将查询结果赋值给变量
-set @sum=@n+@m；                        运算赋值
+select @变量名:=值；                          设置的同时打印
+select @变量名；                                查看
+select 字段 into 变量名 from 表；         将查询结果赋值给变量
+set @sum=@n+@m；                       运算赋值
 
 2、局部变量
 作用域：只在begin  end语句中有效，并且是第一句话***
 
 declare 变量名 mysql类型 default 值；            定义，可以添加默认值            
-
-赋值：
-set @变量名=值；
-set 变量名:=值；
-select @变量名:=值；
-select 字段 into 变量名 from 表；                 将查询结果赋值给变量
-使用：
-select 变量名； 
 
 存储过程：
 一组预先编译好的SQL语句集合，提高代码的重用性，简化操作，减少了编译
@@ -703,8 +697,17 @@ select 变量名；
 create procedure 存储过程名(参数列表，例：in xx varchar(20)，in xx varchar(40))                      
 begin                                                      
     存储过程体，sql语句集，只有一句话可以省略begin end，每条sql结尾要加分号；
-    最后结尾可以使用delimiter重新设置结束标记：delimiter 结束标记（例：$），然后结尾end $
-end $
+    在客户端使用delimiter重新设置结束标记：delimiter $，不然输入分号默认会结束
+end；这里也要分号 
+
+例子：
+delimiter $                 结尾不加分号；
+create procedure pdu()
+begin
+  select 100;
+end;
+$
+call pdu$
 
 参数列表：1、参数模式，2、参数名，3、参数类型
 参数模式：
@@ -720,16 +723,28 @@ show create procedure 存储过程名；                   查看存储过程信
 只能有1个返回，而存储过程有0个或多个返回
 
 创建：
-create function 函数名(参数 类型，...) returns 返回类型
+delimiter $             使用delimiter语句设置结束标记，默认分号；
+create function 函数名(参数 类型，...) 
+returns 返回类型
 begin
-   函数体是SQL语句，只有一条可以省略begin end，使用delimiter语句设置结束标记
+   函数体是SQL语句，只有一条可以省略begin end，使用delimiter语句设置结束标记，因为内部要用分号；
    return 值；
 end
+$
 
 使用：select 函数名(参数列表)
 查看：show create function 函数名；
 删除：drop function 函数名；
 不能修改
+例子
+delimiter //
+create function hello(s char(20))
+returns char(50)
+begin
+return concat('hello ',s,'!');
+end
+//
+select hello("world")//
 
 if函数：
 if(表达式1，表达式2，表达式3)                   类似三元表达式，true返回表达式2，否则返回表达式3
@@ -737,26 +752,26 @@ if(10>5, '大'，'小')
 可以应用在任何地方
 
 case结构：
-方式一：
+方式一
 case 表达式或值                                                类似switch case语句
     when 常量1 then 要显示的语句或值;
     when 常量2 then 要显示的语句或值;
     ...
     [else 要显示的语句或值;]
-end [case]；
+end case
 
-方式二；
+方式二
 case                                                                 类似多重if
     when 条件1 then 要显示的语句或值;
     when 条件2 then 要显示的语句或值;
     ...
     [else 要显示的语句或值;]
-end [case]；
+end case
 
-作为独立的语句只能在begin end语句中，并且end后面加case
+作为独立的语句只能在begin end语句中，并且end后面加case，例如在函数内使用
 
 if结构：
-必须在begin end语句中
+必须在begin end语句中，，例如在函数内使用
 begin
     if 条件1 then 语句；
     elseif 条件2 then 语句；
@@ -764,16 +779,17 @@ begin
 end
 
 循环结构：
-需要放在begin end语句中
+需要放在begin end语句中，例如在函数内使用
 类型：while、loop、repeat
 循环控制：
     iterate：结束本次循环，继续下一次，类似continue
     leave：结束循环，类似break
+
 在使用到循环控制时需要在循环中添加标签
 
 while：
 [标签:] while 循环条件 do
-         循环体；
+         循环体；                          每条语句分号结尾
 end while [标签]；
 
 loop:                                         用于简单死循环
@@ -846,7 +862,7 @@ InnoDB：
 唯一索引，列值唯一，可以为null
 复合索引
 
-复合优于单值索引
+复合索引优于单值索引
 
 create [unique] index 索引名 on 表名(字段(长度))；      创建
 alter 表名 add [unique] index 索引名 on (字段(长度))； 创建
@@ -887,6 +903,11 @@ R-Tree索引
 
 -------------------------------------------------------------------------
 执行explain select * from 表名\G;  出现如下：
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
+| id | select_type | table | partitions | type | possible_keys | key    | key_len | ref     | rows | filtered  | Extra |
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
+|  1 | SIMPLE      | hotel | NULL       | ALL  | NULL              | NULL | NULL    | NULL |    1   |   100.00 | NULL  |
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
 id: 1                                            
 select_type: SIMPLE
 table: duanzi
@@ -901,10 +922,10 @@ filtered: 100.00
 Extra: NULL
 
 id: 1                                            
-select查询的序列号，包含一组数字，表示查询中select字句或操作的顺序
+select查询的序列号，包含一组数字，表示查询中select子句或操作的顺序
 三种情况：1、id相同，执行顺序上到下，
                  2、不同，如果是子查询，id的序号会递增，id值越大优先级越高，越先被执行，
-                 3、id相同不同，同时存在，相同的上到下执行，不同的按id值大的
+                 3、id相同、不同，同时存在，相同的上到下执行，不同的按id值大的
 
 select_type: SIMPLE
 查询类型
@@ -970,7 +991,7 @@ Extra: NULL
                        using where，表明索引用来读取数据而非执行查找动作
 using where，使用了where过滤
 using join buffer，使用了连接缓存
-impossible where，where字句的值总是false，不能用来获取任何元组
+impossible where，where子句的值总是false，不能用来获取任何元组
 select tables optimized away，
 distinct，
 
@@ -1007,7 +1028,7 @@ group by 基本上都需要排序，会有临时表产生
 一般性建议：
 对于单键索引，尽量选择针对当前query过滤性更好的索引
 在选择组合索的时候，当前query中过滤性最好的字段在索引字段顺序中，位置越靠前（左）越好
-在选择组合索引的时候，尽量选择可以能够包含当前query中的where字句中更多字段的索引
+在选择组合索引的时候，尽量选择可以能够包含当前query中的where子句中更多字段的索引
 尽可能通过分析统计信息和调整query的写法来达到选择适合索引的目的
 
 查询截取分析：
@@ -1017,7 +1038,7 @@ group by 基本上都需要排序，会有临时表产生
 4、sql数据库服务器的参数调优
 
 order by排序优化：
-order by字句，尽量使用index方式排序，避免使用FileSort方式排序
+order by子句，尽量使用index方式排序，避免使用FileSort方式排序
 尽可能在索引列上完成排序操作，遵照索引建的最佳左前缀
 mysql支持两种排序方式，FileSort和Index，index效率高，它指mysql扫描索引本身完成排序，FileSort
 方式效率低，order by满足两种情况，会使用index方式排序
@@ -1052,7 +1073,7 @@ show profiles；                                          查看执行过的sql�
 show profile cpu，block io for query 3；  查看id为3的sql语句的完整生命周期
 all                                 显示所有开销信息
 block io                        显示块io相关开销
-context switches         上下文切换开销
+context switches           上下文切换开销
 cpu                               显示cpu相关开销
 ipc                                 显示发送和接收相关开销
 memory                        显示内存相关开销
@@ -1091,7 +1112,7 @@ select * from mysql.general_log;
 行锁（偏写）：
 
 show open tables;                                                  查看表上加过的锁
-lock table 表名 read/write, 表名2 read/write;        手动添加表锁
+lock table 表名 read/write, 表名2 read/write;          手动添加表锁
 unlock tables；                                                      释放锁
 
 show status like 'table%';
@@ -1162,7 +1183,7 @@ flush privileges;                            刷新
 show master status；                  查看
 
 从：
-change master to master_host='主ip'，master_user='张三'，master_password='12345',  
+change master to master_host='主服务ip'，master_user='张三'，master_password='12345',  
 master_log_file='mysqlbin.具体数字'，master_log_pos=具体值；
 
 show slave status；            查看
@@ -1189,14 +1210,4 @@ server.xml：定义用户以及系统相关变量，如端口等
 
 全局序列：
 使用数据库方式
-
-
-
-
-
-
-
-
-
-
 
