@@ -1,0 +1,207 @@
+一个文件可以多个class，但只能有一个public class
+
+
+System.out.println();
+println() 是一个方法。
+System 是系统类。
+out 是标准输出对象。
+定义方法用小驼峰命名法，如：myName, 下划线也行my_name
+
+System.gc();   //调用Java垃圾收集器
+
+修饰符 返回值类型 方法名(参数类型 参数名){                    头
+    ...
+    方法体                                                                      体
+    ...
+    return 返回值;
+}
+如：public static int age(int birthday){...}
+
+fun(double... nums) { }               double后面加三点...     可变参数
+fun(1, 2, 3);
+fun(new double[]{1, 2, 3});
+
+finalize() 方法
+Java 允许定义这样的方法，它在对象被垃圾收集器析构(回收)之前调用，这个方法叫做 finalize( )，它用来清除回收对象。
+例如，你可以使用 finalize() 来确保一个对象打开的文件被关闭了。
+protected void finalize()
+{
+   // 在这里终结代码
+}
+关键字 protected 是一个限定符，它确保 finalize() 方法不会被该类以外的代码调用。
+当然，Java 的内存回收可以由 JVM 来自动完成。如果你手动使用，则可以使用上面的方法。
+
+方法重载：
+同一个类内，名字相同，参数类型不同
+如果你调用max方法时传递的是int型参数，则 int型参数的max方法就会被调用；
+如果传递的是double型参数，则double类型的max方法体会被调用，这叫做方法重载；
+就是说一个类的两个方法拥有相同的名字，但是有不同的参数列表。
+Java编译器根据方法签名判断哪个方法应该被调用。
+方法重载可以让程序更清晰易读。执行密切相关任务的方法应该使用相同的名字。
+重载的方法必须拥有不同的参数列表。你不能仅仅依据修饰符或者返回类型的不同来重载方法。
+
+构造方法：
+当一个对象被创建时候，构造方法用来初始化该对象。构造方法和它所在类的名字相同，但构造方法没有返回值。
+通常会使用构造方法给一个类的实例变量赋初值，或者执行其它必要的步骤来创建一个完整的对象。
+不管你是否自定义构造方法，所有的类都有构造方法，因为 Java 自动提供了一个默认构造方法，
+默认构造方法的访问修饰符和类的访问修饰符相同(类为 public，构造函数也为 public；类改为 protected，构造函数也改为 protected)。
+一旦你定义了自己的构造方法，默认构造方法就会失效。
+class MyClass {
+  int x;
+  MyClass(double... nums) {                // double...     可变参数
+    x = 10;
+  }
+}
+
+
+命令行参数传入main方法的args
+
+
+ 三元运算：num1 > num2 ? num1 : num2;
+
+
+for循环的初始化部分声明的变量，其作用范围在整个循环。
+但循环体内声明的变量其适用范围是从它声明到循环体结束
+
+
+数组：
+类型[] 名称 = 
+double[ ][ ] myList = new double[大小][大小];          多维数组
+double[ ] myList = {1, 3, 4.666};
+
+for(int num: myList){}       迭代循环，num是数组元素, 类似python for ... in ...
+
+
+日期：
+import java.util.Date;     导入     或import java.util.*;
+
+Date date = new Date();
+System.out.println(date.toString());       使用，显示日期时间：Thu Sep 23 09:37:38 CST 2021
+
+
+使用正则：
+import java.util.regex.*;         导入相关类：Pattern, Matcher, PatternSyntaxException
+
+boolean a = Pattern.matches(".*abc.*", "adjfabcdjfkd");      true, \\d+ 匹配多个数字，两个 \\ 代表其他语言中的一个 \
+System.out.println("\\");       // 输出一个\，两个斜杠输出一个斜杠
+
+
+Java 流(Stream)、文件(File)和IO
+Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
+Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
+一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
+
+
+文件：
+InputStream f = new FileInputStream("aa.txt");               打开读取
+OutputStream f = new FileOutputStream("test.txt");       打开写入
+try{
+    byte b[] = {1,2,3,4,5};
+    OutputStream os = new FileOutputStream("bb.txt");    打开写入，没有则创建
+    os.write(b);                                                                   写入
+    os.close();                                                                     关闭
+			 
+    InputStream f = new FileInputStream("bb.txt");            打开读取
+    System.out.println(f.read());                                           
+    f.close();
+}catch(Exception e){
+    System.out.println(e+"异常");
+}
+
+
+控制台输入
+Scanner scan = new Scanner(System.in); 
+if(scan.hasNext()){                 // 判断是否还有输入的数据或是否是指定数据类型，hasNextXxx，如hasNextLine、hasNextInt ......
+    String s = scan.next();       // 接收输入值，第一个空格结束，nextLine()以回车结束，nextInt，nextFloat
+}
+System.out.println(str1);
+scan.close();   // 关闭	
+
+next():
+1、一定要读取到有效字符后才可以结束输入。
+2、对输入有效字符之前遇到的空白，next() 方法会自动将其去掉。
+3、只有输入有效字符后才将其后面输入的空白作为分隔符或者结束符。
+next() 不能得到带有空格的字符串。
+
+nextLine()：
+1、以Enter为结束符,也就是说 nextLine()方法返回的是输入回车之前的所有字符。
+2、可以获得空白。
+
+
+异常：
+try{
+
+}catch(异常类型 变量){
+
+}catch(exception e){
+
+}finally{}    最后都会执行   
+
+throws/throw:
+public void withdraw(double amount) throws RemoteException, InsufficientFundsException{ 
+	try{
+	    throw new Exception();      抛出异常
+	 }catch(Exception e){              捕获异常
+	    System.out.println(e);
+	}
+}    
+
+检查性异常：、
+最具代表的检查性异常是用户错误或问题引起的异常，这是程序员无法预见的。例如要打开一个不存在文件时，一个异常就发生了，这些异常在编译时不能被简单地忽略。
+运行时异常： 
+运行时异常是可能被程序员避免的异常。与检查性异常相反，运行时异常可以在编译时被忽略。
+错误： 
+错误不是异常，而是脱离程序员控制的问题。错误在代码中通常被忽略。例如，当栈溢出时，一个错误就发生了，它们在编译也检查不到的。
+
+声明自定义异常：
+在 Java 中你可以自定义异常。编写自己的异常类时需要记住下面的几点。
+所有异常都必须是 Throwable 的子类。
+如果希望写一个检查性异常类，则需要继承 Exception 类。
+如果你想写一个运行时异常类，那么需要继承 RuntimeException 类。
+
+
+面向对象：
+只有单继承
+封装、继承、多态
+
+public 子类 extends 父类{ }
+
+子类拥有父类非 private 的属性、方法
+继承可以使用 extends 和 implements 这两个关键字来实现继承，而且所有的类都是继承于 java.lang.Object，
+当一个类没有继承的两个关键字，则默认继承object
+
+implements：
+使用 implements 关键字可以变相的使java具有多继承的特性，使用范围为类继承接口的情况，
+可以同时继承多个接口（接口跟接口之间采用逗号分隔）
+public interface A {
+    public void eat();
+    public void sleep();
+}
+ 
+public interface B {
+    public void show();
+}
+
+public class C implements A,B { }      类继承多个接口
+
+super  父类
+this     指向自己    
+
+final：
+final 关键字可以把类定义为不能继承的，即最终类；或者用于修饰方法，该方法不能被子类重写           
+1、final class 类名 { }
+2、final 返回类型 名称（）{}
+实例变量也可以被定义为 final，被定义为 final 的变量不能被修改。
+被声明为 final 类的方法自动地声明为 final，但是实例变量并不是 final
+
+
+
+
+
+
+
+
+
+
+
+
