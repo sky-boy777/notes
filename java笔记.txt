@@ -176,9 +176,24 @@ String s = 3.5f + "";         3.5
 计算机底层都以补码保存数据
 
 byte s = 1;
-s += 2;                      不需要类型转换
+s += 2;                      不会改变变量本身的类型
 s = (byte)(s + 2);        需要转换类型，不然编译出错，数字默认int类型
 
+instanceof
+逻辑运算：&&、||、!，前两个是短路运算
+无短路：逻辑与&（两个都为真则真）、逻辑或|（有一个真则真）、逻辑异或^(不同为true)
+位运算符是直接对整数的二进制的运算：左移<<乘2、>>除2、无符号右移>>>全部补0
+
+交换两个数的位置：
+1、定义第三个变量或如下
+2、
+num1 = num1 + num2;
+num2 = num1 - num2;
+num1 = num1 - num2
+3、异或
+num1 = num1 ^ num2;
+num2 = num1 ^ num2;
+num1 = numq ^ num2;
 Java 修饰符：
 1、访问修饰符
 2、非访问修饰符
@@ -252,23 +267,109 @@ class MyClass {
 }
 
 
-命令行参数传入main方法的args
+命令行参数传入main方法的args：java T 参数1 参数2 
 
+ 三元运算：int num = num1 > num2 ? num1 : num2;
+效率比if-else高
 
- 三元运算：num1 > num2 ? num1 : num2;
+从键盘获取输入：Scanner类
+import java.util.Scanner;
+Scanner scan = new Scanner(System.in);
+int num = scan.nextInt();       接收int类型，nextFloat(), nextDouble(), nextLine()
 
+Math.random();   随机数返回[0,1)区间double类型
+任意区间整数公式：[a, b] ==> (int)(Match.random() * (b - a + 1) + a)
 
 for循环的初始化部分声明的变量，其作用范围在整个循环。
 但循环体内声明的变量其适用范围是从它声明到循环体结束
 
+流程控制：
+只有一行可以省略花括号，不建议这样
+
+if(表达式){                             if-else结构
+}else if(表达式){
+}else{ 
+}
+
+switch(表达式){            switch-case结构执行效率比if-else高，根据表达式值匹配常量找到入口
+   case 常量1:              表达式的值的类型只能是6种：byte、short、char、int、枚举、String
+      语句;
+      break;     // break可选
+   case:          // 多个case相同，可以合并
+   case:
+   case:
+      语句;
+      break;
+   default:      // default可选，位置哪里都行
+      语句;
+}
+
+循环：
+1、for(int i=0; i<10; i++){ }
+2、while( ){ }
+3、do{ }while( )
+4、for(int i : intArr){ }  增强for循环
+
+for(; ;) <==> while(true)
+
+break 跳出当前层循环
+continue 结束本次循环，开始下一次
+return；   能结束多层循环
+
+label:for(){
+   for(){ break label; }  // 跳出指定标识的一层循环，continue则结束指定标识处本次循环
+}
+
+System.currentTimeMillis();    1970年1月1日 00：00：00 至今的毫秒数
+
+衡量代码的优劣：正确性、可读性、健壮性(鲁棒性)、高效率(时间复杂度）与低存储(空间复杂度）
+
+包名命名规则：com.公司名.项目名，   
 
 数组：
-类型[] 名称 = 
-double[ ][ ] myList = new double[大小][大小];          多维数组
-double[ ] myList = {1, 3, 4.666};
+相同类型数据按一定顺序排列的集合，数组是引用数据类型，元素也可以是应用数据类型
+一旦初始化完成，长度就确定了，长度一旦确定，就不能更改
+
+使用：
+声明、分配空间、赋值
+1、类型[] 名称 = new 类型[]{1, 2, 3, 4 };                          声明并初始化，静态初始化
+2、类型[] 名称 = new 类型[20];                                      动态初始化 ，***标准写法***
+3、类型[] 名称 = {1, 2, 3};                              声明并初始化，叫类型推断
+
+二维数组声明方式：
+int[ ][ ] arr = new int[3][4];    // int[ ][ ]{ {1, 2, 3}, {4 , 5, 6} }    
+int[ ][ ] arr = new int[3][ ];     // 也可以这样  
+int arr[ ][ ] = new int[3][4]; 
+int[ ] arr[ ] = new int[3][4]; 
+int[][] arr = { {1, 2, 3}, {4 , 5, 6} } ;       类型推断，省略new
+
+int[] arr = {1, 2, 3};             
+arr.length;                   属性，获取数组长度
+arr[2].length;               多维数组第三维长度
+
+二维数组遍历：
+for（int i = 0; i < arr.length; i++）{
+    for(int j = 0; j < arr[i].length; j++){
+        System.out.println(arr[i][j]);
+    }
+}
+
+数组默认初始化值：
+整型byte、short、int、long         0
+浮点型float、double                    0.0
+char类型                                     '\u0000', cha[1]==0
+布尔                                            false
+引用数据类型String                       null, 不是"null"
+二维数组的第一层默认值地址，最后一层跟一维数组一样
+int[ ][ ] arr = new int[3][ ];   // arr[0] 为null，任何类型都是null，因为是引用类型(引用地址)
 
 for(int num: myList){}       迭代循环，num是数组元素, 类似python for ... in ...
 
+数组的内存解析：
+堆（heap）：存放局部变量
+栈（stack）：存放new出来的结构（对象，数组），栈存放16进制地址值 
+
+垃圾回收机制：引用计数
 
 日期：
 import java.util.Date;     导入     或import java.util.*;
