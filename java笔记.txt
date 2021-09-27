@@ -172,6 +172,8 @@ String属于引用数据类型：String s = "djfkd";   // 字符串，使用双�
 String可以何8中数据类型做连接运算“+”，结果是String类型
 String s = 3.5f + "";         3.5
 
+String s = String.valueOf(2);   数字转为字符串
+
 原码取反得反码加1得补码，符号位除外
 计算机底层都以补码保存数据
 
@@ -409,6 +411,7 @@ toString(arr1)                       输出数组信息
 fill(arr1, "值")                       将指定数组填充到数组中，全部填充为同一个"值"
 sort(arr1)                            数组排序
 binarySearch(arr1， 3)        排序后的数组进行二分查找指定值：3，返回索引
+Arrays.asList(arr)；              数组转集合
 
 十大排序算法：
 选择排序： 直接选择排序、堆排序
@@ -440,7 +443,6 @@ Java 流(Stream)、文件(File)和IO
 Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
 Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
 一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
-
 
 文件：
 InputStream f = new FileInputStream("aa.txt");               打开读取
@@ -490,6 +492,8 @@ public class T {
 
 		File.createTempFile("文件名前缀", ".txt", new File("E:/"));  // 在指定目录下创建文件
 
+		System.getProperty("user.dir");  // 返回当前工作目录
+
 		// 文件内容复制到另一个文件
 		InputStream in = new FileInputStream(new File("srcfile"));
         		OutputStream out = new FileOutputStream(new File("destnfile"));
@@ -537,12 +541,17 @@ try{
 
 throws/throw:
 public void withdraw(double amount) throws RemoteException, InsufficientFundsException{ 
-	try{
-	    throw new Exception();      抛出异常
-	 }catch(Exception e){              捕获异常
+	try {
+	    throw new Exception("我的异常");      抛出异常
+	 }catch(Exception e) {              捕获异常
 	    System.out.println(e);
+	    e.printStackTrace();     // 获取异常堆栈信息
+	   }finally {
+	   // 最后执行
 	}
 }    
+
+多个catch块中的异常出现继承关系，父类异常catch块放在最下面（Exception）
 
 检查性异常：、
 最具代表的检查性异常是用户错误或问题引起的异常，这是程序员无法预见的。例如要打开一个不存在文件时，一个异常就发生了，这些异常在编译时不能被简单地忽略。
@@ -904,6 +913,7 @@ Java集合框架为程序员提供了预先包装的数据结构和算法来操�
 集合框架的类和接口均在java.util包中。
 任何对象加入集合类后，自动转变为Object类型，所以在取出的时候，需要进行强制类型转换。
 
+Collections.replaceAll(list, "a", "b");   // 将list里面的a全部替换成b  
 
 ArrayList：
 ArrayList 类是一个可以动态修改的数组，与普通数组的区别就是它是没有固定大小的限制
@@ -970,7 +980,8 @@ s.size();                 链表大小，用于遍历
 for (String i : s) {
             System.out.println(i);
         }
-System.out.print(s);  打印列表
+System.out.print(s);  打印链表
+s.subList(2, 4).clear();     // 删除链表 [2, 4) 区间的元素
 
 方法	描述
 public boolean add(E e)	链表末尾添加元素，返回是否成功，成功为 true，失败为 false。
@@ -1096,6 +1107,8 @@ while(it.hasNext()){
      it.remove();        删除元素   
 }
 
+String[] s1 = s.toArray(new String[0]);   // 集合转数组
+
 
 Object 类：
 Java Object 类是所有类的父类，也就是说 Java 的所有类都继承了 Object，子类可以使用 Object 的所有方法。
@@ -1205,6 +1218,30 @@ Java 提供了一种对象序列化的机制，该机制中，一个对象可以
 网络编程（socket）：
 import java.net.Socket;
 import java.net.ServerSocket;
+
+实例
+import java.net.*;
+ 
+public class T{
+   public static void main(String[] args){
+     try{
+		System.out.print(InetAddress.getByName("www.baidu.com"));  // 获取主机跟ip地址
+		InetAddress.getLocalHost()； 本地IP地址跟计算机名
+
+		URL url = new URL("https://www.baidu.com");  // 创建请求url
+		URLConnection con = url.openConnection();  // 发送请求
+		con.getContentLength()；  // 获取大小（字节）
+		con.getInputStream().close();  // 关闭
+
+		Socket s = new Socket("www.baidu.com", 80);  // 连接到指定主机
+		s.getInetAddress();  // 获取ip
+		s.close();		
+
+     }catch(Exception e){
+		 System.out.println(e);
+	 }
+   }
+}
 
 
 发送邮件:
@@ -1367,6 +1404,64 @@ public static void dumpStack()
 注意：
 如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了
 创建了太多的线程，CPU 花费在上下文切换的开销时间将多于执行程序的时间
+
+
+Java Lambda 表达式：
+Java 8 新特性
+Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。
+Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。
+使用 Lambda 表达式可以使代码变的更加简洁紧凑。
+
+语法格式：
+(parameters) -> expression
+或
+(parameters) ->{ statements; }
+
+特征：
+可选类型声明：不需要声明参数类型，编译器可以统一识别参数值。
+可选的参数圆括号：一个参数无需定义圆括号，但多个参数需要定义圆括号。
+可选的大括号：如果主体包含了一个语句，就不需要使用大括号。
+可选的返回关键字：如果主体只有一个表达式返回值则编译器会自动返回值，大括号需要指定表达式返回了一个数值。
+
+注意：
+Lambda 表达式主要用来定义行内执行的方法类型接
+ Lambda 表达式当中不允许声明一个与局部变量同名的参数或者局部变量。
+lambda 表达式的局部变量可以不用声明为 final，但是必须不可被后面的代码修改（即隐性的具有 final 的语义）
+
+变量作用域：
+lambda 表达式只能引用标记了 final 的外层局部变量，这就是说不能在 lambda 内
+部修改定义在域外的局部变量，否则会编译错误
+
+
+Java 8 方法引用：
+List<String> names = new ArrayList();
+      names.add("Baidu");
+      names.add("Sina");
+      names.forEach(System.out::println);
+输出：
+Baidu
+Sina
+
+
+Java 8 函数式接口
+
+
+Java 8 日期时间 API
+import java.time.*;
+
+LocalDateTime.now();   日期时间
+LocalDateTime.now().toLocalDate();   日期，Time输出时间
+
+
+连接mysql：
+下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
+
+本章节我们为大家介绍 Java 如何使用 使用 JDBC 连接 MySQL 数据库。
+
+Java 连接 MySQL 需要驱动包，最新版下载地址为：http://dev.mysql.com/downloads/connector/j/，解压后得到 jar 库文件，然后在对应的项目中导入该库文件。
+
+
+
 
 
 
