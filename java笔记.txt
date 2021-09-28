@@ -553,9 +553,9 @@ public void withdraw(double amount) throws RemoteException, InsufficientFundsExc
 1、访问修饰符
 2、非访问修饰符
 修饰符用来定义类、方法或者变量，通常放在语句的最前端
-局部变量不能使用权限修饰符
+局部变量不能使用访问修饰符
 
-权限修饰符：
+访问修饰符：
 使用访问控制符来保护对类、变量、方法和构造方法的访问。Java 支持 4 种不同的访问权限：
 1、default (即默认，什么也不写）: 在同一包内可见，不使用任何修饰符。使用对象：类、接口、变量、方法。
 2、private : 在同一类内可见。使用对象：变量、方法。 注意：不能修饰类（外部类）
@@ -578,7 +578,7 @@ public void withdraw(double amount) throws RemoteException, InsufficientFundsExc
 局部变量加载到栈空间，属性（非static）加载到堆空间
 
 方法：
-权限修饰符 返回类型 方法名( 参数类型 变量 ){  }
+访问修饰符 返回类型 方法名( 参数类型 变量 ){  }
 public void  log( String num ){  }
 
 方法里不能再定义方法
