@@ -1204,7 +1204,7 @@ public class Box<T> {
   }
  
   public static void main(String[] args) {
-    Box<Integer> integerBox = new Box<Integer>();
+    Box<Integer> integerBox = new Box<Integer>();  // 或new Box<>(); 后面尖括号空
     Box<String> stringBox = new Box<String>();
  
     integerBox.add(new Integer(10));
@@ -1215,6 +1215,10 @@ public class Box<T> {
   }
 }
 
+Java SE 7 及更高版本中，<>只要编译器可以从上下文中确定或推断类型参数，就可以将调用泛型类的构造
+函数所需的类型参数替换为空的类型参数集 ( )
+Box<Integer> integerBox = new Box<>();
+
 类型通配符
 1、类型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等
    所有List<具体类型实参>的父类。
@@ -1223,6 +1227,13 @@ public class Box<T> {
 3、类型通配符下限通过形如 List<? super Number>来定义，表示类型只能接受Number及其三层父
    类类型，如 Object 类型的实例。
 
+最常用的类型参数名称是：
+E - 元素（被 Java 集合框架广泛使用）
+K - 键
+N - 数字
+T - 类型
+V - 值
+S、U、V 等 - 第 2、3、4 种类型
 
 Java 序列化：  
 （对象序列化进文件，从文件反序列化对象出来）
@@ -1465,7 +1476,7 @@ Baidu
 Sina
 
 
-Java 8 函数式接口
+Java 8 函数式接口:
 
 
 Java 8 日期时间 API
@@ -1476,12 +1487,47 @@ LocalDateTime.now().toLocalDate();   日期，Time输出时间
 
 
 连接mysql：
+Java 使用 JDBC 连接 MySQL 数据库
 下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
 
-本章节我们为大家介绍 Java 如何使用 使用 JDBC 连接 MySQL 数据库。
+1、打开链接选择对应数据库版本：http://dev.mysql.com/downloads/connector/j/
+2、选择：Platform Independent，下载：mysql-connector-java-5.1.47.tar.gz，只有几M大小
+3、解压后得到 jar库文件，将mysql-connector-java-5.1.47-bin.jar放入jdk8\jre\lib\ext下，
+然后在对应的项目中导入该库文件。
 
-Java 连接 MySQL 需要驱动包，最新版下载地址为：http://dev.mysql.com/downloads/connector/j/，解压后得到 jar 库文件，然后在对应的项目中导入该库文件。
+代码：
+import java.sql.*;  // 导入相关
 
+public class M {
+    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    // static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";	   
+    static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名";  // MySQL8.0一下版本使用这个
+    static final String USER = "root";  // 用户名
+    static final String PASS = "1234";  // 密码
+ 
+   public static void main(String[] args) {    
+        try{          
+            Class.forName(JDBC_DRIVER);   // 注册 JDBC 驱动       
+            Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);   // 打开链接           
+            
+            Statement stmt = conn.createStatement();  // 执行查询
+            ResultSet rs = stmt.executeQuery("SELECT * FROM admin");  			
+            
+            while(rs.next()){
+	int id = rs.getInt("id");  // 根据类型获取数据：rs.getXxx("字段")，id为数据库字段名
+	String name = rs.getString("name");
+            }
+
+           // 关闭		
+           rs.close();
+           stmt.close();
+           conn.close();
+
+        } catch(Exception e){
+	  System.out.println(e);
+       }
+   }
+}
 
 
 
