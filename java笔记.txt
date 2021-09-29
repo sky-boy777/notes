@@ -17,6 +17,10 @@ public class Hello {
 
 注释中出现\u会转译，编译会报错: // 这是\u注释
 
+java参数传递机制：值传递
+
+可以链式编程
+
 javac Hello.java     编译，成字节码得到类名的文件Hello.class，内部使用了其他类时会自动编译对应的类文件
 javac He*.java                                  使用通配符
 javac -encoding utf-8 h.java             指定编码格式
@@ -443,7 +447,7 @@ Date date = new Date();
 System.out.println(date.toString());       使用，显示日期时间：Thu Sep 23 09:37:38 CST 2021
 
 
-import static java.lang.Math.*;    静态导入
+import static java.lang.Math.*;    导入指定包下类或接口的静态结构、属性、方法
 PI、E、......
 
 int i = 1;
@@ -611,11 +615,14 @@ public void withdraw(double amount) throws RemoteException, InsufficientFundsExc
 局部变量不能使用访问修饰符
 
 访问修饰符：
-使用访问控制符来保护对类、变量、方法和构造方法的访问。Java 支持 4 种不同的访问权限：
-1、default (即默认，什么也不写）: 在同一包内可见，不使用任何修饰符。使用对象：类、接口、变量、方法。
-2、private : 在同一类内可见。使用对象：变量、方法。 注意：不能修饰类（外部类）
-3、public : 对所有类可见。使用对象：类、接口、变量、方法
-4、protected : 对同一包内的类和所有子类可见。使用对象：变量、方法。 注意：不能修饰类（外部类）。
+使用访问控制符来保护对（类、属性、方法、构造器）的访问
+Java 支持 4 种不同的访问权限，从小到大：
+1、private : 在同一类内可见。使用对象：变量、方法。 注意：不能修饰外部类
+2、缺省 (即默认，什么也不写）: 在同一包内可见，使用对象：类、接口、变量、方法。
+3、protected : 对同一包内的类和所有子类可见。使用对象：变量、方法。 注意：不能修饰外部类
+4、public : 对所有类可见。使用对象：类、接口、变量、方法
+
+class只能用public或缺省修饰
 
 非访问修饰符：
 1、static  修饰符，用来修饰类方法和类变量。
@@ -641,8 +648,9 @@ public void  log( String num ){  }
 匿名对象：不赋值，直接new，new MyClass().方法名()，使用：obj.fun( new MyClass() )
 匿名数组：new int[ ]{1, 2, 3, 4}; 
 
-构造方法：
-当一个对象被创建时候，构造方法用来初始化该对象。构造方法和它所在类的名字相同，构造方法没有返回值。
+构造方法或构造器：
+任何一个类都有构造器
+当一个对象被创建时候（new），构造方法用来初始化该对象。构造方法和它所在类的名字相同，构造方法没有返回值。
 通常会使用构造方法给一个类的实例变量赋初值，或者执行其它必要的步骤来创建一个完整的对象。
 不管你是否自定义构造方法，所有的类都有构造方法，因为 Java 自动提供了一个默认构造方法，
 默认构造方法的访问修饰符和类的访问修饰符相同(类为 public，构造函数也为 public；类改为 protected，构造函数也改为 protected)。
@@ -651,11 +659,9 @@ public void  log( String num ){  }
 构造方法伴随new操作一起调用。
 
 class MyClass {
-  int x;
-  MyClass(double... nums) {                // double...     可变参数
-    x = 10;
-  }
-}
+  public MyClass() { }                // 构造器，默认是空参构造器，默认权限修饰符跟随class
+  public MyClass(int i){ }           // 构造器重载，重载后一定要有一个空参构造器
+ }
 
 java的所有对象都是在堆中构造的
 
@@ -690,7 +696,15 @@ public interface B {
 public class C implements A,B { }      类继承多个接口
 
 super  父类
-this     指向自己    
+
+this：     
+当前对象，new的实例对象，类似python shelf
+在其他方法里面调用构造器：this(参数);
+int age;
+public fun(int age){
+	this(age);  // 调用构造器，必须在首行
+	this.age = age;
+}    
 
 final：
 final 关键字可以把类定义为不能继承的，即最终类；或者用于修饰方法，该方法不能被子类重写           
@@ -939,7 +953,7 @@ Constructor called for : GREEN
 Constructor called for : BLUE
 
 Java 包(package):
-为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间。
+为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间
 
 包的作用:
 1、把功能相似或相关的类或接口组织在同一个包中，方便类的查找和使用。
@@ -950,8 +964,10 @@ Java 包(package):
 Java 使用包（package）这种机制是为了防止命名冲突，访问控制，提供搜索和定位类（class）、接口、
 枚举（enumerations）和注释（annotation）等。
 
+包名用小写，是标识符
+
 包语句的语法格式为：
-package pkg1[．pkg2[．pkg3…]];
+package pkg1[．pkg2[．pkg3…]];   // 一个点代表一层文件目录
 
 例如,一个Something.java 文件它的内容
 package net.java.util;
@@ -964,7 +980,8 @@ public class Something {
 import 导包:
 在 java 源文件中 import 语句应位于 package 语句之后，所有类的定义之前
 
-import package1[.package2…].(classname|*);
+import package1[.package2…].(classname|*);  // 导入指定包下的类或接口
+同一个包下的类或接口不用导入
 
 
 Java 数据结构
@@ -1620,6 +1637,13 @@ public class M {
        }
    }
 }
+
+JavaBean：
+一种Java语言写成的可重用组件
+符合如下标准：
+1、类是公共的
+2、有一个无参的公共的构造器
+3、有属性，且有对应的get、set方法
 
 
 
