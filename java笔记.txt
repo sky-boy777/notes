@@ -14,7 +14,11 @@ public class Hello {
 		System.out.println("hello world");  // println中是小写的L而不是大写的i
 	}
 }
-javac Hello.java                                编译，成字节码得到类名的文件Hello.class
+
+注释中出现\u会转译，编译会报错: // 这是\u注释
+
+javac Hello.java     编译，成字节码得到类名的文件Hello.class，内部使用了其他类时会自动编译对应的类文件
+javac He*.java                                  使用通配符
 javac -encoding utf-8 h.java             指定编码格式
 java Hello                                        运行，后面不用加后缀名
 
@@ -134,14 +138,19 @@ while
 
 byte：1字节=8bit    -128~127
 short：2字节           -2^15~2^15-1
-***int：4字节               -2^31~2^31-1(约21亿)
+***int：4字节           -2^31~2^31-1(约21亿)
 long：8字节            -2^63~2^63-1             声明时需要加“l”或“L”，long num = 22443243L;
 
 单精度float：4字节             -3.403e38~3.403e38          float类型定义时要加“f”或“F”
-***双精度double：8字节          -1.798e308~1.798e308
+双精度double：8字节          -1.798e308~1.798e308，两倍的float
 
 char(1字符=2字节)    通常使用单引号''，只能写一个字符            char c = 'a';      不能char c = 'ab';
 '\n', '\u0043'   都是一个字符
+
+整型和布尔型不能相互转换，if(0){  }  将会编译报错
+
+final int XXX;             // 使用find关键字定义常量，一旦赋值不能更改
+static final int XXX;   //  一个类常量
 
 基本类型对应的包装类表如下：
 基本类型	引用类型
@@ -153,6 +162,9 @@ long	Long
 float	Float
 double	Double
 char	Character
+
+0x十六进制，0开头八进制，0b二进制
+java7开始可以使用：int n = 1_000_000;  可以加下划线
 
 自动类型提升：
 使用大范围接收小范围:
@@ -177,11 +189,17 @@ String s = String.valueOf(2);   数字转为字符串
 原码取反得反码加1得补码，符号位除外
 计算机底层都以补码保存数据
 
+public static strictfp void main(String[] args){}    strictfp关键字，在main方法或类中将使用严格的浮点计算
+
 byte s = 1;
 s += 2;                      不会改变变量本身的类型
 s = (byte)(s + 2);        需要转换类型，不然编译出错，数字默认int类型
 
+浮点数除0会得到无穷大或NaN：3.14/0 得到Infinity，整数除0运行报错，编译不报错
+
 instanceof：是 Java 的保留关键字，作用是测试它左边的对象是否是它右边的类的实例，返回 boolean 类型
+
+负数求余得负数
 
 逻辑运算：&&、||、!，前两个是短路运算
 无短路：逻辑与&（两个都为真则真）、逻辑或|（有一个真则真）、逻辑异或^(不同为true)
@@ -244,6 +262,22 @@ protected void finalize()
  三元运算：int num = num1 > num2 ? num1 : num2;
 效率比if-else高
 
+方法传参：
+1、按值调用（值的拷贝）
+2、按引用调用（地址）
+
+static：
+声明静态方法、变量
+静态域，每个类只有一个静态域，所有实例对象都共享这个静态域，静态域属于类，python中的属性，而不是类属性
+例如，计算器
+     private static final int a = 0;   // 静态常量，用的比较多，静态变量少
+     public M(){    // 构造函数
+	a++;  // 没new一个对象a就加1
+    }
+静态方法跟python的静态方法差不多，它没有this参数，不能使用实例属性、方法，this等价于python中的self，可以访问静态变量
+建议使用"类名.静态方法()"调用静态方法，"对象.静态方法()"也能调用
+
+
 从键盘获取输入：Scanner类
 import java.util.Scanner;
 Scanner scan = new Scanner(System.in);
@@ -254,6 +288,8 @@ Math.random();   随机数返回[0,1)区间double类型
 
 for循环的初始化部分声明的变量，其作用范围在整个循环。
 但循环体内声明的变量其适用范围是从它声明到循环体结束
+for(int i = 0;;){}
+i不能在外面使用
 
 流程控制：
 只有一行可以省略花括号，不建议这样
@@ -263,18 +299,19 @@ if(表达式){                             if-else结构
 }else{ 
 }
 
-switch(表达式){            switch-case结构执行效率比if-else高，根据表达式值匹配常量找到入口
-   case 常量1:              表达式的值的类型只能是6种：byte、short、char、int、枚举、String
+switch(1){            // switch-case结构执行效率比if-else高，根据表达式值匹配常量找到入口
+   case 常量1:       // 表达式的值的类型只能是6种：byte、short、char、int、枚举、String
       语句;
       break;     // break可选
    case:          // 多个case相同，可以合并
-   case:
+   case "1":    // 编译报错，String无法转换为int
    case:
       语句;
       break;
-   default:      // default可选，位置哪里都行
+   default:      // default可选，放在哪里都行，一般在最后
       语句;
 }
+case后常量会尝试跟switch表达式的类型进行转换，有些类型不能相互转换，会编译报错
 
 循环：
 1、for(int i=0; i<10; i++){ }
@@ -288,8 +325,9 @@ break 跳出当前层循环
 continue 结束本次循环，开始下一次
 return；   能结束多层循环
 
-label:for(){
-   for(){ break label; }  // 跳出指定标识的一层循环，continue则结束指定标识处本次循环
+标签可以指定跳出的循环，标签可以使用在任何地方，如if语句
+my_label:for(){
+   for(){ break my_label; }  // 跳出指定标识的一层循环，continue则结束指定标识处本次循环
 }
 
 System.currentTimeMillis();    1970年1月1日 00：00：00 至今的毫秒数
@@ -377,6 +415,8 @@ Arrays.asList(arr)；              数组转集合
 归并排序
 桶式排序
 基数排序
+
+字符串类加效率比较低，使用类：StringBuilder b = new StringBuilder();  b.append("xx");
     
 
 垃圾回收机制：引用计数
@@ -401,6 +441,14 @@ import java.util.Date;     导入     或import java.util.*;
 
 Date date = new Date();
 System.out.println(date.toString());       使用，显示日期时间：Thu Sep 23 09:37:38 CST 2021
+
+
+import static java.lang.Math.*;    静态导入
+PI、E、......
+
+int i = 1;
+double d = 3.14;
+i += 3.14;   将会发生强制类型转换：(int)(x + 3.14)
 
 
 使用正则：
@@ -482,7 +530,14 @@ public class T {
 }
 
 
-控制台输入
+java.lang包中的类不需要import导入，其他需要
+
+
+读取控制台输入：
+Scanner类 + System.in
+
+import java.util.*;
+
 Scanner scan = new Scanner(System.in); 
 if(scan.hasNext()){                 // 判断是否还有输入的数据或是否是指定数据类型，hasNextXxx，如hasNextLine、hasNextInt ......
     String s = scan.next();       // 接收输入值，第一个空格结束，nextLine()以回车结束，nextInt，nextFloat
@@ -499,6 +554,11 @@ next() 不能得到带有空格的字符串。
 nextLine()：
 1、以Enter为结束符,也就是说 nextLine()方法返回的是输入回车之前的所有字符。
 2、可以获得空白。
+
+Console类适用于从控制台读取密码
+
+块作用域：
+包含在{ }内，不能再嵌套的块中定义两个同名的变量：{ int n;  { int n; } }，编译报错
 
 
 异常：
@@ -578,21 +638,26 @@ public void  log( String num ){  }
 
 方法里不能再定义方法
 
-匿名对象：
-不赋值，直接new，new MyClass().方法名()，使用：obj.fun( new MyClass() )
+匿名对象：不赋值，直接new，new MyClass().方法名()，使用：obj.fun( new MyClass() )
+匿名数组：new int[ ]{1, 2, 3, 4}; 
 
 构造方法：
-当一个对象被创建时候，构造方法用来初始化该对象。构造方法和它所在类的名字相同，但构造方法没有返回值。
+当一个对象被创建时候，构造方法用来初始化该对象。构造方法和它所在类的名字相同，构造方法没有返回值。
 通常会使用构造方法给一个类的实例变量赋初值，或者执行其它必要的步骤来创建一个完整的对象。
 不管你是否自定义构造方法，所有的类都有构造方法，因为 Java 自动提供了一个默认构造方法，
 默认构造方法的访问修饰符和类的访问修饰符相同(类为 public，构造函数也为 public；类改为 protected，构造函数也改为 protected)。
 一旦你定义了自己的构造方法，默认构造方法就会失效。
+可以有一个以上的构造方法。
+构造方法伴随new操作一起调用。
+
 class MyClass {
   int x;
   MyClass(double... nums) {                // double...     可变参数
     x = 10;
   }
 }
+
+java的所有对象都是在堆中构造的
 
 对象数组：
 MyClass[ ] my = MyClass[20];    // 数组元素为对象
@@ -1162,6 +1227,14 @@ Object 类可以显示继承，也可以隐式继承
 方法：
 protected Object clone()     创建并返回一个对象的拷贝
 boolean equals(Object obj)  比较两个对象是否相等
+
+"abc".equals("abc")     // true，比较两个字符串是否相等
+不建议使用 "=="，因为截取或+的字符串会放在不同的地方
+"xabc".substring(0,3) == "xab"   // false
+String str = "a";
+"x" + str == "xa");      // false
+
+null 不等于 ""，"".length() 为0
 
 protected void finalize() 当 GC (垃圾回收器)确定不存在对该对象的有更多引用时，由对象的垃圾回收器调用此方法。
 
