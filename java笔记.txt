@@ -165,16 +165,6 @@ char(1字符=2字节)    通常使用单引号''，只能写一个字符        
 final int XXX;             // 使用find关键字定义常量，一旦赋值不能更改
 static final int XXX;   //  一个类常量
 
-基本类型对应的包装类表如下：
-基本类型	引用类型
-boolean	Boolean
-byte	Byte
-short	Short
-int	Integer
-long	Long
-float	Float
-double	Double
-char	Character
 
 0x十六进制，0开头八进制，0b二进制
 java7开始可以使用：int n = 1_000_000;  可以加下划线
@@ -867,6 +857,105 @@ obj.fun(new Y);  // y.eat()
 内存中实际上加载了子类特有的方法跟属性，由于变量声明为父类类型，导致编译时
 只能调用父类中声明的方法跟属性。子类特有方法跟属性不能调用。除非强制类型转
 换（向下转型：父类--->子类）。B obj = （B）a；
+
+
+Object类的使用：
+obj.getClass();  // 查看创建obj实例的类，obj.getClass().getSuperclass();  获取类的父类
+==：基本数据类型比较值，引用类型比较地址
+
+equals()方法:
+Object中equals()方法跟==是相同的，都是比较地址
+String、Date、File、包装类等都重写了Object中的equals()方法，重写后，比较的是两个对象的“实体内容”
+是否相同。
+我们自定义类如果使用equals()的话,通常也是比较两个对象的“实体内容”是否相同，我们需要重写Object中的
+equals()方法。可以参考String.equals()是如何重写的。
+idea可以自动调用重写equals()，一般开发使用这种。
+重写原则：比较两个对象的实体内容是否相同（name,age.....）。
+==符号要保证变量两边数据类型一致。
+
+toString()方法：
+obj.toString();  // 输出obj的地址，跟System.out.print(obj);一样，String.toString()是重写后的
+
+java中的JUnit单元测试：
+1、选中当前工程--右键选择：build path -- add libraries -- JUnit 4 -- 下一步
+2、创建java类，进行单元测试，要求：此类是public的、此类提供公共的无参的构造器
+3、在此类中声明单元测试方法，要求：是public、没有返回值、没有形参
+4、在此单元测试方法上声明注解：@Test，需要导入import org.junit.Test;
+5、声明好单元测试方法后，就可以在该方法体内写测试相关的代码了
+6、写完后，运行：左键双击单元测试方法名，右键run as -- JUnit Test，红条表示失败，绿条表示成功
+
+包装类：
+八种基本数据类型对应的包装类如下：
+基本类型	引用类型
+boolean	Boolean
+byte	Byte
+short	Short
+int	Integer
+long	Long
+float	Float
+double	Double
+char	Character
+
+boolean b；  // 默认值为false
+Boolean b；  // 默认值为null
+
+包装类的使用：
+基本数据类型、包装类和String类型间的相互转化
+
+基本数据类型--->包装类：
+Integer num = new integer("123");  // 或123，字符串中只能有数字
+Boolean b = new Boolean(true);  // 字符串不区分大小写，如："tRue"，有其他字符"true123"为false
+
+包装类--->基本数据类型：
+调用包装类的xxxValue()
+Integer i = new integer(15);
+int num = i.intValue();  // 转为基本数据类型，floatValue、doubleValue()......
+
+***JDK 5.0特性："自动装箱" 与“自动拆箱” 互相转换类型
+int num = 12；
+integer n = num；  // 自动装箱，基本数据类型--->包装类
+int num3 = n;         // 自动拆箱，包装类--->基本数据类型
+
+方法形参接受对象类型（Object obj），传参传入基本数据类型（int）
+public void method(Object obj){ }
+int num = 1;
+method(num);  // 自动装箱
+
+基本数据类型、包装类--->String类型：
+float num = 1.0f;
+String s = num + "";  // 方式一，与空字符串相加能转换类型
+String s = String.valueOf(num);  // 方式二，调用String.valueOf()方法转换类型
+
+String类型--->基本数据类型、包装类:
+调用包装类的parseXxx()方法
+int num = Integer.parseInt("123");   // Float.parseFloat("12.3f");........
+
+面试题：
+1、
+Object o = true ? new Integer(1) ： new Double(2.0);
+o结果为1.0，使用new integer(1)，但编译的时候类型自动提升为double
+2、
+Object o；
+if（true）{
+    o = new Integer(1);
+}else{
+  o = new Double(2.0);;
+}
+o结果为1，没有自动类型提升
+3、
+Integer x = new Integer(1);
+Integer y = new Integer(1);
+System.out.prnt(x == y);  // false，比较地址值
+
+Integer x = 1;
+Integer y = 1;
+System.out.prnt(x == y);  // true，Integer类内IntegerCache方法中定义了Integer[ ]数组，缓
+                                      存了“-128-127”之间的数的数组，使用自动装箱方式可以之间使用
+                                     范围内的元素，超出范围则用new，python也有这种
+
+Integer x = 128;
+Integer y = 128;
+System.out.prnt(x == y);  // false，超出数组范围，使用new
 
 
 Java 抽象类：
