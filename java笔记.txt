@@ -279,15 +279,80 @@ protected void finalize()
 2、按引用调用（地址）
 
 static：
-声明静态方法、变量
-静态域，每个类只有一个静态域，所有实例对象都共享这个静态域，静态域属于类，python中的属性，而不是类属性
+用来修饰：属性，方法，代码块，内部类。
+每个类只有一个静态域，属于类，所有实例对象都共享这个静态域（相当于全局），静态域属于类。
+
+在内存中类只有一份，实例对象可以有无数份
+
+静态变量：
+也称类变量或类属性，随着类的加载而加载。在内存中只有一份
+调用：类.静态变量，对象.静态变量
+static int a;  // 静态变量，类属性
+public static final int a = 1;    // final跟static不分先后
+public final static int b = 2;
+
+静态方法：
+类方法，内部只能调用静态方法跟静态属性，不能使用this、super
+工具类的方法一般定义成静态方法
+调用：类.静态方法()
+public static void fun(){ // 内部一般使用静态属性  }
+
 例如，计算器
-     private static final int a = 0;   // 静态常量，用的比较多，静态变量少
+     private static final int a = 0;   // 静态常量，用的比较多，静态变量少：private static int a；
      public M(){    // 构造函数
-	a++;  // 没new一个对象a就加1
+	a++;  // 每new一个对象，a就加1
     }
-静态方法跟python的静态方法差不多，它没有this参数，不能使用实例属性、方法，this等价于python中的self，可以访问静态变量
+静态方法没有this参数，不能使用实例属性、方法，可以访问静态变量
 建议使用"类名.静态方法()"调用静态方法，"对象.静态方法()"也能调用
+
+实现单例模式：
+饿汉式：
+1、私有化类的构造器：private A(){ }
+2、在内部创建类的对象，此对象也声明为static的：private static A = new A();
+3、提供公共的静态方法返回类的对象: public static A getXxx(){ return A; }
+
+懒汉式：
+1、私有化类的构造器：private A(){ }
+2、在内部声明类的对象，此对象也声明为static的：private static A = null；
+3、提供公共的静态方法返回类的对象，判断是否已经创建过 
+    public static A getXxx(){ 
+        if(A == null){ 
+            A = new A();    // 第一次new时 
+        }
+        return A;
+    }
+
+饿汉式：一开始就造好对象，线程安全的
+懒汉式：什么时候用，什么时候创建，线程不安全的，当同时new两个实例，同时创建对象
+             解决线程安全问题加上synchronized关键字：public static synchronized A getXxx(){}
+             同步监视器就是当前类本身（A.class）
+
+单例设计模式应用场景：
+网站的计数器
+应用程序日志应用
+数据库连接池
+读取配置文件的类
+Application
+window的任务管理器、回收站
+
+
+代码块：
+或初始化块
+1、用来初始化类，对象
+2、代码块要修饰的话，只能用static修饰
+3、分为静态代码块跟非静态代码块
+static{
+    // 静态代码块
+    // 可以有输出语句，随着类的加载而执行，只执行一次，多个按先后顺序执行，优先于非静态代码块
+    // 只能调用非静态结构（静态属性，静态方法）
+}
+
+{
+    // 非静态代码块
+    // 随着对象的创建而执行，new的时候执行，每new一次执行一次，多个按先后顺序执行
+}
+
+总结：由父及子，静态先行
 
 
 从键盘获取输入：Scanner类
@@ -573,40 +638,104 @@ Console类适用于从控制台读取密码
 
 
 异常：
-try{
+java.lang.Throwable
+语法错误和逻辑错误不是异常
 
-}catch(异常类型 变量){
+异常处理机制：
+1、try-catch-finally
+2、throws
 
-}catch(exception e){
+try{ 
+}catch(异常类型 变量){ 
+}catch(Exception e){ 
+}finally{ }    最后都会执行，一定会执行的，即使其他地方有return语句，finally里面有return，则其他地方的return不会执行   
 
-}finally{}    最后都会执行   
+可以嵌套
+
+在try中声明的变量，在外面不能使用
+
+多个catch块中的异常出现继承关系，父类异常catch块放在最下面（Exception）
 
 throws/throw:
-public void withdraw(double amount) throws RemoteException, InsufficientFundsException{ 
+thorws + 异常类型，写在方法声明处，指明此方法执行时可能抛出的异常类型，一旦方法体执行时，出现异常，仍会在
+异常代码处生成一个异常类对象，此对象满足throws后异常类型时，就会被抛出，异常后面的代码不会再执行。
+throw  主动抛出异常
+
+try{
+    method();   // 捕获该方法throws可能抛出的异常    
+}catch(RemoteException e){
+
+}catch(Exception e){   
+    // 其他异常
+}
+
+public void method() throws 异常类型1, 异常类型2... { 
 	try {
-	    throw new Exception("我的异常");      抛出异常
-	 }catch(Exception e) {              捕获异常
+	    throw new Exception("我的异常");      // 主动抛出异常，必须放在try内，或再方法中声明throws
+	 }catch(Exception e) {                            // 捕获异常
 	    System.out.println(e);
-	    e.printStackTrace();     // 获取异常堆栈信息
+                   e.getMessage();                                // 输出信息
+	    e.printStackTrace();                           // 获取异常堆栈信息
 	   }finally {
 	   // 最后执行
 	}
 }    
 
-多个catch块中的异常出现继承关系，父类异常catch块放在最下面（Exception）
+抛：
+throw
 
-检查性异常：、
-最具代表的检查性异常是用户错误或问题引起的异常，这是程序员无法预见的。例如要打开一个不存在文件时，一个异常就发生了，这些异常在编译时不能被简单地忽略。
+抓：
+try-catch-finally  真正的处理的异常
+throws  只是将异常抛给了方法的调用者，并没有真正的将异常处理
+
+子类重写的方法抛出的异常类型不能大于父类被重写的方法抛出的异常类型
+父类方法没有throws抛出异常类型，子类也不能抛出
+执行方法a中，先后又调用了另外几个方法，这几个方法是递进关系的，则建议这几个方法使用throws方式进行处理，
+而执行方法a可以考虑使用try-catch-finally方式进行处理。
+
+检查性异常：
+最具代表的检查性异常是用户错误或问题引起的异常，这是程序员无法预见的。例如要打开一个不存在文件时，一个异常就发生了，
+这些异常在编译时不能被简单地忽略。
+
 运行时异常： 
 运行时异常是可能被程序员避免的异常。与检查性异常相反，运行时异常可以在编译时被忽略。
+
 错误： 
 错误不是异常，而是脱离程序员控制的问题。错误在代码中通常被忽略。例如，当栈溢出时，一个错误就发生了，它们在编译也检查不到的。
 
 声明自定义异常：
-在 Java 中你可以自定义异常。编写自己的异常类时需要记住下面的几点。
 所有异常都必须是 Throwable 的子类。
-如果希望写一个检查性异常类，则需要继承 Exception 类。
-如果你想写一个运行时异常类，那么需要继承 RuntimeException 类。
+1、检查性异常类，需要继承 Exception 类。运行时异常类，需要继承 RuntimeException 类。
+2、提供全局常量serialVersionUID
+3、提供重载构造器
+public class MyException extends Exception {
+    static final long serialVersionUID = -7743294724883748347L;
+
+    publice MyException(){ }
+
+    publice MyException(String msg){
+        super(msg);
+    }
+}
+publice void method() throws MyException{    // 使用throws指定可能抛出的异常
+    throw new MyException("这是异常信息");     // 主动抛出自定义异常
+}
+
+异常体系结构：
+java.lang.Throwable
+    java.lang.Error   一般不编写针对性的代码进行处理
+    java.lang.Exception  可以进行异常处理
+        编译时异常（checked）  
+            IOException
+                   FileNotFoundException
+            ClassNotFoundException
+       运行时异常（unchecked，RuntimeException）  
+           NullPointerException
+           ArrayIndexOutOfBoundsException
+           ClassCastException
+           NumberFormatException
+           InputMismatchException
+           ArithmeticException
 
 
 面向对象OOP：
@@ -759,13 +888,20 @@ import java.util.Random;
 new Random().nextInt(3);  // 返回一个0到n-1之间的随机整数
 
 final：
-final 关键字可以把类定义为不能继承的，即最终类；或者用于修饰方法，该方法不能被子类重写           
-1、final class 类名 { }
-2、final 返回类型 名称（）{}
-实例变量也可以被定义为 final，被定义为 final 的变量不能被修改。
+最终的
+final可以用来修饰：类、方法、变量
+final 修饰的类，不能被继承
+final 修饰的方法，不能被子类重写         
+final 修饰属性或局部变量，不能被修改，即常量，方法的形参定义final，内部不能再修改  
+1、public final class 类名 { }
+2、public final 返回类型 名称( ){ }
+3、final int ABS = 1；// statci final int a = 1; 全局常量
+
 声明为 final 的类，只有方法自动地声明为 final
 
+
 父类构造方法有参数需要在子类使用super调用，无参数则自动调用
+
 
 重写（覆盖）：
 重写是子类对父类的允许访问的方法的实现过程进行重新编写, *** 返回值 和 形参 ***不能改变。即外壳不变，核心重写！
@@ -816,6 +952,8 @@ show(int ... a){} 等于  show(int[ ] b){}
       如果当前在 Word 下弹出的就是 Word 帮助；
       在 Windows 下弹出的就是 Windows 帮助和支持。
 同一个事件发生在不同的对象上会产生不同的结果。
+
+代码的通用性
 
 多态的优点
 1. 消除类型之间的耦合关系
@@ -958,10 +1096,12 @@ Integer y = 128;
 System.out.prnt(x == y);  // false，超出数组范围，使用new
 
 
-Java 抽象类：
+抽象类和抽象方法：
+abstract
+抽象类：
 在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的，
 如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。
-抽象类除了不能实例化对象之外，类的其它功能依然存在，成员变量、成员方法和构造方法的访问方式和普通类一样。
+抽象类除了不能实例化对象之外，类的其它功能依然存在，成员变量、成员方法和构造器的访问方式和普通类一样。
 由于抽象类不能实例化对象，所以抽象类必须被继承，才能被使用。也是因为这个原因，通常在设计阶段决定要不要设计抽象类。
 父类包含了子类集合的常见的方法，但是由于父类本身是抽象的，所以不能使用这些方法。
 在 Java 中抽象类表示的是一种继承关系，一个类只能继承一个抽象类，而一个类却可以实现多个接口。
@@ -969,7 +1109,7 @@ Java 抽象类：
 抽象方法：
 如果你想设计这样一个类，该类包含一个特别的成员方法，该方法的具体实现由它的子类确定，
 那么你可以在父类中声明该方法为抽象方法。
-Abstract 关键字同样可以用来声明抽象方法，抽象方法只包含一个方法名，而没有方法体。
+abstract 关键字同样可以用来声明抽象方法，抽象方法只包含一个方法名，而没有方法体。
 抽象方法没有定义，方法名后面直接跟一个分号，而不是花括号。
 
 public abstract class Demo{                    // 抽象类
@@ -983,26 +1123,33 @@ public abstract class Demo{                    // 抽象类
 2、任何子类必须重写父类的抽象方法，否则，该子类也必须声明为抽象类。
 最终，必须由子类实现该抽象方法，否则，从最初的父类到最终的子类都不能用来实例化对象。
 
-抽象类总结规定
-1. 抽象类不能被实例化(初学者很容易犯的错)，如果被实例化，就会报错，编译无法通过。只有抽象类的非抽象子类可以创建对象。
+抽象类总结规定：
+1. 抽象类不能被实例化。只有抽象类的非抽象子类可以创建对象。
 
 2. 抽象类中不一定包含抽象方法，但是有抽象方法的类必定是抽象类。
 
 3. 抽象类中的抽象方法只是声明，不包含方法体，就是不给出方法的具体实现也就是方法的具体功能。
 
-4. 构造方法，类方法（用 static 修饰的方法）不能声明为抽象方法。
+4. abstract不能修饰属性、构造器等结构，不能用来修饰私有方法、静态方法、final方法、final类
 
-5. 抽象类的子类必须给出抽象类中的抽象方法的具体实现，除非该子类也是抽象类。
+5. 抽象类的子类必须给出抽象类中所有的抽象方法的具体实现，除非该子类也是抽象类。
 
-Java 接口：
-接口（英文：Interface），在JAVA编程语言中是一个抽象类型，是抽象方法的集合，接口通常以interface来声明。
+匿名子类：
+public abstract class Demo{ }   抽象类型
+Demo d = new Demo(){ // 实现抽象类的抽象方法 }
+匿名子类的匿名对象：
+fun(new Demo(){ // 实现抽象类的抽象方法 });
+
+
+接口Interface：
+在JAVA编程语言中是一个抽象类型，是抽象方法的集合，接口通常以interface来声明。
 一个类通过继承接口的方式，从而来继承接口的抽象方法。
 
 接口并不是类，编写接口的方式和类很相似，但是它们属于不同的概念。类描述对象的属性和方法。接口则包含类要实现的方法。
 
 除非实现接口的类是抽象类，否则该类要定义接口中的所有方法。
 
-接口无法被实例化，但是可以被实现。一个实现接口的类，必须实现接口内所描述的所有方法，否则就必须声明为抽象类。
+接口无法被实例化（不能定义构造器），但是可以被实现。一个实现接口的类，必须实现接口内所描述的所有方法，否则就必须声明为抽象类。
 另外，在 Java 中，接口类型可用来声明一个变量，他们可以成为一个空指针，或是被绑定在一个以此接口实现的对象。
 
 接口与类相似点：
@@ -1010,6 +1157,7 @@ Java 接口：
 接口文件保存在 .java 结尾的文件中，文件名使用接口名。
 接口的字节码文件保存在 .class 结尾的文件中。
 接口相应的字节码文件必须在与包名称相匹配的目录结构中。
+
 接口与类的区别：
 接口不能用于实例化对象。
 接口没有构造方法。
@@ -1035,22 +1183,41 @@ Java 接口：
 接口声明：
 [修饰符] interface 接口名称 [extends 其他的接口名] {
        public void eat();
-       public void travel();
+       public void travel();    // 需要类实现具体方法
+       public static void m(){ 方法体 }       // 静态方法，里面有方法体，只能通过接口调用
+       public default void m1(){ 方法体 }  // 默认方法，可以重写，子类继承的父类中有同名同参方法，则调用父类的
+                                                              继承两个接口，都有同名同参默认方法，报错，或重写
        // 抽象方法
        // 声明变量
 }
 
+在类中显示调用接口的默认方法：接口名.super.默认方法
+
+接口冲突解决：重写，或显示调用对应接口的方法
+
 接口有以下特性：
 接口是隐式抽象的，当声明一个接口的时候，不必使用abstract关键字
 接口中每一个方法也是隐式抽象的，声明时同样不需要abstract关键字
-接口中的方法都是公有的
+接口中的方法都是公有的（public）
 
-接口实现：
+实现接口：
 当类实现接口的时候，类要实现接口中所有的方法。否则，类必须声明为抽象的类。
 类使用implements关键字实现接口。在类声明中，Implements关键字放在class声明后面。
-public class 类名 implements 接口名称[, 其他接口名称, 其他接口名称..., ...] { }
+public class A implements B，C... { }
 
-标记接口
+接口多继承：
+interface A extends B，C... { }
+
+先继承后接口：
+public class A extends B implements C，D... { } 
+
+接口实际就是定义了一种规范
+
+抽象类能实现接口
+
+抽象类能继承非抽象类
+
+标记接口：
 最常用的继承接口是没有包含任何方法的接口。
 标记接口是没有任何方法和属性的接口.它仅仅表明它的类属于一个特定的类型,供其他代码来测试允许做一些事情。
 
@@ -1064,6 +1231,49 @@ public class 类名 implements 接口名称[, 其他接口名称, 其他接口�
 2、向一个类添加数据类型：
 这种情况是标记接口最初的目的，实现标记接口的类不需要定义任何接口方法(因为标记接口根本就没有方法)，
 但是该类通过多态性变成一个接口类型。
+
+代理模式（Proxy）：
+为其他对象提供一种代理以控制这个对象的访问，有点像python装饰器
+静态代理，动态代理，jvm自带动态代理
+
+工厂模式（Factory）：
+实现了创建者和调用者分离，将创建对象的具体过程屏蔽隔离起来，达到提高灵活性的目的
+核心：
+实例化对象，用工厂方法代替new操作
+将选择实现类、创建对象统一管理和控制，从而将调用者跟我们的实现类解耦
+
+
+内部类：
+1、成员内部类，可以调用外部类的方法
+2、局部内部类（方法内，代码块内，构造器内）
+class A{
+    int age = 18;
+    
+    class B{       // 成员内部类
+        int age = 19;
+        this.age;     // 调用内部类属性 
+        A.this.age;  // 调用外部类属性
+     }  
+    
+    static class B{ }  // 静态成员内部类
+    
+    public BB getBb(){ 
+         int a = 1;  
+         class BB{  // 局部内部类，开发中常用这种
+             int a = 2;    要求声明为final，jdk8后可以省略final
+             }       
+         return new BB();
+    }
+}
+
+实例化内部类：
+A.B obj = new A.B();   // 静态成员内部类
+A a = new A();
+A.B obj = a.new B();  // 成员内部类
+
+内部类跟外部类有重名冲突解决：
+在内部类使用this.age，调用外部类的属性A.this.age
+
 
 Java 枚举(enum)
 Java 枚举是一个特殊的类，一般表示一组常量
@@ -1602,99 +1812,88 @@ props.put("mail.smtp.ssl.socketFactory", sf);
 Java 多线程编程：
 Java 给多线程编程提供了内置的支持。 一条线程指的是进程中一个单一顺序的控制流，一个进程中可以并发多个线程，
 每条线程并行执行不同的任务。
-
 多线程是多任务的一种特别的形式，但多线程使用了更小的资源开销。
-
 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个线程不能独立的存在，
 它必须是进程的一部分。一个进程一直运行，直到所有的非守护线程都结束运行后才能结束。
-
 多线程能满足程序员编写高效率的程序来达到充分利用 CPU 的目的。
 
-start();    创建线程，就绪
-run();      运行         
-stop(); destroy();    强制停止
+进程：资源分配的单位
+线程：调度和执行的单位
 
 创建一个线程：
-Java 提供了三种创建线程的方法：
+Java 提供了四种创建线程的方法：
 
 1、通过实现 Runnable 接口
 2、通过继承 Thread 类本身     
-3、通过 Callable 和 Future 创建线程。
+3、通过 Callable 和 Future 创建线程。jdk5新增
+4、线程池
 
-1、通过实现 Runnable 接口：
-必须调用 start() 方法才能执行。
-public class T {
-   public static void main(String[] args) {
-     
-	 R r = new R("t1");  // 线程1
-	 r.start();
-	 
-	 R r1 = new R("t2");  // 线程2
-	 r1.start();
-   }   
-}
+通过实现 Runnable 接口：
+1、创建一个类实现Runnable接口
+2、去实现Runnable中的抽象方法run()
+3、创建对象
+4、将此对象作为参数传递到Thread类的构造器中，创建Thread类对象
+5、通过Thread类的对象调用start()方法
 
 class R implements Runnable {
-	
-	String name;
-	
-	// 构造函数接收线程名
-	R(String n){  
-		name = n;
-	}
-	
-	public void run(){
-		try{
-			for(int i = 100; i > 0; i--){
-				System.out.println(name);
-				Thread.sleep(50);   // 睡眠，使用这个必须要捕获异常
-			}
-		}catch(Exception e){
-			System.out.println("异常");
-		}
-	}
-	
-	public void start(){
-		Thread t = new Thread(this);   // 创建线程
-		t.start();
-	}
+    public void run(){
+        for(int i = 100; i > 0; i--){
+            System.out.println(i);
+        }
+    }
 }
 
-2、通过继承Thread来创建线程：
-继承类必须重写 run() 方法，该方法是新线程的入口点。必须调用 start() 方法才能执行。
+public class M {
+    public static void main(String[] args) {
+        R r = new R();
+        Thread t = new Thread(r);     // 创建线程
+        t.start();
+    }
+}
+
+通过继承Thread来创建线程：
+1、创建类继承Thread类
+2、重写Thread类的 run() 方法，该方法是新线程的入口点。
+3、创建Thread类的子类对象，必须调用 start() 方法才能执行。
 该方法尽管被列为一种多线程实现方式，但是本质上也是实现了 Runnable 接口的一个实例
 
-实例：将上面代码的class R implements Runnable改为class R extends Thread即可，或改为如下：
-public class T {
-   public static void main(String args[]) {
-	 R t = new R();
-	 t.setName("t1111");  // 设置名称
-	 t.start();
-   }   
-}
-
-class R extends Thread {
-	
-	// 构造函数接收线程名
-	R(){  
-		Thread t = new Thread(this);  // 创建线程
-		t.start();
-	}
-	 
+class T extends Thread {
 	public void run(){	
+                              // 线程要做的事，放在这里
 		for(int i = 100; i > 0; i--){
-			System.out.println(this.getName());  // 获取名称
+			System.out.println(this.getName());  // 获取线程名称，默认Thread-0
 		}
 	}
+}
+
+public class M {
+   public static void main(String args[]) {
+	 T t = new T();    // 创建线程
+	 t.setName("t1111");            // 设置名称
+	 t.start();
+
+                // 匿名方式
+                new Thread() {
+                    public void run() {
+                        for (int i = 100; i > 0; i--) {
+                            System.out.println("aa");  // 获取名称
+                        }
+                    }
+                }.start();
+   }   
 }
 
 Thread类的一些重要方法：
 是被 Thread 对象调用的
+   
+t.join()； 在线程a中执行线程b的join()方法，此时线程a进入阻塞状态，直到线程b执行完后，线程a才结束阻塞状态
+stop(); destroy();    强制停止，不建议，已过时
 
 public void start()
-使该线程开始执行；Java 虚拟机调用该线程的 run 方法。
+启动当前线程；Java 虚拟机调用当前线程的 run 方法。
 
 public void run()
+通常需要重写Thread类中的run方法，将创建的线程要执行的操作声明在此方法中。
 如果该线程是使用独立的 Runnable 运行对象构造的，则调用该 Runnable 对象的 run 方法；否则，该方法不执行任何操作并返回。
 
 public final void setName(String name)  改变线程名称，使之与参数 name 相同。
@@ -1709,7 +1908,7 @@ public void interrupt()  中断线程。
 
 public final boolean isAlive()    测试线程是否处于活动状态。
 
-Thread 类的静态方法。
+Thread 类的静态方法：
 
 public static void yield()
 暂停当前正在执行的线程对象，并执行其他线程。
@@ -1721,24 +1920,172 @@ public static boolean holdsLock(Object x)
 当且仅当当前线程在指定的对象上保持监视器锁时，才返回 true。
 
 public static Thread currentThread()
-返回对当前正在执行的线程对象的引用。
+返回对当前正在执行的线程对象的引用（Thread），Thread.currentThread().getName()：返回当前线程名称
 
 public static void dumpStack()
 将当前线程的堆栈跟踪打印至标准错误流。
 
+线程通信的三个方法：
+在Object类中
+1、wait()        使当前线程进入阻塞状态，并释放同步监视器（锁）
+2、notify()     唤醒wait的一个线程，多个则唤醒优先级高的
+3、notifyAll() 唤醒所有wait的线程
+这三个方法必须使用在同步代码块或同步方法中
+调用者必须是同步代码块或同步方法中的同步监视器，否则出现异常，默认this.wait().....
 
-3、通过 Callable 和 Future 创建线程:
-1. 创建 Callable 接口的实现类，并实现 call() 方法，该 call() 方法将作为线程执行体，并且有返回值。
+sleep()和wait()异同：
+相同点：一旦方法执行，都可以使当前线程进入阻塞状态
+不同点：
+声明位置不同，Thread类中声明sleep，Object类中声明wait。
+调用要求不同，sleep()可以在任何需要的场景下调用。wait()必须使用在同步代码块或同步方法中。
+是否释放同步监视器（锁）：如果两个方法都使用在同步代码块或同步方法中，sleep不会释放，wait会释放。
 
-2. 创建 Callable 实现类的实例，使用 FutureTask 类来包装 Callable 对象，该 FutureTask 对象封装了该 Callable 对象的 call() 方法的返回值。
+Runnable和Thread对比：
+开发中优先选择实现Runnable接口方式，实现的方式没有类的单继承的局限性，实现的方式更适合来处理多个线程
+共享数据的情况。
+Thread类本身是实现了Runnable接口：public class Thread implements Runnab
+两种方式都需要重写run()，将线程要执行的逻辑声明在run()中
 
-3. 使用 FutureTask 对象作为 Thread 对象的 target 创建并启动新线程。
+继承Thread类，共享变量要用static，相当于锁
+实现Runnable接口不用
 
-4. 调用 FutureTask 对象的 get() 方法来获得子线程执行结束后的返回值。
+3、实现Callable接口:
+相比run方法，可以有返回值
+方法可以抛出异常
+支持泛型的返回值
+需要借助FutureTask类，比如获取返回结果
+1、创建类实现Callable 接口
+2、实现 call() 方法，该 call() 方法将作为线程执行体，并且有返回值。
+3、创建 Callable 实现类的对象
+4、使用 FutureTask 类来包装 Callable的对象，该 FutureTask 对象封装了该 Callable 对象的 call() 方法的返回值。
+5、使用 FutureTask 对象作为 Thread 对象的 target 创建并start()启动新线程。
+调用 FutureTask 对象的 get() 方法可以获得子线程执行结束后的返回值。
+
+实例：
+import java.util.concurrent.Callable;  // 导入
+class T implements Callable{
+    public Object call() throws Exception{   // 可以抛出异常
+        // 线程要做的事，放在这里
+        for(int i = 100; i > 0; i--){
+            System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
+        }
+        return null;   // 可以有返回值
+    }
+}
+
+public class M {
+    public static void main(String args[]) {
+        T t = new T();    // 创建线程
+        FutureTask f = new FutureTask(t);
+        new Thread(f).start();
+    }
+}
+
+实现Callable接口比实现Runnable接口创建线程的方式要强大
+
+4、线程池方式创建线程：
+提前创建多个线程，放入线程池中，使用时直接获取，使用完放回池中，可以避免重复创建、销毁，实现重复利用。
+class T implements Callable{
+    public Object  call(){
+        // 线程要做的事，放在这里
+        for(int i = 10; i > 0; i--){
+            System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
+        }
+        return null;
+    }
+}
+
+public void  run(){
+        // 线程要做的事，放在这里
+        for(int i = 10; i > 0; i--){
+            System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
+        }
+    }
+
+public class M {
+    public static void main(String args[]) {
+        ExecutorService s = Executors.newFixedThreadPool(10);   // 数量
+        s.execute(new T());  // 适用于Runnable
+        s.submit(new T());  // 适用于Callable
+        s.shutdown();  // 关闭线程池
+    }
+}
+
 
 注意：
 如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了
 创建了太多的线程，CPU 花费在上下文切换的开销时间将多于执行程序的时间
+
+生命周期：
+Thread.State类定义了线程的几种状态
+新建
+就绪
+运行
+阻塞
+死亡
+
+就绪跟运行可以相互转换
+阻塞需要就绪才能的运行
+
+线程安全问题：多个线程共同使用一个共享数据，可能会出现这种问题
+
+java解决线程安全问题：
+方法一：同步代码块
+synchronized(同步监视器){       // 锁，任何一个类的对象都能称为锁，要求多个线程共用同一把锁
+    // 需要被同步的代码，即操作共享数据的代码
+}
+好处：解决了线程安全问题
+局限性：操作同步代码时，只能有一个线程参与，其他线程等待，相当于单线程，效率低
+
+Runnable可以考虑使用this充当同步监视器
+继承Thread类可以考虑使用当前类：MyClass.class
+
+实例：
+class R implements Runnable {
+
+    private static Object obj = new Object();   // 锁，任何一个对象都行，但多个线程用的是同一个，只new一次
+    
+    synchronized(obj){       // 也可以使用this，或R.class，因为类只加载一次
+        public void run(){
+            for(int i = 100; i > 0; i--){
+                System.out.println(i);
+            }
+        }
+    }
+}
+
+public class M {
+    public static void main(String[] args) {
+        R r = new R();
+        Thread t = new Thread(r);     // 创建线程
+        t.start();
+    }
+}
+
+方法二：同步方法
+同步代码块正好在一个方法中
+
+class R implements Runnable {          // 实现Runnable接口，继承Thread类，使用statc：private static synchronized void run(){ }
+    public synchronized void run(){    // 同步监视器就是this
+         for(int i = 100; i > 0; i--){
+                    System.out.println(i);
+         }
+    }
+}
+
+继承Thread类方式，同步方法写成静态方法：
+private static synchronized void run(){ }
+
+方法三 Lock锁：
+jdk5新增
+import java.util.concurrent.locks.ReentrantLock;  // 导入
+static ReentrantLock lock = new ReentrantLock();   // 继承Thread类，要使用static关键字创建lock对象
+lock.lock();   // 上锁
+...需要同步的代码
+lock.unlock();  // 释放锁
+
+优先使用顺序：
+Lock-->同步代码块-->同步方法
 
 
 Java Lambda 表达式：
