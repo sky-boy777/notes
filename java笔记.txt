@@ -253,10 +253,10 @@ System.gc();   //调用Java垃圾收集器
 
 可变参数:
 必须再最后一个位置，且只能有一个可变参数
-fun(String s, int ... n) { }          长度：nums.length，js也有这种
+fun(String s, int ... n) { }          长度：nums.length，js也有这种，int... n 等价于int[ ] n，但后者需要new数组
 传参
 fun("str", 1, 2, 3);   
-fun("str", new double[]{1, 2, 3});
+fun("str", new double[ ]{1, 2, 3});
 
 finalize() 方法
 Java 允许定义这样的方法，它在对象被垃圾收集器析构(回收)之前调用，这个方法叫做 finalize( )，它用来清除回收对象。
@@ -753,8 +753,8 @@ java.lang.Throwable
 访问修饰符：
 使用访问控制符来保护对（类、属性、方法、构造器）的访问
 Java 支持 4 种不同的访问权限，从小到大：
-1、private : 在同一类内可见。使用对象：变量、方法。 注意：不能修饰外部类
-2、缺省 (即默认，什么也不写）: 在同一包内可见，使用对象：类、接口、变量、方法。
+1、private : 在本类内可见。使用对象：变量、方法。 注意：不能修饰外部类
+2、缺省 (即默认，什么也不写）: 在同一包内可见。使用对象：类、接口、变量、方法。
 3、protected : 对同一包内的类和所有子类可见。使用对象：变量、方法。 注意：不能修饰外部类
 4、public : 对所有类可见。使用对象：类、接口、变量、方法
 
@@ -997,12 +997,12 @@ obj.fun(new Y);  // y.eat()
 换（向下转型：父类--->子类）。B obj = （B）a；
 
 
-Object类的使用：
-obj.getClass();  // 查看创建obj实例的类，obj.getClass().getSuperclass();  获取类的父类
+Object类：
+obj.getClass();  // 查看创建obj对象的类，obj.getClass().getSuperclass();  获取对象的类的父类
 ==：基本数据类型比较值，引用类型比较地址
 
 equals()方法:
-Object中equals()方法跟==是相同的，都是比较地址
+Object中equals()方法跟==是相同的，都是比较地址，检测两个对象是否相等，相同的引用
 String、Date、File、包装类等都重写了Object中的equals()方法，重写后，比较的是两个对象的“实体内容”
 是否相同。
 我们自定义类如果使用equals()的话,通常也是比较两个对象的“实体内容”是否相同，我们需要重写Object中的
@@ -1011,8 +1011,35 @@ idea可以自动调用重写equals()，一般开发使用这种。
 重写原则：比较两个对象的实体内容是否相同（name,age.....）。
 ==符号要保证变量两边数据类型一致。
 
+一个完美的equals示例：
+import java.util.Objects;  // 导入
+public boolean equals(Object otherObject){          // 重写Object的equals方法
+        if(this == otherObject) return true;
+
+        if(otherObject == null) return false;
+
+        if(getClass() != otherObject.getClass()) return false;
+
+        Main other = (Main) otherObject;
+
+        // 基本数据类型用==比较，equals比较对象
+        return age == other.age && Objects.equals(file, other.file);
+}
+
+如果在子类中重写定义equals，就要在其中包含调用super.equals(other)，如下：
+public boolean equals(Object otherObject){          
+        if(!super.equals(otherObject) return false;      
+        Main other = (Main) otherObject;  
+
+        // 基本数据类型用==比较，equals比较对象
+        return name == other.name;
+}
+
+Objects.equals(Object a, Object b);  // 两个都为null返回true，其中一个为null返回false，否则返回a.equals(b)
+
 toString()方法：
 obj.toString();  // 输出obj的地址，跟System.out.print(obj);一样，String.toString()是重写后的
+对象与字符串用+连接起来，自动调用对象的toString方法："" + obj
 
 java中的JUnit单元测试：
 1、选中当前工程--右键选择：build path -- add libraries -- JUnit 4 -- 下一步
@@ -1030,7 +1057,7 @@ byte	Byte
 short	Short
 int	Integer
 long	Long
-float	Float
+float	Float     // 前六个派生于Number类
 double	Double
 char	Character
 
@@ -1444,21 +1471,21 @@ Collections.replaceAll(list, "a", "b");   // 将list里面的a全部替换成b
 ArrayList：
 ArrayList 类是一个可以动态修改的数组，与普通数组的区别就是它是没有固定大小的限制
 
-ArrayList<E> objName =new ArrayList<>();　 // 初始化，E: 泛型数据类型，用于设置 objName 的数据类型，只能为引用数据类型。
+ArrayList<E> objName =new ArrayList<E>();　 // 初始化，E: 泛型数据类型，用于设置 objName 的数据类型，只能为引用数据类型。
 objName: 对象名
-ArrayList<Integer> li=new Arraylist<>();     // 存放整数元素
-ArrayList<Character> li=new Arraylist<>();   // 存放字符元素
+ArrayList<Integer> li=new Arraylist<>();     // 存放整数元素，jdk7后可以省略后面尖括号里的Integer
+ArrayList<Character> li=new Arraylist<>(100);   // 存放字符元素，也可以传递初始容量100
 
 ......
 import java.util.ArrayList;  // 引入 ArrayList 类
 import java.util.Collections;
 
 ArrayList<String> s = new ArrayList<String>();    存放字符串类型
-s.add("a");            // 添加
+s.add(n, "a");          // 指定位置添加，不能在size为0的时候使用n参数，不加参数n在末尾添加
 s.get(1);                // 根据索引获取第二个元素
-s.set(2, "b");          // 按索引设置值
+s.set(2, "b");          // 按索引设置值，如果对应位置没有值，则报错，即不能用set添加
 s.remove(1);         // 删除索引的值
-s.size();                 // 队列大小长度
+s.size();                 // 元素个数
 for (String i : s) {   // 遍历
             System.out.println(i);
         }
