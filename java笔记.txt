@@ -1675,12 +1675,6 @@ Object 类可以显示继承，也可以隐式继承
 protected Object clone()     创建并返回一个对象的拷贝
 boolean equals(Object obj)  比较两个对象是否相等
 
-"abc".equals("abc")     // true，比较两个字符串是否相等
-不建议使用 "=="，因为截取或+的字符串会放在不同的地方
-"xabc".substring(0,3) == "xab"   // false
-String str = "a";
-"x" + str == "xa");      // false
-
 null 不等于 ""，"".length() 为0
 
 protected void finalize() 当 GC (垃圾回收器)确定不存在对该对象的有更多引用时，由对象的垃圾回收器调用此方法。
@@ -1704,6 +1698,31 @@ void wait(long timeout)
 void wait(long timeout, int nanos)
 与 wait(long timeout) 方法类似，多了一个 nanos 参数，这个参数表示额外时间（以纳秒为单位，范围是 0-999999）。 
 所以超时的时间还需要加上 nanos 纳秒。
+
+
+String：
+String字符串，一对双引号内，声明为final，不可被继承
+实现了Serializable接口：表示字符串支持序列化
+实现了Comparable接口：表示String可以比较大小
+内部定义了final char[ ] value 数组用于存储字符串数据
+不可变的，重新赋值、"+"号连接、替换、任何修改都会重新开辟内存区域
+通过字面量方式赋值（非new），字符串将存放在字符串常量池中，字符串常量池中不会存储两个相同的内容
+
+"abc".equals("abc")     // true，比较两个字符串是否相等
+"xabc".substring(0,3) == "xab"   // false，不建议使用 "=="，因为截取或"+"的字符串会放在不同的地方
+String str = "a";
+"x" + str == "xa";      // false，字符串+变量的方式为false
+"x" + "a" == "xa";     // true，字符串+字符串则为true
+
+赋值方式：
+String s = "xxx";   // 放在常量池
+String s = new String(char[ ] a);
+String s1 = new String("xxx");   // 放在堆，new两个相同的，==比较为false，equals比较为true
+                                               // 创建了两个对象：一个是堆空间new结构，一个是char[ ]对应常量池数据"xxx"
+结论：
+1、常量跟常量拼接（加+）结果在常量池
+2、只要有一个是变量，结果就在堆中
+3、如果拼接的结果调用intern()方法，返回值就在常量池中：String s = (s1 + s2).intern();
 
 
 Java 泛型
