@@ -1714,6 +1714,13 @@ void wait(long timeout, int nanos)
 所以超时的时间还需要加上 nanos 纳秒。
 
 
+三种JVM：
+Sun公司的HotSpot
+BEA公司的JRockit
+IBM公司的J9 VM
+java -version查看
+
+
 String：
 String字符串，一对双引号内，声明为final，不可被继承
 实现了Serializable接口：表示字符串支持序列化
@@ -1737,6 +1744,54 @@ String s1 = new String("xxx");   // 放在堆，new两个相同的，==比较为
 1、常量跟常量拼接（加+）结果在常量池
 2、只要有一个是变量，结果就在堆中
 3、如果拼接的结果调用intern()方法，返回值就在常量池中：String s = (s1 + s2).intern();
+4、用final修饰的也存在常量池
+
+常用方法：
+String s = "abcdffg";
+s.length()               字符串长度
+charAt(index)         返回索引处的字符
+isEmpty()               判断是否空串
+toLowerCase()        转小写
+toUpperCase()        大写
+trim()                     返回新字符串，去除前后空白
+equals("xxx")         比较是否相等
+equalsIgnoreCase("xxx")    跟equals一样，但忽略大小写
+concat("xxx")         拼接
+compareTo()         比较大小，小于：负数，等于：0，大于：正数 
+substring(index，endIndex)     指定位置开始截取，不指定endIndex则到截取到末尾，左闭右开
+startWith("xxx"，2)    判断以什么开头，从位置2开始判断，endsWith("xx")，没有第二个参数  
+contains("xx")           是否包含"xxx"
+indexOf("xx"，2)       首次出现的位置，从位置2开始，返回xx索引，否则返回-1
+lastIndexOf("xx"，3)  最后出现的，可选参数3，从指定位置向开头查找
+replace(old, new)       全部替换
+replaceAll(正则，"xxx")  将匹配到的内容替换为xxx，replaceFirst(正则，"xx")  替换第一个
+matches(正则)               布尔值，是否匹配对应的正则
+split(正则，int)              拆分，返回数组，可选参数int，指定拆分int-1次
+
+字符串是不可变的，跟python一样
+
+字符串跟基本数据类型转换：
+String s = "12";
+int num = Integer.parseInt(s);     // 转换为整型，Double.parseDouble(s):转换为double类型，其他类似parseXxx 
+String.valueOf(12);                     // 转为字符串
+
+char[ ]跟String转换：
+s.toCharArray()          // 转为char[ ]数组，一个字母一个字母
+char[ ] arr = new char[ ]{'a', 'b'};      
+String s = new String(arr);      //  char[ ]  转为 String   
+
+byte[] 跟String转换：
+byte ---> String    解码
+String ---> byte    编码
+s.getByte("utf-8");             // 返回byte[ ]数组，可以指定编码: 一个汉字：utf-8占三个字节，gbk两个字节
+Arrays.toString(bytes);      // 转为String
+String s = new String(barr，"utf-8");   // 转为String，可选解码集
+
+StringBuffer，StringBuilder:
+可变的字符序列
+StringBuffer：   线程安全的，效率低，底层使用char[ ]存储
+StringBuilder： jdk5，线程不安全，效率高，底层使用char[ ]存储
+String：           不可变序列final，底层使用char[ ]存储
 
 
 Java 泛型
