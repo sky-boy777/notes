@@ -1815,9 +1815,31 @@ String s = new String(barr，"utf-8");   // 转为String，可选解码集
 
 StringBuffer，StringBuilder:
 可变的字符序列
-StringBuffer：   线程安全的，效率低，底层使用char[ ]存储
-StringBuilder： jdk5，线程不安全，效率高，底层使用char[ ]存储
-String：           不可变序列final，底层使用char[ ]存储
+StringBuffer：
+线程安全的，效率低，底层使用char[ ]存储，默认char[16]，不够会重新创建一个两倍长度+2的
+数组，复制原来的元素进去，这样就是可变的了。
+StringBuffer s = new StringBuffer(18);      // 初始化时可以指定长度
+
+StringBuilder： 
+jdk5，线程不安全，效率高，底层使用char[ ]存储，StringBuilder s = new StringBuilder()
+
+String：
+不可变序列final，底层使用char[ ]存储，默认char[0]
+
+StringBuffer常用方法：StringBuilder的方法也一样
+增、删、改、查、插、长度、遍历
+append(xxx)                  追加，整型字符串都行
+delete(start, end)           删除区间内容
+replace(start，end，"xxx")     替换指定区间内容
+insert(4，"xx")              指定位置插入
+reverse()                       反转
+indexOf("xx")                获取字符索引
+substring(start，end)    截取                    
+length()                        长度
+charAt(4)                      获取指定位置字符
+setCharAt(4)                 设置指定位置字符
+
+效率：StringBuilder > StringBuffer > String
 
 
 Java 泛型
@@ -2291,6 +2313,19 @@ import java.time.*;
 
 LocalDateTime.now();   日期时间
 LocalDateTime.now().toLocalDate();   日期，Time输出时间
+
+jdk8之前的：
+import java.util.Date;     导入
+Date d = new Date(1284749)；  当前时间的对象，可以指定毫秒数
+toString();                    显示日期时间，Mon Oct 11 22:05:28 CST 2021
+getTime();                    当前对象时间戳
+
+import java.sql.Date;   对于数据库的日期时间，是java.util.Date的子类
+Date d = new Date(423432);    输入毫秒，输入格式为：1970-01-01
+
+转换：
+java.sql.Date d = new java.sql.Date(new java.util.Date().getTime());
+
 
 
 连接mysql：
