@@ -661,12 +661,15 @@ thorws + 异常类型，写在方法声明处，指明此方法执行时可能�
 异常代码处生成一个异常类对象，此对象满足throws后异常类型时，就会被抛出，异常后面的代码不会再执行。
 throw  主动抛出异常
 
-try{
+try(Scanner in = new .....; PrinWriter out = new .....){   // try可以带资源(打开文件)，始终会关闭资源，类似python的with open......
     method();   // 捕获该方法throws可能抛出的异常    
 }catch(RemoteException e){
 
-}catch(Exception e){   
-    // 其他异常
+}catch(Exception e){       // 可以合并catch语句   catch(类型1 | 类型2 e){ }  e变为final类型，不能赋值
+    // 将原始异常设置为新异常的“原因”，使用语句 Throwable e = se.getCause(); 重写得到原始异常
+    Throwable se = new Exception("错误信息")；   
+    se.initCause(e);
+    throw se;
 }
 
 public void method() throws 异常类型1, 异常类型2... { 
@@ -677,7 +680,7 @@ public void method() throws 异常类型1, 异常类型2... {
                    e.getMessage();                                // 输出信息
 	    e.printStackTrace();                           // 获取异常堆栈信息
 	   }finally {
-	   // 最后执行
+	   // 最后执行，如果finally中有return语句，则会覆盖原始的返回值
 	}
 }    
 
@@ -707,13 +710,13 @@ throws  只是将异常抛给了方法的调用者，并没有真正的将异常
 所有异常都必须是 Throwable 的子类。
 1、检查性异常类，需要继承 Exception 类。运行时异常类，需要继承 RuntimeException 类。
 2、提供全局常量serialVersionUID
-3、提供重载构造器
+3、提供重载构造器，一个默认构造器，一个带有详细描述信息的构造器
 public class MyException extends Exception {
     static final long serialVersionUID = -7743294724883748347L;
 
-    publice MyException(){ }
+    publice MyException(){ }   // 默认构造器
 
-    publice MyException(String msg){
+    publice MyException(String msg){   // 有详细描述信息的构造器
         super(msg);
     }
 }
@@ -736,6 +739,21 @@ java.lang.Throwable
            NumberFormatException
            InputMismatchException
            ArithmeticException
+
+使用异常机制的技巧：
+1、利用异常层次结构
+ 不要只抛出RuntimeException异常，应该寻找更加适当的子类或创建字节的异常类
+ 不要只捕获Thowable异常
+2、异常处理不能代替简单的测试
+3、不要过分的细化异常
+4、不要压制异常
+5、早抛出，晚捕获
+
+使用断言：
+断言机制允许再测试期间向代码中插入一些检查语句，当代码发布时，这些插入的检测语句将会被自动移走
+关键字：assert，两种形式
+1、assert 条件;                 // 结果为false，则抛出AssertionError异常
+2、assert 条件：表达式；  // false，则将表达式传入AssertionError构造器，并转换成一个消息字符串
 
 
 面向对象OOP：
@@ -1284,26 +1302,29 @@ public class 类名 extends 父类 implements 接口1，接口2... { }
 将选择实现类、创建对象统一管理和控制，从而将调用者跟我们的实现类解耦
 
 
+代理类实在程序运行过程中创建的，一旦被创建，就变成了常规类
+
+
 内部类：
 1、成员内部类，可以调用外部类的方法
 2、局部内部类（方法内，代码块内，构造器内）
 class A{
     int age = 18;
     
-    class B{       // 成员内部类
+    class B{                // 成员内部类
         int age = 19;
-        this.age;     // 调用内部类属性 
-        A.this.age;  // 调用外部类属性
-     }  
+        this.age;         // 调用内部类属性 
+        A.this.age;     // 调用外部类属性
+     }    
     
-    static class B{ }  // 静态成员内部类
+    static class B{ }  // 静态成员内部类，可以有静态域和方法
     
-    public BB getBb(){ 
+    public A getAa(){  
          int a = 1;  
-         class BB{  // 局部内部类，开发中常用这种
-             int a = 2;    要求声明为final，jdk8后可以省略final
+         class BB{         // 局部内部类，开发中常用这种，不能用public或private修饰
+             int a = 2;    // 要求声明为final，jdk8后可以省略final
              }       
-         return new BB();
+         return new A();  // 此方法返回一个A实例对象，不能返回BB的实例对象
     }
 }
 
@@ -1313,7 +1334,12 @@ A a = new A();
 A.B obj = a.new B();  // 成员内部类
 
 内部类跟外部类有重名冲突解决：
-在内部类使用this.age，调用外部类的属性A.this.age
+在内部类使用this.age，而调用外部类的属性用A.this.age
+
+内部类的所有静态域都必须是final
+内部类被翻译成“外部类$内部类.class”文件，以$符分隔
+内部类不需要访问外围对象的时候，应该使用静态内成员部类
+声明在接口中的内部类自动成为static和public类
 
 
 Java 枚举(enum)
@@ -2246,9 +2272,18 @@ this::xxx
 super::xxx
 
 构造器引用，方法名为new，例如Person构造器引用：Person::new，根据上下文推导出使用哪个构造器
+数组类型构造器int[ ]::new，参数是数组的长度，等价于lambda表达式 x ->new int[x]
+
+lambda中，只能引用值不会改变的变量，如lambda表达式外for循环的i变量
+this关键字表示创建这个lambda表达式的方法的this
+
+java中，lambda表达式就是闭包
+
+lambda表达式重点是延迟执行
 
 
 Java 8 函数式接口:
+lambda表达式传递到函数式接口
 
 
 Java 8 日期时间 API
