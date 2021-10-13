@@ -512,11 +512,26 @@ public class T {
 char[] arr = new char[]{'a', 'b'};
 System.out.print(arr);   // 输出：ab，而不是地址值，其他的是输出地址值
 
-日期：
-import java.util.Date;     导入     或import java.util.*;
 
+日期：
+java.util.Date; 
 Date date = new Date();
-System.out.println(date.toString());       使用，显示日期时间：Thu Sep 23 09:37:38 CST 2021
+date.toString();       使用，显示日期时间：Thu Sep 23 09:37:38 CST 2021
+
+java.text.SimpleDateFormat
+格式化日期：日期--->字符串，解析： 字符串--->日期
+SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");  // 默认格式21-10-13 下午9:52
+ String date = d.format(new Date())；  // 格式化：2021-10-13 09:59:51  
+Date d = d.parse("2021-10-13 09:59:51");          // 解析，格式要跟上面new的一样
+
+java.util.Calendar  日历抽象类
+Calendar.getInstance().getTime()； // 返回Date对象：Wed Oct 13 23:02:47 CST 2021
+一月是0，十二月是11，周日是1
+
+jdk8 日期：
+之前的不推荐使用了
+java.time
+java.time.format
 
 
 import static java.lang.Math.*;    导入指定包下类或接口的静态结构、属性、方法
