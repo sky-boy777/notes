@@ -1487,7 +1487,8 @@ import package1[.package2…].(classname|*);  // 导入指定包下的类或接�
 
 java5后不需要设置类路径：CLASSPATH
 
-Java 数据结构
+
+Java 数据结构：
 Java工具包提供了强大的数据结构。在Java中的数据结构主要包括以下几种接口和类：
 
 枚举（Enumeration）
@@ -1539,25 +1540,75 @@ Java集合框架为程序员提供了预先包装的数据结构和算法来操�
 集合框架的类和接口均在java.util包中。
 任何对象加入集合类后，自动转变为Object类型，所以在取出的时候，需要进行强制类型转换。
 
+Collection接口：
+所有实现了此接口的类都要提供下列方法（一部分）
+iterator()        返回一个迭代器
+size()
+isEmpty()
+contains(Object obj)                 集合中是否包含obj对象
+containsAll(Collection<?> c)     是否包含集合c中的所有元素
+equals(Object other)
+boolean add(E e)           向集合添加元素
+addAll(Collection<? extends E> other)    将other集合中的所有元素添加   
+remove(Object obj)
+removeAll(Collection<?> c)
+clear()
+retainAll(Collection<?> c)    删除不等于集合c中的所有元素
+toArray()                              返回这个集合的对象数组
+toArray(T[] arrayToFill)         返回数组并填充到arrayToFill，其余填充null，不够大，则创建新的数组
+hashCode()
+default boolean removeIf(Predicate<? super E> filter)  jdk8 默认方法，删除某个满足条件的元素
+
+集合框架中的接口：
+Iterable
+    Collection
+        List
+        Set
+            SortedSet
+                NavigableSet
+        Queue
+            Deque
+Map
+    SortedMap
+        NavigableMap
+Iterator                  
+    ListIterator
+RandomAccess    标记接口 
+
+集合类型：
+以Map结尾的实现了Map接口，其他类则实现了Collection接口
+ArrayList       一种可以动态增长和缩减的索引序列
+LinkedList    一种可以在任何位置进行高效的插入和删除操作的有序序列
+ArrayDeque  一种用循环数组实现的双端队列
+HashSet    一种没有重复元素的无序集合
+TreeSet   一种有序集
+EnumSet  一种包含枚举类型的集
+LinkedHashSet  一种可以记住元素插入次序的集合
+PriorityQueue  一种允许高效删除最小元素的集合
+HashMap  一种键、值关联的数据结构
+TreeMap  一种键值有序排列的映射表
+EnumMap  一种键值属于枚举类型的映射表
+LinkedHashMap  一种可以记住键值添加次序的映射表
+WeakHashMap  一种其值无用武之地后可以被垃圾回收器回收的映射表
+IdenityHashMap  一种用 == 而不是用 equals 比较键值的映射表
+
+
+Collections类：
 Collections.replaceAll(list, "a", "b");   // 将list里面的a全部替换成b  
 
 ArrayList：
 ArrayList 类是一个可以动态修改的数组，与普通数组的区别就是它是没有固定大小的限制
-
-ArrayList<E> objName =new ArrayList<E>();　 // 初始化，E: 泛型数据类型，用于设置 objName 的数据类型，只能为引用数据类型。
-objName: 对象名
 ArrayList<Integer> li=new Arraylist<>();     // 存放整数元素，jdk7后可以省略后面尖括号里的Integer
 ArrayList<Character> li=new Arraylist<>(100);   // 存放字符元素，也可以传递初始容量100
 
-......
-import java.util.ArrayList;  // 引入 ArrayList 类
+import java.util.ArrayList;       // 导入 ArrayList 类
 import java.util.Collections;
 
-ArrayList<String> s = new ArrayList<String>();    存放字符串类型
-s.add(n, "a");          // 指定位置添加，不能在size为0的时候使用n参数，不加参数n在末尾添加
-s.get(1);                // 根据索引获取第二个元素
-s.set(2, "b");          // 按索引设置值，如果对应位置没有值，则报错，即不能用set添加
-s.remove(1);         // 删除索引的值
+ArrayList<String> s = new ArrayList<>();    存放字符串类型
+s.add(int n, "a");     // 指定位置添加，不能在size为0的时候使用n参数，不加参数n在末尾添加
+s.get(2);                 // 根据索引获取第二个元素
+s.set(2, "b");           // 按索引设置值，如果对应位置没有值，则报错，即不能用set添加
+s.remove(2);          // 删除索引处的值
 s.size();                 // 元素个数
 for (String i : s) {   // 遍历
             System.out.println(i);
@@ -1592,22 +1643,28 @@ replaceAll()	将给定的操作内容替换掉数组中每一个元素
 removeIf()	删除所有满足特定条件的 arraylist 元素
 forEach()	遍历 arraylist 中每一个元素并执行特定操作
 
-
 LinkedList :
 链表（Linked list）一种基础数据结构，是一种线性表，但是并不会按线性的顺序存储数据，
 而是在每一个节点里存到下一个节点的地址。
 
 import java.util.LinkedList;   导入
-LinkedList<String> s = new LinkedList<String>();
-s.add("xxx");  添加
+LinkedList<String> s = new LinkedList<>();
+s.add("xxx");         末尾添加
 s.addFirst("xx");    在头添加， removeFirst，getFirst   
 s.addLast("xx");     在尾添加，
-s.size();                 链表大小，用于遍历
+s.size();                 链表元素个数，用于遍历
 for (String i : s) {
             System.out.println(i);
         }
 System.out.print(s);  打印链表
 s.subList(2, 4).clear();     // 删除链表 [2, 4) 区间的元素
+
+listIterator<String>it = s.listIterator();   // 迭代器
+it.add("xx")  添加元素到迭代器当前位置，it.next()将返回刚刚添加的元素
+it.set("xx")   设置，添加
+两个迭代器并发调用it.next()，后一个将会抛出异常，解决方法：一个共享计数值，每个it有有一
+个独立的计数值，调用next方法时比较两个值是否相等，不一致则抛出异常
+
 
 方法	描述
 public boolean add(E e)	链表末尾添加元素，返回是否成功，成功为 true，失败为 false。
@@ -1652,7 +1709,6 @@ public T[] toArray(T[] a)	返回一个由链表元素转换类型而成的数组
 你需要通过循环迭代来访问列表中的某些元素。
 需要频繁的在列表开头、中间、末尾等位置进行添加和删除元素操作。
 
-
 HashSet：
 HashSet 基于 HashMap 来实现的，是一个元素唯一不重复的集合。
 HashSet 允许有 null 值。
@@ -1670,7 +1726,6 @@ s.clear();            清空
 for(int i: s){        遍历
 	System.out.println(i);
 }
-
 
 HashMap：
 HashMap 是一个散列表，它存储的内容是键值对(key-value)映射。
@@ -1718,22 +1773,24 @@ Iterator（迭代器）：
 Java Iterator（迭代器）不是一个集合，它是一种用于访问集合的方法，可用于迭代 ArrayList 和 HashSet 等集合。
 Iterator 是 Java 迭代器最简单的实现，ListIterator 是 Collection API 中的接口， 它扩展了 Iterator 接口。
 
-迭代器 it 的两个基本操作是 next 、hasNext 和 remove。
-调用 it.next() 会返回迭代器的下一个元素，并且更新迭代器的状态。
+四个方法： next 、hasNext 、remove、forEachRemaining
+调用 it.next() 会返回迭代器的下一个元素，并且更新迭代器的状态。到达末尾抛出NoSuchElementException
 调用 it.hasNext() 用于检测集合中是否还有元素。
 调用 it.remove() 将迭代器返回的元素删除。
+jdk8调用it.forEachRemaining( lambda表达式 )；将对每个元素调用lambda表达式
 
 import java.util.Iterator;  导入
 
-ArrayList<String> s = new ArrayList<String>();  
-Iterator<String> it = s.iterator();   
-it.next();      获取第一个元素
+ArrayList<String> s = new ArrayList<>();  
+Iterator<String> it = s.iterator();     // 迭代器
 while(it.hasNext()){ 
      it.next();             迭代获取每一个元素    
-     it.remove();        删除元素   
+     it.remove();        删除元素, 先调用next()，再调用remove()，否则报错   
 }
 
-String[] s1 = s.toArray(new String[0]);   // 集合转数组
+for( String e: s ){}   // “for each”循环可以与任何实现了Iterable接口的对象一起工作
+
+String[ ] arr = s.toArray(new String[0]);   // 集合转数组
 
 
 Object 类：
@@ -1938,7 +1995,7 @@ public static <T extends Number & Comparable> void m(){}  // 多个限定用 "&"
 桥方法被合成来保持多态。
 为保持类型安全，必要时插入强制类型转换。
 
-擦除类型:
+虚拟机中泛型类型的擦除:
 在虚拟机中会去掉<T>、<String>......
 去掉<T>就变为普通类了，内部的所有“T”都要改为“Object”，成为原始类
 <T extends Number & Comparable>  则用第一个限定的类型替换，即：“T”改为“Number”
@@ -1952,13 +2009,25 @@ public static <T extends Number & Comparable> void m(){}  // 多个限定用 "&"
 不能抛出或捕获泛型类的实例，即：cath(T e)，扩展Throwable也不行：class A<T> extends Exception{}
 注意擦除后的冲突
 
-类型通配符
+泛型类型的继承规则：
+class B extends A
+ArrayList<B>不是一个ArrayList<A>
+
+类型通配符:
+B<? extends A>  表示任何泛型B类型，它的类型参数都是A的子类。子类限定。
+C<? super B>     限定为A的所有超类。超类限定。
+B<? extends A<? super T>>
+C<?>                 无限定通配符
+
+B<? extends A> obj = new Xx<>();
 1、类型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等
-   所有List<具体类型实参>的父类。
+     所有List<具体类型实参>的父类。
 2、类型通配符上限通过形如List来定义，如此定义就是通配符泛型值接受Number及其下层子类类型。
-   public static void num(List<? extends Number> data) { }
+     List<? extends Number>
 3、类型通配符下限通过形如 List<? super Number>来定义，表示类型只能接受Number及其三层父
-   类类型，如 Object 类型的实例。
+     类类型，如 Object 类型的实例。
+
+带有超类型限定的通配符可以向泛型对象写入，带有子类型限定的通配符可以从泛型对象读取。
 
 
 Java 序列化：  
