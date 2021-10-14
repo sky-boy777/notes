@@ -1591,7 +1591,6 @@ Iterator
 RandomAccess    标记接口 
 
 集合类型：
-以Map结尾的实现了Map接口，其他类则实现了Collection接口
 ArrayList       一种可以动态增长和缩减的索引序列
 LinkedList    一种可以在任何位置进行高效的插入和删除操作的有序序列
 ArrayDeque  一种用循环数组实现的双端队列
@@ -1600,33 +1599,35 @@ TreeSet   一种有序集
 EnumSet  一种包含枚举类型的集
 LinkedHashSet  一种可以记住元素插入次序的集合
 PriorityQueue  一种允许高效删除最小元素的集合
-HashMap  一种键、值关联的数据结构
+HashMap  一种键、值关联的数据结构，python中的字典
 TreeMap  一种键值有序排列的映射表
 EnumMap  一种键值属于枚举类型的映射表
 LinkedHashMap  一种可以记住键值添加次序的映射表
 WeakHashMap  一种其值无用武之地后可以被垃圾回收器回收的映射表
 IdenityHashMap  一种用 == 而不是用 equals 比较键值的映射表
-
+以Map结尾的实现了Map接口，其他类则实现了Collection接口
 
 Collections类：
-Collections.replaceAll(list, "a", "b");   // 将list里面的a全部替换成b  
+Collections.replaceAll(list, "old", "new");   // 将list集合里面的old全部替换成new  
+sort()方法可以对实现了List接口的集合进行排序
+binarySearch()  二分查找，必须是有序的
 
-ArrayList：
+ArrayList类：
+数组列表，非同步的，而Vector类是同步的
 ArrayList 类是一个可以动态修改的数组，与普通数组的区别就是它是没有固定大小的限制
 ArrayList<Integer> li=new Arraylist<>();     // 存放整数元素，jdk7后可以省略后面尖括号里的Integer
 ArrayList<Character> li=new Arraylist<>(100);   // 存放字符元素，也可以传递初始容量100
 
 import java.util.ArrayList;       // 导入 ArrayList 类
 import java.util.Collections;
-
 ArrayList<String> s = new ArrayList<>();    存放字符串类型
 s.add(int n, "a");     // 指定位置添加，不能在size为0的时候使用n参数，不加参数n在末尾添加
 s.get(2);                 // 根据索引获取第二个元素
 s.set(2, "b");           // 按索引设置值，如果对应位置没有值，则报错，即不能用set添加
 s.remove(2);          // 删除索引处的值
 s.size();                 // 元素个数
-for (String i : s) {   // 遍历
-            System.out.println(i);
+for (String i : s) {   
+            System.out.println(i);  // 遍历
         }
 Collections.sort(s);      排序,升序
 ......
@@ -1658,9 +1659,10 @@ replaceAll()	将给定的操作内容替换掉数组中每一个元素
 removeIf()	删除所有满足特定条件的 arraylist 元素
 forEach()	遍历 arraylist 中每一个元素并执行特定操作
 
-LinkedList :
+LinkedList类:
 链表（Linked list）一种基础数据结构，是一种线性表，但是并不会按线性的顺序存储数据，
 而是在每一个节点里存到下一个节点的地址。
+LinkedList类实现了List接口
 
 import java.util.LinkedList;   导入
 LinkedList<String> s = new LinkedList<>();
@@ -1679,7 +1681,6 @@ it.add("xx")  添加元素到迭代器当前位置，it.next()将返回刚刚添
 it.set("xx")   设置，添加
 两个迭代器并发调用it.next()，后一个将会抛出异常，解决方法：一个共享计数值，每个it有有一
 个独立的计数值，调用next方法时比较两个值是否相等，不一致则抛出异常
-
 
 方法	描述
 public boolean add(E e)	链表末尾添加元素，返回是否成功，成功为 true，失败为 false。
@@ -1805,7 +1806,11 @@ while(it.hasNext()){
 
 for( String e: s ){}   // “for each”循环可以与任何实现了Iterable接口的对象一起工作
 
-String[ ] arr = s.toArray(new String[0]);   // 集合转数组
+集合与数组的转换：
+toArray(集合)
+Arrays.asList(数组)
+String[ ] arr = s.toArray(new String[0]);   // 集合转数组，默认返回Object[]数组，加上new String[0]则创建相同的数组类型
+HashSet<String> s = new HashSet<>(Arrays.asList(arr))；    // 数组转集合
 
 
 Object 类：
