@@ -30,6 +30,8 @@ javadoc从包、公有类与接口、公有的和受保护的构造器及方法�
 
 可以链式编程
 
+javax 表示Java扩展包
+
 javac Hello.java     编译，成字节码得到类名的文件Hello.class，内部使用了其他类时会自动编译对应的类文件
 javac He*.java                                  使用通配符
 javac -encoding utf-8 h.java             指定编码格式
@@ -2467,7 +2469,6 @@ Date d = new Date(423432);    输入毫秒，输入格式为：1970-01-01
 java.sql.Date d = new java.sql.Date(new java.util.Date().getTime());
 
 
-
 连接mysql：
 Java 使用 JDBC 连接 MySQL 数据库
 下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
@@ -2518,6 +2519,17 @@ JavaBean：
 2、有一个无参的公共的构造器
 3、有属性，且有对应的get、set方法
 
+
+部署java应用程序：
+打包成jar文件
+创建JAR文件：jar cvf xxx.jar file1.class file2.class
+创建可运行的jar：
+jar cvfe xxx.jar M M.class，指定程序入口点为M
+或
+创建xx.mf清单文件，输入：Main-Class: M，打包：jar cvfm xxx.jar xx.mf M.class
+运行：java -jar xxx.jar
+
+Java web start
 
 
 
