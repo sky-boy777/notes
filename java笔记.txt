@@ -2115,8 +2115,8 @@ props.put("mail.smtp.ssl.socketFactory", sf);
 
 
 Java 多线程编程：
-Java 给多线程编程提供了内置的支持。 一条线程指的是进程中一个单一顺序的控制流，一个进程中可以并发多个线程，
-每条线程并行执行不同的任务。
+Java 给多线程编程提供了内置的支持。 一条线程指的是进程中一个单一顺序的控制流，一个进程
+中可以并发多个线程，每条线程并行执行不同的任务。
 多线程是多任务的一种特别的形式，但多线程使用了更小的资源开销。
 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个线程不能独立的存在，
 它必须是进程的一部分。一个进程一直运行，直到所有的非守护线程都结束运行后才能结束。
@@ -2125,21 +2125,24 @@ Java 给多线程编程提供了内置的支持。 一条线程指的是进程�
 进程：资源分配的单位
 线程：调度和执行的单位
 
+Thread.sleep(毫秒);   将当前线程睡眠，静态方法，需要用try-catch捕获InterruptedException（中断线程）
+
 创建一个线程：
 Java 提供了四种创建线程的方法：
 
-1、通过实现 Runnable 接口
-2、通过继承 Thread 类本身     
+1、通过实现 Runnable 接口（推荐）
+2、通过继承 Thread 类本身（不推荐）  
 3、通过 Callable 和 Future 创建线程。jdk5新增
 4、线程池
 
 通过实现 Runnable 接口：
 1、创建一个类实现Runnable接口
-2、去实现Runnable中的抽象方法run()
+2、实现Runnable接口中的抽象方法run()
 3、创建对象
 4、将此对象作为参数传递到Thread类的构造器中，创建Thread类对象
 5、通过Thread类的对象调用start()方法
 
+方式一：
 class R implements Runnable {
     public void run(){
         for(int i = 100; i > 0; i--){
@@ -2156,6 +2159,11 @@ public class M {
     }
 }
 
+方式二：
+Runnable r = () -> { System.out.println("xxx"); };
+Thread t1 = new Thread(r);
+
+
 通过继承Thread来创建线程：
 1、创建类继承Thread类
 2、重写Thread类的 run() 方法，该方法是新线程的入口点。
@@ -2164,7 +2172,6 @@ public class M {
 
 class T extends Thread {
 	public void run(){	
-                              // 线程要做的事，放在这里
 		for(int i = 100; i > 0; i--){
 			System.out.println(this.getName());  // 获取线程名称，默认Thread-0
 		}
@@ -2190,45 +2197,27 @@ public class M {
 
 Thread类的一些重要方法：
 是被 Thread 对象调用的
-   
+start()：启动当前线程；Java 虚拟机调用当前线程的 run 方法。
+run()：通常需要重写Thread类中的run方法，将创建的线程要执行的操作声明在此方法中。
+          如果该线程是使用独立的 Runnable 运行对象构造的，则调用该 Runnable 对象的 run 方法；
+          否则，该方法不执行任何操作并返回。
+
 t.join()； 在线程a中执行线程b的join()方法，此时线程a进入阻塞状态，直到线程b执行完后，线程a才结束阻塞状态
-stop(); destroy();    强制停止，不建议，已过时
+join(long millisec)   同上，或时间为millis 毫秒。
+setName(String name)  改变线程名称，使之与参数 name 相同。
+setPriority(int priority)  更改线程的优先级，默认优先级5，等级1~10
+setDaemon(boolean on)  将该线程标记为守护线程或用户线程。
+interrupt()  中断线程。
+isAlive()    测试线程是否处于活动状态。
 
-public void start()
-启动当前线程；Java 虚拟机调用当前线程的 run 方法。
-
-public void run()
-通常需要重写Thread类中的run方法，将创建的线程要执行的操作声明在此方法中。
-如果该线程是使用独立的 Runnable 运行对象构造的，则调用该 Runnable 对象的 run 方法；否则，该方法不执行任何操作并返回。
-
-public final void setName(String name)  改变线程名称，使之与参数 name 相同。
-
-public final void setPriority(int priority)  更改线程的优先级。
-
-public final void setDaemon(boolean on)  将该线程标记为守护线程或用户线程。
-
-public final void join(long millisec)   等待该线程终止的时间最长为 millis 毫秒。
-
-public void interrupt()  中断线程。
-
-public final boolean isAlive()    测试线程是否处于活动状态。
+stop();  强制停止进程，已弃用
 
 Thread 类的静态方法：
-
-public static void yield()
-暂停当前正在执行的线程对象，并执行其他线程。
-
-public static void sleep(long millisec)
-在指定的毫秒数内让当前正在执行的线程休眠（暂停执行），此操作受到系统计时器和调度程序精度和准确性的影响。
-
-public static boolean holdsLock(Object x)
-当且仅当当前线程在指定的对象上保持监视器锁时，才返回 true。
-
-public static Thread currentThread()
-返回对当前正在执行的线程对象的引用（Thread），Thread.currentThread().getName()：返回当前线程名称
-
-public static void dumpStack()
-将当前线程的堆栈跟踪打印至标准错误流。
+yield()  让步，暂停当前正在执行的线程对象，并执行其他线程。
+sleep(long millisec)  在指定的毫秒数内让当前正在执行的线程休眠（暂停执行），此操作受到系统计时器和调度程序精度和准确性的影响。
+holdsLock(Object x)  当且仅当当前线程在指定的对象上保持监视器锁时，才返回 true。
+currentThread()  返回对当前正在执行的线程对象的引用（Thread），Thread.currentThread().getName()：返回当前线程名称
+dumpStack()  将当前线程的堆栈跟踪打印至标准错误流。
 
 线程通信的三个方法：
 在Object类中
@@ -2385,9 +2374,9 @@ private static synchronized void run(){ }
 jdk5新增
 import java.util.concurrent.locks.ReentrantLock;  // 导入
 static ReentrantLock lock = new ReentrantLock();   // 继承Thread类，要使用static关键字创建lock对象
-lock.lock();   // 上锁
+lock.lock();       // 上锁
 ...需要同步的代码
-lock.unlock();  // 释放锁
+lock.unlock();  // 释放锁，放在finally子句比较好
 
 优先使用顺序：
 Lock-->同步代码块-->同步方法
