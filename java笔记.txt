@@ -553,6 +553,12 @@ double d = 3.14;
 i += 3.14;   将会发生强制类型转换：(int)(x + 3.14)
 
 
+比较器：
+对象比较大小（商品排序）
+Comparable接口、Camparator，比较结果：负数，0，正数
+实现接口，重写compareTo方法，大于返回正数，等于返回0，小于返回负数
+
+
 使用正则：
 import java.util.regex.*;         导入相关类：Pattern, Matcher, PatternSyntaxException
 
