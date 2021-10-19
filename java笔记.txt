@@ -560,21 +560,24 @@ boolean a = Pattern.matches(".*abc.*", "adjfabcdjfkd");      true, \\d+ 匹配�
 System.out.println("\\");       // 输出一个\，两个斜杠输出一个斜杠
 
 
-Java 流(Stream)、文件(File)和IO
+Java 流(Stream)、文件(File)和IO：
 Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
 Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
 一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
+
+有很多方法可以产生流
+Stream<String> s = Stream.of("a", "b", "c");    // s是一个流
 
 文件：
 InputStream f = new FileInputStream("aa.txt");               打开读取
 OutputStream f = new FileOutputStream("test.txt");       打开写入
 try{
     byte b[] = {1,2,3,4,5};
-    OutputStream os = new FileOutputStream("bb.txt");    打开写入，没有则创建
+    OutputStream os = new FileOutputStream("bb.txt");    打开写入到文件，没有则创建
     os.write(b);                                                                   写入
     os.close();                                                                     关闭
 			 
-    InputStream f = new FileInputStream("bb.txt");            打开读取
+    InputStream f = new FileInputStream("bb.txt");            打开读取到内存
     System.out.println(f.read());                                           
     f.close();
 }catch(Exception e){
@@ -2144,12 +2147,12 @@ Java 提供了四种创建线程的方法：
 3、通过 Callable 和 Future 创建线程。jdk5新增
 4、线程池
 
-通过实现 Runnable 接口：
-1、创建一个类实现Runnable接口
-2、实现Runnable接口中的抽象方法run()
-3、创建对象
-4、将此对象作为参数传递到Thread类的构造器中，创建Thread类对象
-5、通过Thread类的对象调用start()方法
+1、通过实现 Runnable 接口：
+1）创建一个类实现Runnable接口
+2）实现Runnable接口中的抽象方法run()
+3）创建对象
+4）将此对象作为参数传递到Thread类的构造器中，创建Thread类对象
+5）通过Thread类的对象调用start()方法
 
 方式一：
 class R implements Runnable {
@@ -2173,10 +2176,10 @@ Runnable r = () -> { System.out.println("xxx"); };
 Thread t1 = new Thread(r);
 
 
-通过继承Thread来创建线程：
-1、创建类继承Thread类
-2、重写Thread类的 run() 方法，该方法是新线程的入口点。
-3、创建Thread类的子类对象，必须调用 start() 方法才能执行。
+2、通过继承Thread来创建线程：
+1）创建类继承Thread类
+2）重写Thread类的 run() 方法，该方法是新线程的入口点。
+3）创建Thread类的子类对象，必须调用 start() 方法才能执行。
 该方法尽管被列为一种多线程实现方式，但是本质上也是实现了 Runnable 接口的一个实例
 
 class T extends Thread {
@@ -2253,10 +2256,7 @@ Thread类本身是实现了Runnable接口：public class Thread implements Runna
 实现Runnable接口不用
 
 3、实现Callable接口:
-相比run方法，可以有返回值
-方法可以抛出异常
-支持泛型的返回值
-需要借助FutureTask类，比如获取返回结果
+它可以有返回值，且支持泛型的返回值，方法可以抛出异常。需要借助FutureTask类，比如获取返回结果。
 1、创建类实现Callable 接口
 2、实现 call() 方法，该 call() 方法将作为线程执行体，并且有返回值。
 3、创建 Callable 实现类的对象
@@ -2267,7 +2267,7 @@ Thread类本身是实现了Runnable接口：public class Thread implements Runna
 实例：
 import java.util.concurrent.Callable;  // 导入
 class T implements Callable{
-    public Object call() throws Exception{   // 可以抛出异常
+    public Object call() throws Exception{   
         // 线程要做的事，放在这里
         for(int i = 100; i > 0; i--){
             System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
@@ -2278,9 +2278,11 @@ class T implements Callable{
 
 public class M {
     public static void main(String args[]) {
-        T t = new T();    // 创建线程
+        T t = new T();    
         FutureTask f = new FutureTask(t);
-        new Thread(f).start();
+        Thread thr = new Thread(f);
+        t.start();
+        f.get();  // 获取返回值，阻塞，直到有返回值
     }
 }
 
@@ -2289,7 +2291,7 @@ public class M {
 4、线程池方式创建线程：
 提前创建多个线程，放入线程池中，使用时直接获取，使用完放回池中，可以避免重复创建、销毁，实现重复利用。
 class T implements Callable{
-    public Object  call(){
+    public Object  call(){                        // Callable
         // 线程要做的事，放在这里
         for(int i = 10; i > 0; i--){
             System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
@@ -2298,7 +2300,7 @@ class T implements Callable{
     }
 }
 
-public void  run(){
+public void  run(){                             // Runnable
         // 线程要做的事，放在这里
         for(int i = 10; i > 0; i--){
             System.out.println(Thread.currentThread().getName());  // 获取线程名称，默认Thread-0
@@ -2307,17 +2309,29 @@ public void  run(){
 
 public class M {
     public static void main(String args[]) {
-        ExecutorService s = Executors.newFixedThreadPool(10);   // 数量
-        s.execute(new T());  // 适用于Runnable
-        s.submit(new T());  // 适用于Callable
-        s.shutdown();  // 关闭线程池
+        ExecutorService s = Executors.newFixedThreadPool(10);   // 固定数量线程，空线程会一直保留
+        s.execute(new T());  // 比较适用于Runnable
+        s.submit(new T());  // 比较适用于Callable
+        s.shutdown();  // 关闭线程池，先完成已经提交的任务，不再接收新任务
     }
 }
 
+Executors：
+1、newCachedThreadPool()                 必要时创建新线程，空闲线程保留60秒，任务来时，没有空闲线程则创建新线程
+2、newFixedThreadPool(5)                  固定数量线程，空线程会一直保留，任务满放入队列
+3、newSingleThreadExecutor()            只有一个线程的线程池，顺序执行每一个提交的任务
+4、newScheduledThreadPool(5)              用于预定执行而构建的固定线程池，替代java.util.Timer
+5、newSingleThreadScheduledExecutor()  用于预定执行而构建的单线程池   
+
+前三个方法返回实现了ExecutorService 接口的 ThreadPoolExecutor 类的对象。
+后两个方法将返回实现了 ScheduledExecutorService 接口的对象。
 
 注意：
-如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了
-创建了太多的线程，CPU 花费在上下文切换的开销时间将多于执行程序的时间
+1、如果你创建太多的线程，程序执行的效率实际上是降低了，而不是提升了
+2、创建了太多的线程，CPU 花费在上下文切换的开销时间将多于执行程序的时间
+可以用线程池解决。
+
+程序中创建了大量生命期很短的线程，应该使用线程池。
 
 生命周期：
 Thread.State类定义了线程的几种状态
@@ -2447,23 +2461,7 @@ lambda表达式重点是延迟执行
 Java 8 函数式接口:
 lambda表达式传递到函数式接口
 
-
-Java 8 日期时间 API
-import java.time.*;
-
-LocalDateTime.now();   日期时间
-LocalDateTime.now().toLocalDate();   日期，Time输出时间
-
-jdk8之前的：
-import java.util.Date;     导入
-Date d = new Date(1284749)；  当前时间的对象，可以指定毫秒数
-toString();                    显示日期时间，Mon Oct 11 22:05:28 CST 2021
-getTime();                    当前对象时间戳
-
-import java.sql.Date;   对于数据库的日期时间，是java.util.Date的子类
-Date d = new Date(423432);    输入毫秒，输入格式为：1970-01-01
-
-转换：
+java8跟之前的日期转换：
 java.sql.Date d = new java.sql.Date(new java.util.Date().getTime());
 
 
