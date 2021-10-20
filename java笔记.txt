@@ -533,8 +533,8 @@ now().minusXxx();   // 减
 
 格式与解析日期时间DateTimeFormatter类：
 DateTimeFormatter dd = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");  // 最常用的实例化方式
-String s = d.format(LocalDateTime.now());  // 日期 --> 字符串  "2021-10-18 11:11:27"
-TemporalAccessor a = dd.parse("2021-10-18T23:01:37.923")； // 字符串-->日期
+String s = d.format(LocalDateTime.now());  // 日期 --> 字符串  "2021-10-18 11:11:27"，格式化
+TemporalAccessor a = dd.parse("2021-10-18T23:01:37.923")； // 字符串-->日期，解析
 
 
 Instant类：
@@ -553,10 +553,62 @@ double d = 3.14;
 i += 3.14;   将会发生强制类型转换：(int)(x + 3.14)
 
 
-比较器：
-对象比较大小（商品排序）
-Comparable接口、Camparator，比较结果：负数，0，正数
-实现接口，重写compareTo方法，大于返回正数，等于返回0，小于返回负数
+比较器（对象排序）：
+java.lange.Comparable接口、java.util.Camparator接口，对象比较
+Comparable：
+自然排序
+重写compareTo方法，比较属性，如价格，大于返回正数，等于返回0，小于返回负数
+public int compareTo(Object o){
+    if(o instanceof Goods){
+        Goods goods = (Goods) o;
+        if(this.价格 > goods.价格) return 1;
+        if(this.价格 < goods.价格) return -1;
+        if(this.价格 == goods.价格){ 
+            return -this.评论.compareTo(goods.评论);  // 相同情况下，按评论比较排序
+        }
+    }
+    throw new RuntimeException("数据类型不一样，不可比较");
+}
+
+Comparator:
+定制排序
+重写compare方法，大于返回正整数，等于返回0，小于返回负数
+public int compare(Object o1, Object o2){
+    if (o1 instanceof Goods && o2 instanceof Goods){  // 按照产品名称从低到高排序，再按照价格从高到底排序
+        Goods g1 = (Goods) o1;  // 强转
+        Goods g2 = (Goods) o2;
+        if(g1.getName().equals(g2.getName))
+            return -Double.compare(g1.getPrice(), g2.getPrice())； // 调用Double的compare方法，比较价格
+        else
+            return g1.getName().comparTo(g2.getName());
+    }
+    throw new RuntimeException("数据类型不一样，不可比较");
+}
+
+
+其他常用类使用：System、Math、BigInteger、BigDecimal
+System类：
+err    错误输出流
+in     输入流
+out   输出流
+exit(0)    退出程序，0正常推出
+currentTimeMillis()     返回当前计算机时间，1970-01-01
+gc()       请求系统进行垃圾回收
+getProperty(String Key)   获取系统属性key的对应值
+
+Math数学类：
+abs
+sqrt
+pow(a, b)    a的b次幂  
+max(x, y)
+min(x, y)
+random      0.0到1.0之间随机数
+round(double num)    四舍五入
+
+BigInteger、BigDecimal类：
+java.math包下
+BigInteger可以表示不可变的任意精度的整数
+BigDecima任意精度的有符号十进制定点数，商业计算中，要求精度比较高的，用这个类，小数点后几十位的
 
 
 使用正则：
@@ -1948,7 +2000,7 @@ char[ ] arr = new char[ ]{'a', 'b'};
 String s = new String(arr);      //  char[ ]  转为 String   
 
 byte[] 跟String转换：
-byte ---> String    解码
+字节 ---> 字符串    解码
 String ---> byte    编码
 s.getByte("utf-8");             // 返回byte[ ]数组，可以指定编码: 一个汉字：utf-8占三个字节，gbk两个字节
 Arrays.toString(bytes);      // 转为String
