@@ -573,19 +573,30 @@ Java.io 包中的流支持很多种格式，比如：基本类型、对象、本
 
 有很多方法可以产生流
 Stream<String> s = Stream.of("a", "b", "c");    // s是一个流
+s.filter(i -> i.equals("b"));     // 过滤，返回符合条件的新流
+s.map(i -> i + "x");             // lambda应用于每个元素，返回新流
+s.map(i -> i + "x").limit(5);  // 前五个，不5个取全部，相反的skip(5)则跳过前五个
+s.distinct();                        // 去重后的
+Stream.concat(非无限流，流);  // 拼接两个流  
+s.forEach(System.out::println);  // 输出每个元素
+String[] arr = s.toArray(String[]::new);  // 默认返回Object[ ]，使用String[ ]::new，转换为String[ ]
 
-文件：
+输入输出流：
+读取，写入，一般是操作文件
+InputStream, OutputStream
+
 InputStream f = new FileInputStream("aa.txt");               打开读取
 OutputStream f = new FileOutputStream("test.txt");       打开写入
-try{
-    byte b[] = {1,2,3,4,5};
-    OutputStream os = new FileOutputStream("bb.txt");    打开写入到文件，没有则创建
-    os.write(b);                                                                   写入
+......
+try{                                                                                   必须捕获异常
+    byte b[ ] = {1,2,3,4,5};
+    OutputStream os = new FileOutputStream("bb.txt");    打开写入到文件，没有则创建文件
+    os.write(b);                                                                   写入字节数组
     os.close();                                                                     关闭
 			 
-    InputStream f = new FileInputStream("bb.txt");            打开读取到内存
-    System.out.println(f.read());                                           
-    f.close();
+    InputStream in = new FileInputStream("bb.txt");            打开读取到内存
+    xxx xx = in.read();                                                           读入字节数组，返回读入的字节数                         
+    in.close();
 }catch(Exception e){
     System.out.println(e+"异常");
 }
