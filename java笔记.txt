@@ -1497,21 +1497,51 @@ A.B obj = a.new B();  // 成员内部类
 声明在接口中的内部类自动成为static和public类
 
 
-Java 枚举(enum)
-Java 枚举是一个特殊的类，一般表示一组常量
-Java 枚举类使用 enum 关键字来定义，各个常量使用逗号 , 来分割。
+枚举：
+enum关键字、Enum类
+
+类的对象只有有限个，确定的（如星期一到星期天）
+枚举是一个特殊的类，一般表示一组常量
+枚举类使用 enum 关键字来定义，各个常量使用逗号 , 来分割。
+可以实现接口，在enum类中实现抽象方法
 
 实例：
-enum Color{
-    RED, GREEN, BLUE;
-}
+enum Color implements Info {         // 定义的枚举类默认继承于java.lange.Enum类，而不是Object类
+    RED("xx", "xxx"){
+        public void method(){
+            // 可以每个对象单独实现接口的抽象方法，这样每个对象的方法都不一样
+        }
+    }, 
+    GREEN......, 
+    BLUE......;               // 多个对象用逗号隔开，末尾用分号结束 
  
-public class Test{
-    public static void main(String[] args){
-        Color c1 = Color.RED;
-        System.out.println(c1);
+    private Color(String s1, String s2){       // 有参构造器       
+        System.out.println(this.toString());
+    }
+ 
+    public void method(){      
+        // 实现接口的抽象方法
     }
 }
+
+public static void main(String args[]) {
+       Color c1 = Color.RED;   // 自动执行枚举构造函数
+}
+
+执行结果：
+RED
+GREEN
+BLUE
+
+Enum类的主要方法：
+values()                    返回枚举类型的对象数组，可以遍历所有的枚举值，例如，第一个c1.values()[0]，返回RED
+toString()                  返回当前枚举类对象常量的名称
+ordinal()                   方法可以找到每个枚举常量的索引，就像数组索引一样。
+valuesOf(String str)   返回字符串对应的枚举类对象，字符串必须是枚举类对象的“名字”，否则异常，静态方法
+
+枚举类成员:
+枚举跟普通类一样可以用自己的变量、方法和构造函数，构造函数只能使用 private 访问修饰符，所以外部无法调用。
+枚举既可以包含具体方法，也可以包含抽象方法。 如果枚举类具有抽象方法，则枚举类的每个实例都必须实现它。
 
 内部类中使用枚举：
 public class Test{
@@ -1526,47 +1556,59 @@ public class Test{
 }
 
 每个枚举都是通过 Class 在内部实现的，且所有的枚举值都是 public static final 的。
+jdk5之前定义枚举的方式：
 class Color
 {
      public static final Color RED = new Color();
 }
 
 迭代枚举元素：
-......
 for (Color myVar : Color.values()) {
       System.out.println(myVar);
     }
-......
 
-values() 返回枚举类中所有的值。
-ordinal()方法可以找到每个枚举常量的索引，就像数组索引一样。
-valueOf()方法返回指定字符串值的枚举常量。
 
-枚举类成员:
-枚举跟普通类一样可以用自己的变量、方法和构造函数，构造函数只能使用 private 访问修饰符，所以外部无法调用。
-枚举既可以包含具体方法，也可以包含抽象方法。 如果枚举类具有抽象方法，则枚举类的每个实例都必须实现它。
-......
- public static void main(String args[]) {
-		Color c1 = Color.RED;   // 自动执行枚举构造函数
-   }
-......
-enum Color{
-    RED, GREEN, BLUE;
- 
-    // 构造函数
-    private Color(){
-        System.out.println("Constructor called for : " + this.toString());
-    }
- 
-    public void colorInfo(){
-        System.out.println("Universal Color");
-    }
+注解（Annotation）：
+jdk5
+代码里的特殊标记，可以在编译、类加载、运行时被读取，并执行相应的处理。使程序员可以在不改变原有
+逻辑的情况下，在源文件中嵌入一下补充信息，代码分析工具、开发工具和部署工具可以通过这些补充信息
+进行验证或者进行部署。
+可以像修饰符一样使用，用于修饰包、类、构造器、方法、成员变量、参数、局部变量的声明
+
+注解在框架中用的比较多
+可以说：   框架 = 注解 + 反射 + 设计模式
+
+1、生成文档相关的注解
+/**
+*@author
+*@return
+*/
+
+2、在编译时进行格式检查（jdk内置的三个基本注解）
+@Override：限定重写父类方法，该注解只能用于方法
+@Deprecated: 用于表示所修饰的元素（类，方法等）已过时
+@SupperessWarnings：抑制编译器警告
+
+@SupperessWarnings("unused")              @SupperessWarnings({"unused", "rawtypes"})
+int n = 12;                                                ArrayList list = new ArrayList();
+
+3、跟踪代码依赖性，实现替代配置文件功能
+
+自定义注解：参照@SupperessWarnings
+1、声明为@interface
+2、内部定义成员，通常使用value表示
+3、可以使用default指定默认值
+4、没有自定义注解成员，表明是一个标识作用
+
+public @interface My{
+    String value() default "hhh";
 }
 
-执行结果：
-Constructor called for : RED
-Constructor called for : GREEN
-Constructor called for : BLUE
+@My(value = "xxx")     // 一定要有值，除非有默认值：default "hhh"；
+class A{
+   ......
+}
+
 
 Java 包(package):
 为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间
