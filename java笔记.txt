@@ -634,11 +634,11 @@ s.forEach(System.out::println);  // 输出每个元素
 String[] arr = s.toArray(String[]::new);  // 默认返回Object[ ]，使用String[ ]::new，转换为String[ ]
 
 输入输出流：
-读取，写入，一般是操作文件
-InputStream, OutputStream
+一般是文件内容的读写
+抽象类：InputStream, OutputStream
 
-InputStream f = new FileInputStream("aa.txt");               打开读取
-OutputStream f = new FileOutputStream("test.txt");       打开写入
+InputStream in = new FileInputStream("aa.txt");                 打开读取
+OutputStream out = new FileOutputStream("test.txt");       打开写入
 ......
 try{                                                                                   必须捕获异常
     byte b[ ] = {1,2,3,4,5};
@@ -649,43 +649,67 @@ try{                                                                            
     InputStream in = new FileInputStream("bb.txt");            打开读取到内存
     xxx xx = in.read();                                                           读入字节数组，返回读入的字节数                         
     in.close();
+
+    // 1、创建文件并写入，指定编码格式
+   PrintWriter p = new PrintWriter("a.txt", "utf-8");   
+   p.write("登机口附近124dfkdjf\n");   // 写入
+   p.print("aa ");   // 写入
+   p.println(123);
+   p.close();
+
+    // 2、创建文件写入
+   BufferedWriter out = new BufferedWriter(new FileWriter("aa.txt", true));  // true为追加
+   out.write("1223xxx地方");   // 写入
+   out.close();                        // 关闭
+
+   // 读取
+   BufferedReader in = new BufferedReader(new FileReader("a.txt"));  
+   in.readLine();     // 读取，文件结束返回null
+   in.close();
+
 }catch(Exception e){
     System.out.println(e+"异常");
 }
 
-实例：
-import java.io.*;     // 导入
+对象输入输出流：
+try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("a.txt"));  // 输出流
+            out.writeObject(new A());  // 写入文件
 
-public class T {
-   public static void main(String args[]){
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("a.txt"));  // 输入流
+            A a = ( A ) in.readObject();  // 读出文件，以被写入的顺序读出
+            System.out.println(a.i);
+
+            in.close();
+            out.close();
+
+        }catch (Exception e){ }
+
+class A implements Serializable {   // 实现Serializable接口（序列化）
+    transient int i = 1;  // 关键字transient表示此域不可被序列化，会跳过
+}
+
+文件操作：
+import java.io.*;   
+public static void main(String args[]){
                   try{    
- 		  // 写入
-		  BufferedWriter out = new BufferedWriter(new FileWriter("aa.txt",true));  // true为追加
-		  out.write("jdfkdjf");   // 写入
-		  out.close();                // 关闭
+ 		 
 
-		  // 读取
-		  BufferedReader in = new BufferedReader(new FileReader("a.txt"));  
-		  System.out.println(in.readLine());
-		  System.out.println(in.readLine());  // 文件结束为null
-                                  in.close();
-
-		  // 其他操作
 		  File f = new File("a.txt");
                                   f.length();     // 文件大小（字节）
 		  f.exists()；   // 是否存在 
    		  f.isFile()；   //  是否是文件
 		  f.delete();   // 删除
- 		f.renameTo(new File("bbb.txt"));  // 重命名
-		f.lastModified()；// 文件最后修改时间
+ 		  f.renameTo(new File("bbb.txt"));  // 重命名
+		  f.lastModified()；// 文件最后修改时间
 
 		// 创建文件
 		File f = new File("xxx.txt");
 		f.createNewFile();  
 
-		File.createTempFile("文件名前缀", ".txt", new File("E:/"));  // 在指定目录下创建文件
+		File.createTempFile("a", ".txt", new File("E:/"));  // 在指定目录下创建文件 "E:/a.txt"
 
-		System.getProperty("user.dir");  // 返回当前工作目录
+		System.getProperty("user.dir");    // 返回当前工作目录
 
 		// 文件内容复制到另一个文件
 		InputStream in = new FileInputStream(new File("srcfile"));
@@ -701,7 +725,7 @@ public class T {
 		   System.out.print(e);   //  必须要捕获异常
 	   }
    }
-}
+
 
 
 java.lang包中的类不需要import导入，其他需要
