@@ -614,7 +614,17 @@ BigDecima任意精度的有符号十进制定点数，商业计算中，要求�
 使用正则：
 import java.util.regex.*;         导入相关类：Pattern, Matcher, PatternSyntaxException
 
-boolean a = Pattern.matches(".*abc.*", "adjfabcdjfkd");      true, \\d+ 匹配多个数字，两个 \\ 代表其他语言中的一个 \
+方式一：
+boolean a = Pattern.matches(".*abc.*", "adjfabcdjfkd");      返回布尔值,
+
+方式二：
+Pattern p = Pattern.compile("^ab.*?c$", Pattern.MULTILINE + Pattern.CANON_EQ);  // 表达式，多个标志用“+”号
+或
+Pattern p = Pattern.compile("(?iu:^ab.*?c$)");   // 使用(?iu: xxxx)指定标志
+Matcher m = p.matcher("abcdeefcggc");  // 输入的可以是任何实现了CharSequence接口的类的对象，String、StringBuilder、......
+m.matches();  // 返回布尔值
+
+\\d+ 匹配多个数字，两个 \\ 代表其他语言中的一个 \
 System.out.println("\\");       // 输出一个\，两个斜杠输出一个斜杠
 
 
@@ -667,6 +677,17 @@ try{                                                                            
    in.readLine();     // 读取，文件结束返回null
    in.close();
 
+  // 文件内容复制到另一个文件
+  InputStream in = new FileInputStream(new File("srcfile"));
+  OutputStream out = new FileOutputStream(new File("destnfile"));
+  byte[] buf = new byte[1024];
+  int len;
+  while ((len = in.read(buf)) > 0) {  // 文件的字节大小
+          out.write(buf, 0, len);
+  }
+  in.close();
+  out.close();
+
 }catch(Exception e){
     System.out.println(e+"异常");
 }
@@ -690,39 +711,76 @@ class A implements Serializable {   // 实现Serializable接口（序列化）
 }
 
 文件操作：
+Files类，操作文件内容
+Path接口，操作路径
+jdk7之前使用File，操作文件
+
 import java.io.*;   
+import java.nio.file.*;   // jdk7操作文件
+
 public static void main(String args[]){
-                  try{    
- 		 
-
-		  File f = new File("a.txt");
-                                  f.length();     // 文件大小（字节）
-		  f.exists()；   // 是否存在 
-   		  f.isFile()；   //  是否是文件
-		  f.delete();   // 删除
- 		  f.renameTo(new File("bbb.txt"));  // 重命名
-		  f.lastModified()；// 文件最后修改时间
-
-		// 创建文件
+                  try{	
+		// File类
 		File f = new File("xxx.txt");
-		f.createNewFile();  
-
+                                f.length();     // 文件大小（字节）
+		f.exists()；    // 是否存在 
+   		f.isFile()；    //  是否是文件
+		f.delete();    // 删除
+ 	                f.renameTo(new File("bbb.txt"));    // 重命名
+		f.lastModified()；  // 文件最后修改时间		
+		f.createNewFile();   // 创建文件 
+		System.getProperty("user.dir");    // 返回当前工作目录
+		toPath();      // 返回一个Path对象，与jdk7的转换
 		File.createTempFile("a", ".txt", new File("E:/"));  // 在指定目录下创建文件 "E:/a.txt"
 
-		System.getProperty("user.dir");    // 返回当前工作目录
+		// Path接口
+		Path p = Paths.get("users\\tmp", "xx");   // 绝对路径或相对路径，可以不是实际存在的文件, 不会创建文件		
+		p.resolve("aa");    // 返回拼接路径：user\\tmp\\xx\\aa, 如果p是绝对文件路径则不拼接
+		p.resolveSibling("bb");  // 创建兄弟路径( 同级 )：users\\tmp\\bb
+		p.toAbsolutePath()；    // 创建绝对路径：E:\\users\\tmp\\xx，从根路径开始，/home/xx/xx/......
+		getParent();       // 父路径，没有返回null
+		getFileName();  // 文件名
+		getRoot();         // 根路径，最顶层的，C:\\、linux根路径 "/"
+		normalize();      // 移除路径中的".."与"."
+		toFile();            // 返回一个File对象，与jdk7之前的转换
 
-		// 文件内容复制到另一个文件
-		InputStream in = new FileInputStream(new File("srcfile"));
-        		OutputStream out = new FileOutputStream(new File("destnfile"));
-        		byte[] buf = new byte[1024];
-        		int len;
-        		while ((len = in.read(buf)) > 0) {  // 文件的字节大小
-            		    out.write(buf, 0, len);
-        		}
-        		in.close();
-        		out.close();
+		// Files类
+		byte[] f = Files.readAllBytes(Paths.get("a.txt"));  // 读入文件内容
+            		String c = new String(f, StandardCharsets.UTF_8);   // 转为字符串，utf-8编码
+
+		List<String> list = Files.readAllLines(Paths.get("a.txt"), StandardCharsets.UTF_8);  // 读入一个集合，默认使用平台编码
+		list.add("xxxxx");
+		Files.write(Paths.get("a.txt"), list);  // 将集合写入文件
+
+		String s = "aaaaaaaaaaaaa";
+            		Files.write(Paths.get("a.txt"), s.getBytes("utf-8"));  // 覆盖文件内容
+		Files.write(Paths.get("a.txt"), s.getBytes("utf-8"), StandardOpenOption.APPEND);  // 追加文件内容
+
+		// 对于大文件跟二进制文件，应该使用输入输出流或读入器写出器
+		InputStream in1 = Files.newInputStream(Paths.get("a.txt"));  // 输出流outputSream
+            		Reader in = Files.newBufferedReader(Paths.get("a.PNG"), StandardCharsets.UTF_8);  //   写出器Writer
+
+		// 创建文件、目录
+		Files.createFile(Paths.get("F:\\a.txt"));  // 在F盘下创建文件，默认在当前目录，如果存在则抛出异常，检查和创建的原子性的
+		Files.createDirectory(Paths.get("F:\\tmp\\aa"));  // 在F:\tmp盘下创建aa目录，aa之前的目录必须存在
+		Files.createDirectories(Paths.get("F:\\bb\\cc"));  // 创建多级目录
+		
+		// 复制、移动和删除文件
+		Files.copy(Paths.get("a.png"), Paths.get("bb\\a.png"));  // 复制时可以改名 ,替换：StandardCopyOption.REPLACE_EXISTING
+		Files.move(Paths.get("bb\\a.png"), Paths.get("cc\\a.png"));  // 移动时也可以改名，原子性：StandardCopyOption.ATOMIC_MOVE
+		Files.delete(Path path);
+		Files.deleteIfExists(Path path);  // 如果存在则删除，返回布尔值，可以删除空目录：Files.deleteIfExists(Paths.get("bb\\cc"));
+
+		Files.copy(inputStream, toPath);  // 将输入流复制到toPath中
+		Files.copy(fromPath, outputStream);  // 同上相反
+
+		// 获取文件信息
+		Files.exists(path);  // 是否存在，隐藏isHiden、可读isReadable、可写isWritable、是目录isDirectory，......
+		Files.size(path);   // 返回文件字节数，long型
+		PosixFileAttributes a = Files.readAttributes(Paths.get("a.png"), BasicFileAttributes.class);  // 文件属性集
+
 	   }catch(IOException e){
-		   System.out.print(e);   //  必须要捕获异常
+		   System.out.print(e);  
 	   }
    }
 
@@ -736,12 +794,12 @@ Scanner类 + System.in
 
 import java.util.*;
 
-Scanner scan = new Scanner(System.in); 
-if(scan.hasNext()){                 // 判断是否还有输入的数据或是否是指定数据类型，hasNextXxx，如hasNextLine、hasNextInt ......
-    String s = scan.next();       // 接收输入值，第一个空格结束，nextLine()以回车结束，nextInt，nextFloat
+Scanner in = new Scanner(System.in); 
+if(in.hasNext()){                 // 判断是否还有输入的数据或是否是指定数据类型，hasNextXxx，如hasNextLine、hasNextInt ......
+    String s = in.next();       // 接收输入值，第一个空格结束，nextLine()以回车结束，nextInt，nextFloat
 }
-System.out.println(str1);
-scan.close();   // 关闭	
+System.out.println(s);
+in.close();   // 关闭	
 
 next():
 1、一定要读取到有效字符后才可以结束输入。
