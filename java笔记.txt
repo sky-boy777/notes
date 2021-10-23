@@ -1667,6 +1667,20 @@ class A{
    ......
 }
 
+自定义注解必须配上注解的信息处理流程（使用反射）才有意义
+自定义注解通常都会指明两个元注解：@Retention、@Target
+
+jdk提供的4种元注解
+元注解：对现有的注解进行解释说明的注解
+@Retention：指定所修饰的Annotation的生命周期，SOURCE, CLASS(默认行为)，RUNTIME 只有声明为RUNTIEM生命
+                     周期的注解，才能通过反射获取。
+@Target：用于指定被修饰的Annotation能用于修饰哪些程序元素。
+@Documented：用于指定被该Annotation修饰的Annotation类被javadoc工具提取成文档，默认情况下，javadoc是
+                          不包含注解的。
+@Inherited：被它修饰的Annotation将具有继承性
+
+jdk8注解新特性：可重复注解、类型注解
+
 
 Java 包(package):
 为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间
@@ -1762,6 +1776,24 @@ Java集合框架为程序员提供了预先包装的数据结构和算法来操�
 集合框架的类和接口均在java.util包中。
 任何对象加入集合类后，自动转变为Object类型，所以在取出的时候，需要进行强制类型转换。
 
+分为两种体系：Collection接口（存单一值）、Map接口（键值对）
+
+集合框架中的接口：
+Iterable
+    Collection
+        List（类：ArrayList、LinkedList、Vector）
+        Set（类：HashSet、LinkedHashSet、TreeSet）
+            SortedSet
+                NavigableSet
+        Queue
+            Deque
+Map（类：HashMap、LinkedHashMap、TreeMap、HashTable、Properties）
+    SortedMap
+        NavigableMap
+Iterator                  
+    ListIterator
+RandomAccess    标记接口 
+
 Collection接口：
 所有实现了此接口的类都要提供下列方法（一部分）
 iterator()        返回一个迭代器
@@ -1781,23 +1813,8 @@ toArray(T[] arrayToFill)         返回数组并填充到arrayToFill，其余填
 hashCode()
 default boolean removeIf(Predicate<? super E> filter)  jdk8 默认方法，删除某个满足条件的元素
 
-集合框架中的接口：
-Iterable
-    Collection
-        List
-        Set
-            SortedSet
-                NavigableSet
-        Queue
-            Deque
-Map
-    SortedMap
-        NavigableMap
-Iterator                  
-    ListIterator
-RandomAccess    标记接口 
-
 集合类型：
+**********实现了Collection接口*****************************************
 ArrayList       一种可以动态增长和缩减的索引序列
 LinkedList    一种可以在任何位置进行高效的插入和删除操作的有序序列
 ArrayDeque  一种用循环数组实现的双端队列
@@ -1806,15 +1823,15 @@ TreeSet   一种有序集
 EnumSet  一种包含枚举类型的集
 LinkedHashSet  一种可以记住元素插入次序的集合
 PriorityQueue  一种允许高效删除最小元素的集合
+**********实现了Map接口**********************************************
 HashMap  一种键、值关联的数据结构，python中的字典
 TreeMap  一种键值有序排列的映射表
 EnumMap  一种键值属于枚举类型的映射表
 LinkedHashMap  一种可以记住键值添加次序的映射表
 WeakHashMap  一种其值无用武之地后可以被垃圾回收器回收的映射表
 IdenityHashMap  一种用 == 而不是用 equals 比较键值的映射表
-以Map结尾的实现了Map接口，其他类则实现了Collection接口
 
-Collections类：
+操作集合的工具Collections类：
 Collections.replaceAll(list, "old", "new");   // 将list集合里面的old全部替换成new  
 sort()方法可以对实现了List接口的集合进行排序
 binarySearch()  二分查找，必须是有序的
