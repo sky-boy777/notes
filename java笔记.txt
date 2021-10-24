@@ -1781,13 +1781,13 @@ Java集合框架为程序员提供了预先包装的数据结构和算法来操�
 集合框架中的接口：
 Iterable
     Collection
-        List（类：ArrayList、LinkedList、Vector）
-        Set（类：HashSet、LinkedHashSet、TreeSet）
+        List                                   （类：ArrayList、LinkedList、Vector）
+        Set                                   （类：HashSet、LinkedHashSet、TreeSet）
             SortedSet
                 NavigableSet
         Queue
             Deque
-Map（类：HashMap、LinkedHashMap、TreeMap、HashTable、Properties）
+Map                                        （类：HashMap、LinkedHashMap、TreeMap、HashTable、Properties）
     SortedMap
         NavigableMap
 Iterator                  
@@ -1796,21 +1796,21 @@ RandomAccess    标记接口
 
 Collection接口：
 所有实现了此接口的类都要提供下列方法（一部分）
-iterator()        返回一个迭代器
+iterator()                                   返回一个迭代器，方法next(), hasNext()，迭代器模式
 size()
-isEmpty()
-contains(Object obj)                 集合中是否包含obj对象
+isEmpty()                                   是否空，没有元素
+contains(Object obj)                 集合中是否包含obj对象，判断内容，内部调用obj的equals方法
 containsAll(Collection<?> c)     是否包含集合c中的所有元素
-equals(Object other)
+equals(Object other)                 contains内部调用次equals方法
 boolean add(E e)           向集合添加元素
 addAll(Collection<? extends E> other)    将other集合中的所有元素添加   
 remove(Object obj)
 removeAll(Collection<?> c)
 clear()
-retainAll(Collection<?> c)    删除不等于集合c中的所有元素
-toArray()                              返回这个集合的对象数组
+retainAll(Collection<?> c)    删除不等于集合c中的所有元素，交集
+toArray()                              转数组，返回这个集合的对象数组。相反：Arrays.asList()数组转集合
 toArray(T[] arrayToFill)         返回数组并填充到arrayToFill，其余填充null，不够大，则创建新的数组
-hashCode()
+hashCode()                         返回当前对象哈希值
 default boolean removeIf(Predicate<? super E> filter)  jdk8 默认方法，删除某个满足条件的元素
 
 集合类型：
@@ -1835,6 +1835,9 @@ IdenityHashMap  一种用 == 而不是用 equals 比较键值的映射表
 Collections.replaceAll(list, "old", "new");   // 将list集合里面的old全部替换成new  
 sort()方法可以对实现了List接口的集合进行排序
 binarySearch()  二分查找，必须是有序的
+
+List接口：
+通常用List替代数组，ArrayList（底层使用Object[ ]）、LinkedList（底层使用双向链表）、Vector（线程安全的）
 
 ArrayList类：
 数组列表，非同步的，而Vector类是同步的
