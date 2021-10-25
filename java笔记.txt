@@ -618,14 +618,17 @@ import java.util.regex.*;         导入相关类：Pattern, Matcher, PatternSyn
 boolean a = Pattern.matches(".*abc.*", "adjfabcdjfkd");      返回布尔值,
 
 方式二：
-Pattern p = Pattern.compile("^ab.*?c$", Pattern.MULTILINE + Pattern.CANON_EQ);  // 表达式，多个标志用“+”号
+Pattern p = Pattern.compile("^ab.*?c$", Pattern.MULTILINE + Pattern.CANON_EQ);  // 多个标志用“+”号
 或
-Pattern p = Pattern.compile("(?iu:^ab.*?c$)");   // 使用(?iu: xxxx)指定标志
-Matcher m = p.matcher("abcdeefcggc");  // 输入的可以是任何实现了CharSequence接口的类的对象，String、StringBuilder、......
-m.matches();  // 返回布尔值
+Pattern p = Pattern.compile("(?iu:^ab.*?c$)");   // 使用 (?iu: 正则) 方式指定标志
 
-\\d+ 匹配多个数字，两个 \\ 代表其他语言中的一个 \
-System.out.println("\\");       // 输出一个\，两个斜杠输出一个斜杠
+Matcher m = p.matcher("abcdeefcggc");  // 输入的可以是任何实现了CharSequence接口的类的对象，String、StringBuilder、......
+m.matches();         // 返回布尔值
+m.replaceAll("a");  // 匹配到的全部替换成 a
+
+注意：
+两个 \\ 代表其他语言中的一个 \，如：\\d+ 匹配多个数字，
+System.out.println("\\");       输出一个\，两个斜杠输出一个斜杠
 
 
 Java 流(Stream)、文件(File)和IO：
@@ -2739,6 +2742,62 @@ jar cvfe xxx.jar M M.class，指定程序入口点为M
 运行：java -jar xxx.jar
 
 Java web start
+
+
+XML：
+大小写敏感
+单个标签必须以“/”结尾，如<img src="..." />
+属性必须要引号，且必须要有值，如<a with="300"></a>
+可选文档头：
+1、<?xml version="1.0"?>
+2、<?xml version="1.0" encoding="UTF-8"?>
+
+实例：
+test.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration......>      可选文档类型
+<configuration>
+    <!-- 注释 -->
+    <title>
+        <font>
+            <name>xxx</name>
+            <size>12</size>
+        </font>
+    </title>
+</configuration>
+
+java解析xml:
+DOM解析器
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+import java.io.File;
+try {
+            DocumentBuilderFactory fa = DocumentBuilderFactory.newInstance();
+            DocumentBuilder b = fa.newDocumentBuilder();
+            File f = new File("test.xml");
+            Document doc = b.parse(f);  // 解析，文件、url、输入流
+
+           // 使用Xpath定位
+           XPathFactory xf = XPathFactory.newInstance();
+           XPath path = xf.newXPath();
+           String str = path.evaluate("//name[1]/@type", doc);     // 选择第一个name标签的type属性的值
+           String count = path.evaluate("count(//name)", doc)；  // 计数name，默认返回字符串
+
+           // 指定第三参数，强转类型
+           int count = ((Number)path.evaluate("count(//name)", doc, XPathConstants.NUMBER)).intValue();  
+           NodeList list = (NodeList) path.evaluate("//name", doc, XPathConstants.NODESET); 
+
+          // 节点再使用XPath
+          Node node = (Node) path.evaluate("//title", doc, XPathConstants.NODE); 
+          String s = path.evaluate("//name", node)；
+
+        }catch (Exception e){ e.printStackTrace(); }
+
+
+
 
 
 
