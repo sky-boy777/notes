@@ -2299,28 +2299,41 @@ import java.net.ServerSocket;
 
 实例
 import java.net.*;
- 
-public class T{
-   public static void main(String[] args){
+public class Main {
+   public static void main(String[ ] args){
      try{
-		System.out.print(InetAddress.getByName("www.baidu.com"));  // 获取主机跟ip地址
-		InetAddress.getLocalHost()； 本地IP地址跟计算机名
+	InetAddress.getByName("www.baidu.com");  // 获取主机跟ip地址
+	InetAddress.getLocalHost()； // 本地IP地址跟计算机名
 
-		URL url = new URL("https://www.baidu.com");  // 创建请求url
-		URLConnection con = url.openConnection();  // 发送请求
-		con.getContentLength()；  // 获取大小（字节）
-		con.getInputStream().close();  // 关闭
-
-		Socket s = new Socket("www.baidu.com", 80);  // 连接到指定主机
-		s.getInetAddress();  // 获取ip
-		s.close();		
+	// 获取web数据
+	URL url = new URL("https://www.baidu.com");  // 创建请求url
+                URLConnection con = url.openConnection();  // 发送请求
+                Scanner in = new Scanner(con.getInputStream(), "utf-8");  // 返回输入流
+                while(in.hasNext()){
+                    System.out.println(in.nextLine());  // 打印出html
+                }
+	con.getInputStream().close();  // 关闭
+	
+	// 客户端Socket
+	// Socket s = new Socket("www.baidu.com", 80);  方式一 连接到指定主机
+	Socket s = new Socket();  // 创建一个未连接套接字
+                s.connect(new InetSocketAddress("www.baidu.com", 8000), 5000);  // 连接，超时时间5秒，毫秒
+	s.getInetAddress();  // 获取ip
+	s.close();		
+	
+	// 服务端ServerSocket
+	ServerSocket server = new ServerSocket(8000);  // 一个监控8000端口的服务器
+                Socket acc = server.accept();  // 等待客户端连接
+                Scanner in = new Scanner(acc.getInputStream(), "utf-8");  // 接受客户端数据
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(acc.getOutputStream(), "utf-8")，true);  // 发送
+                out.println("hello");  // 发送信息给客户端
+                server.close();
 
      }catch(Exception e){
-		 System.out.println(e);
-	 }
+	e.printStackTrace();
+      }
    }
 }
-
 
 发送邮件:
 1、首先安装 JavaMail API 和Java Activation Framework (JAF) 
@@ -2794,7 +2807,17 @@ try {
           Node node = (Node) path.evaluate("//title", doc, XPathConstants.NODE); 
           String s = path.evaluate("//name", node)；
 
+         // 生成xml文档
+         Document xml = b.newDocument();  // 创建一个空文档
+         Element e = xml.createElement("a");  // 创建元素
+         e.appendChild(doc.createTextNode("yyy"));   // 添加文本
+         e.setAttribute("key", "value");  // 属性设置
+         xml.appendChild(e);  // 元素加入文档
+         e.appendChild(xml.createElement("b"));  // 在元素a内部添加元素b
+
         }catch (Exception e){ e.printStackTrace(); }
+
+
 
 
 
