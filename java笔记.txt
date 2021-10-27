@@ -1962,25 +1962,50 @@ public T[] toArray(T[] a)	返回一个由链表元素转换类型而成的数组
 需要频繁的在列表开头、中间、末尾等位置进行添加和删除元素操作。
 
 Set接口：
+存储无序,不重复数据，保证equals()判断时，不能返回true
+三个主要类HashSet、LinkHashSet、TreeSet
 
+添加元素过程：
+以HashSet为例
+我们向HashSet中添加元素a时，首先调用a所在类的hashCode()方法，计算a的哈希值，此哈希值通过某种算法
+计算处再HashSet底层数组中的存放位置（即为：索引位置），判断此位置上是否已有元素，无则添加成功，如果有
+元素b（或以链表形式存在多个元素），则比较a与b的哈希值，不同则添加成功，相同则进而调用元素a所在类的
+equals方法，返回false则添加成功，而后a与b以链表方式存储。jdk8中，b在数组中指向a，jdk7相反。
 
-HashSet：
-HashSet 基于 HashMap 来实现的，是一个元素唯一不重复的集合。
-HashSet 允许有 null 值。
-HashSet 是无序的，即不会记录插入的顺序。
-HashSet 不是线程安全的， 如果多个线程尝试同时修改 HashSet，则最终结果是不确定的。 
-    您必须在多线程访问时显式同步对 HashSet 的并发访问。
-HashSet 实现了 Set 接口
+要求：
+向Set中添加的数据，其所在类一定要重写两个方法：hashCode()、equals()。
+重写的两个方法尽可能保持一致性，即：相等的对象必须具有相等的散列码。
+重写小技巧：对象中用作equals()的字段，都应该用来计算hashCode。
+
+HashSet类：
+基于 HashMap 实现的，是一个元素唯一不重复的集合。底层结构：数组+链表
+允许有 null 值，无序，不是线程安全的 
+您必须在多线程访问时显式同步对 HashSet 的并发访问。
+实现了 Set 接口
 
 import  java.util.HashSet;    导入
 HashSet<Integer> s = new HashSet<Integer>();   实例化
-s.add(12);          添加
-s.remove(12);    删除
+s.add(12);          增
+s.remove(12);    删
 s.size();              元素个数
 s.clear();            清空
 for(int i: s){        遍历
 	System.out.println(i);
 }
+
+LinkHashSet类：
+HashSet子类，可以按照添加的顺序遍历，在添加数据的同时，每个数据还维护了两个引用，记录此数据的前
+一个和后一个数据（链表），数组包链表，对于频繁遍历效率要高于HashSet。
+方法跟HashSet的一样
+
+TreeSet类：
+采用红黑树（左边小于右边）存储结构，特点：有序、查询速度比List快。
+可以按照添加对象的指定属性，进行排序，元素要求是相同类的对象，如：不能同时添加数字跟字符串。
+两种排序：
+相等返回 0 则认为两个元素相同，则不添加。
+自然排序（Comparabel接口）compareTo()
+定制排序（Comparator接口）compare()
+
 
 HashMap：
 HashMap 是一个散列表，它存储的内容是键值对(key-value)映射。
