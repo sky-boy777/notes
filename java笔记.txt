@@ -2745,7 +2745,7 @@ public class M {
            stmt.close();
            conn.close();
 
-        } catch(SQLException e){
+        } catch(Exception e){
 	   e.printStackTrace();
        }
    }
