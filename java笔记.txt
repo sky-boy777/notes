@@ -2344,9 +2344,12 @@ public class Main {
    }
 }
 
+URLEncoder.encode("你好", "utf-8");  // 编码
+URLDecoder.decode("%E7%9A", "utf-8);  // 解码
+
 发送邮件:
 1、首先安装 JavaMail API 和Java Activation Framework (JAF) 
-2、从 Java 网站下载最新版本的 JavaMail,最新版本的 JAF
+2、从 Java 网站下载最新版本的 JavaMail, 和最新版本的 JAF。
 3、下载并解压缩这些文件，在新创建的顶层目录中，您会发现这两个应用程序的一些 jar 文件。
 您需要把 mail.jar 和 activation.jar 文件添加到您的 CLASSPATH 中。
 
@@ -2354,8 +2357,8 @@ public class Main {
 用户认证部分：
 如果需要提供用户名和密码给e-mail服务器来达到用户认证的目的，你可以通过如下设置来完成：
 props.put("mail.smtp.auth", "true");
-props.setProperty("mail.user", "myuser");
-props.setProperty("mail.password", "mypwd");
+props.setProperty("mail.user", "xxxx@163.com");
+props.setProperty("mail.password", "123456");
 
 关于QQ邮箱，还要设置SSL加密，加上以下代码即可：
 MailSSLSocketFactory sf = new MailSSLSocketFactory();
@@ -2705,31 +2708,33 @@ java.sql.Date d = new java.sql.Date(new java.util.Date().getTime());
 
 连接mysql：
 Java 使用 JDBC 连接 MySQL 数据库
-下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
 
-1、打开链接选择对应数据库版本：http://dev.mysql.com/downloads/connector/j/
+下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
+1、打开链接下载对应数据库版本：http://dev.mysql.com/downloads/connector/j/
 2、选择：Platform Independent，下载：mysql-connector-java-5.1.47.tar.gz，只有几M大小
-3、解压后得到 jar库文件，将mysql-connector-java-5.1.47-bin.jar放入jdk8\jre\lib\ext下，
-然后在对应的项目中导入该库文件。
+3、解压后得到 jar库文件，将mysql-connector-java-5.1.47-bin.jar放入jdk8\jre\lib\ext下，然
+     后在对应的项目中导入该库文件。
 
 代码：
 import java.sql.*;  // 导入相关
-
 public class M {
-    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    // MySQL8.0以上版本使用
     // static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";	   
-    static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名";  // MySQL8.0一下版本使用这个
-    static final String USER = "root";  // 用户名
-    static final String PASS = "1234";  // 密码
- 
+    
    public static void main(String[] args) {    
         try{          
-            Class.forName(JDBC_DRIVER);   // 注册 JDBC 驱动       
-            Connection conn = DriverManager.getConnection(DB_URL,USER,PASS);   // 打开链接           
+            Class.forName("com.mysql.jdbc.Driver");   // 注册 JDBC 驱动，不要导包       
+
+            Connection conn = DriverManager.getConnection(
+		"jdbc:mysql://localhost:3306/数据库名",   
+		 "用户名",
+		 "密码");   // 连接数据库       
             
-            Statement stmt = conn.createStatement();  // 执行查询
+            // 执行查询
+            Statement stmt = conn.createStatement();  
             ResultSet rs = stmt.executeQuery("SELECT * FROM admin");  			
             
+            // 获取结果
             while(rs.next()){
 	int id = rs.getInt("id");  // 根据类型获取数据：rs.getXxx("字段")，id为数据库字段名
 	String name = rs.getString("name");
@@ -2740,11 +2745,15 @@ public class M {
            stmt.close();
            conn.close();
 
-        } catch(Exception e){
-	  System.out.println(e);
+        } catch(SQLException e){
+	   e.printStackTrace();
        }
    }
 }
+
+包含META-INF/services/java.sql.Driver文件的jar文件可以自动注册驱动器类，解压驱动程序jar文件就可以
+检查其是否包含该文件。
+
 
 JavaBean：
 一种Java语言写成的可重用组件

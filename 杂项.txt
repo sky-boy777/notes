@@ -117,4 +117,4 @@ function (msg) {
 40、3V：海量Volume、多样Variety、实时Velocity。3高：高并发、高可扩、高性能
 41、windows下在文件夹中的路径搜索框输入cmd回车能直接在当前路径打开cmd框
 42、一些访问量较大的主机名通常对应于多个ip地址，以实现负载均衡。如：www.baidu.com跟baidu.com两个IP地址不一样
-
+43、标准SQL：等于"=", 不等于"<>"，字符串使用单引号''
