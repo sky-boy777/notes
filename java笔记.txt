@@ -515,34 +515,44 @@ char[] arr = new char[]{'a', 'b'};
 System.out.print(arr);   // 输出：ab，而不是地址值，其他的是输出地址值
 
 
-jdk8 日期：
+Java 日期时间：
 java.time，java.time.format
-LocalDate、LocalTime、LocalDateTime 
+三个类：LocalDate、LocalTime、LocalDateTime（常用） 
 格式：
 2021-10-18
 20:53:40.424
 2021-10-18T20:53:40.424
 
-三个类都有的方法
+三个类都有的方法：
 now();                                     // 当前时间，日期
-of(2020, 12, 30, 12, 33, 55);     // 转换年月日时分秒，2020-12-30T12:33:55
-now().getXxx();         // 获取
-now().withXxx();       // 设置，内部定义为不可变的
-now().plusXxx(3)；  // 加
-now().minusXxx();   // 减
+of(2020, 12, 30, 12, 33, 55);      // 转换年月日时分秒，2020-12-30T12:33:55
+now().getDayOfMonth();         // 获取，getDayOfYear返回这一年的第几天，getYear()，getHour()
+now().withDayOfMonth();       // 设置，内部定义为不可变的
+now().plusXxx(3)；   // 加
+now().minusXxx();    // 减，now().plusMonths(1)则在此日期上加一个月
+now().isLeapYear();  // 是否是闰年
 
-格式与解析日期时间DateTimeFormatter类：
-DateTimeFormatter dd = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");  // 最常用的实例化方式
-String s = d.format(LocalDateTime.now());  // 日期 --> 字符串  "2021-10-18 11:11:27"，格式化
-TemporalAccessor a = dd.parse("2021-10-18T23:01:37.923")； // 字符串-->日期，解析
+Xxx表示：Days、Years、Months、Weeks，Hours，Minutes，Seconds，Nanos（纳秒）
 
+格式化与解析DateTimeFormatter类
+java.time.format.DateTimeFormatter
 
-Instant类：
+1、预定义的格式器，DateTimeFormatter.ISO_DATE.format(LocalDate.now());
+2、Locale相关的格式器。
+3、带有定制模式的格式器（常用）。
+DateTimeFormatter dd = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");  // 最常用的实例化方式
+String s = dd.format( LocalDateTime.now() );   // 日期-->字符串  "2021-10-18 11:11:27"。格式化:
+TemporalAccessor a = dd.parse("2021-10-18T23:01:37.923")； // 字符串-->日期。解析
+LocalDateTime.parse("2021-10-18T23:01:37.923");  // 同上 ，解析
+
+"E yyyy-MM-dd HH:mm:ss" <==>星期五 2021-10-29 17:53:39
+
+绝对时间Instant类：
 Instant i = Instant.now();
 i.now();  // 东八区日期时间，不是我们的
 i.toEpochMilli()；// 1970-1-1  到现在毫秒数
 Instant.ofEpochMilli(1634566294733l);  // 转换为2021-10-18T14:11:34.733Z
-OffsetDateTime a = i.atOffset(ZoneOffset.ofHours(8);  // 要偏移8小时, 2021-10-18T22:10:45.011+08:00
+OffsetDateTime a = i.atOffset(ZoneOffset.ofHours(8);  // 要加8小时, 2021-10-18T22:10:45.011+08:00
 
 
 import static java.lang.Math.*;    导入指定包下类或接口的静态结构、属性、方法
@@ -2796,6 +2806,50 @@ rs.deleteRow();  // 删除当前行，连数据库中的也一并删除
  rs.insertRow();                          // 提交更新到数据库
  rs.moveToCurrentRow();           // 移动游标到原来位置
 
+行集：
+查询后关闭数据库连接，提交时再连接数据库
+try{
+                // 缓存行集
+                RowSetFactory f = RowSetProvider.newFactory();
+                CachedRowSet crs = f.createCachedRowSet();
+
+	// 设置数据库连接
+                crs.setUrl("jdbc:mysql://localhost:3306/xingying?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+                crs.setUsername("root");
+                crs.setPassword("root");
+
+                crs.setCommand("select * from hotel limit 0, 100");
+                crs.setPageSize(5);  // 每页5条，查询结果集太大，应该分页
+                crs.execute();  // 提交
+
+               do{
+                    while(crs.next()){
+                        System.out.println(crs.getString("name"));
+	        crs.updateString("name", "张三");  // 更新
+                        crs.updateRow();   // 更新到集
+	        crs.acceptChanges();  // 重新连接数据库提交更改
+                    }
+                }while(crs.nextPage());  // 如果有下一页
+
+                crs.close();
+}catch(......){......}
+
+事务：
+conn.setAutoCommit(false);                  // 将数据库默认的自动提交设为false
+stmt.executeUpdate("create tabel ......");   
+......
+Savepoint sp = conn.setSavepoint();    // 设置保存点
+conn.commit();                                   // 提交事务
+conn.rollback(sp);                               // 回滚到保存点，没有则回滚全部
+conn.releaseSavepoint(sp);                 // 不需要时，必须释放保存点
+
+批量操作：
+一个语句序列最后一起提交，insert、update、delete、create table、drop table，不包括select，会抛异常
+Statement stmt = conn.createStatement();
+stmt.addBatch("insert ......");     // 添加
+stmt.addBatch("update ......");  // 添加
+stmt.executeBatch();               // 提交
+
 Connection conn =......，放在带资源的try(){}语句中，退出时自动关闭（推荐）
 
 一个Connection对象可以创建多个Statement对象，而一个Statement对象最多只能有一个打开的结果集。
@@ -2803,6 +2857,8 @@ Connection conn =......，放在带资源的try(){}语句中，退出时自动�
 
 包含META-INF/services/java.sql.Driver文件的jar文件可以自动注册驱动器类，解压驱动程序jar文件就可以
 检查其是否包含该文件。
+
+web应用中使用数据库连接池，避免频繁打开关闭连接，无限制的连接数据库。
 
 
 JavaBean：
