@@ -554,6 +554,15 @@ i.toEpochMilli()；// 1970-1-1  到现在毫秒数
 Instant.ofEpochMilli(1634566294733l);  // 转换为2021-10-18T14:11:34.733Z
 OffsetDateTime a = i.atOffset(ZoneOffset.ofHours(8);  // 要加8小时, 2021-10-18T22:10:45.011+08:00
 
+国际化：
+java.util.Locale类
+数字、货币、时区，日期显示格式
+
+
+格式化：
+java.text.MessageFormat
+MessageFormat.format("{0}{1}{2}{3}{4}", 1,2,4,5,9)；  // 返回String
+
 
 import static java.lang.Math.*;    导入指定包下类或接口的静态结构、属性、方法
 PI、E、......
@@ -2964,6 +2973,13 @@ try {
          e.appendChild(xml.createElement("b"));  // 在元素a内部添加元素b
 
         }catch (Exception e){ e.printStackTrace(); }
+
+
+脚本：
+
+编译器API：
+
+
 
 
 
