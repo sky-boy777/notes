@@ -1853,10 +1853,18 @@ LinkedHashMap  一种可以记住键值添加次序的映射表
 WeakHashMap  一种其值无用武之地后可以被垃圾回收器回收的映射表
 IdenityHashMap  一种用 == 而不是用 equals 比较键值的映射表
 
-操作集合的工具Collections类：
-Collections.replaceAll(list, "old", "new");   // 将list集合里面的old全部替换成new  
-sort()方法可以对实现了List接口的集合进行排序
-binarySearch()  二分查找，必须是有序的
+操作集合的工具类Collections：
+操作Collection、Map
+Collections.replaceAll(list, old, new);        将list集合里面的old全部替换成new  
+sort(list)              排序，
+binarySearch()    二分查找，必须是有序的
+reverse(list)         反转list的元素
+shuffle(list)          对list随机排序
+swap(list, 1, 4)     交换list两个索引的元素的位置
+max(Collection)   最大元素
+min(Collection)    最小
+frequency(Collection, obj)    obj出现的次数
+copy(list1, list2)          将list2的元素复制到list1，list1中的元素必须多于等于list2中的元素，size()大于等于list2
 
 List接口：
 通常用List替代数组，ArrayList（底层使用Object[ ]）、LinkedList（底层使用双向链表）、Vector（线程安全的）
@@ -2032,7 +2040,7 @@ HashMap：Map主要实现类，线程不安全，效率高，存储null的key和
                                      对指针，指向前一个和后一个。频繁遍历时使用效率高与HashMap。
 TreeMap：保证按照添加的key-value进行排序，实现排序遍历。按key排序，自然排序或定制排序，底层红黑树
 Hashtable（t是小写）：古老的实现类，线程安全，效率低，不能存null的key和value
-       Properties：常用来处理配置文件，key和value都是String类型。
+       Properties：常用来处理配置文件，key和value都是String类型。（如，jdbc配置文件以.properties结尾）
 
 Map结构：
 key无序不重复，value可重复，一个键值对构成一个Entry对象，使用Set存储Entry对象。
@@ -2090,6 +2098,9 @@ merge()	添加键值对到 hashMap 中
 compute()	对 hashMap 中指定 key 的值进行重新计算
 computeIfAbsent()	对 hashMap 中指定 key 的值进行重新计算，如果不存在这个 key，则添加到 hasMap 中
 computeIfPresent()	对 hashMap 中指定 key 的值进行重新计算，前提是该 key 存在于 hashMap 中。
+
+TreeMap：
+要求添加的key必须是有同一个类创建的对象，因为要按照key进行排序：自然排序、定制排序
 
 
 Iterator（迭代器）：
