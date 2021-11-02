@@ -1651,14 +1651,26 @@ for (Color myVar : Color.values()) {
 注解（Annotation）：
 jdk5
 代码里的特殊标记，可以在编译、类加载、运行时被读取，并执行相应的处理。使程序员可以在不改变原有
-逻辑的情况下，在源文件中嵌入一下补充信息，代码分析工具、开发工具和部署工具可以通过这些补充信息
+逻辑的情况下，在源文件中嵌入一下补充信息。代码分析工具、开发工具和部署工具可以通过这些补充信息
 进行验证或者进行部署。
-可以像修饰符一样使用，用于修饰包、类、构造器、方法、成员变量、参数、局部变量的声明
+
+注解像修饰符一样使用，用于：
+1、包
+2、类(包括enum）
+3、接口(包括注解接口)
+4、构造器
+5、方法
+6、实例域(包括enum常量)
+7、局部变量
+8、参数变量
+9、类型参数
+对于类和接口，需要将注解放置在class和interface关键词的前面
+泛化类或方法中的类型参数可以是：public class Cache<@Immutable V> { ...... }
 
 注解在框架中用的比较多
 可以说：   框架 = 注解 + 反射 + 设计模式
 
-1、生成文档相关的注解
+1、文档相关注解
 /**
 *@author
 *@return
@@ -1679,29 +1691,52 @@ int n = 12;                                                ArrayList list = new 
 2、内部定义成员，通常使用value表示
 3、可以使用default指定默认值
 4、没有自定义注解成员，表明是一个标识作用
-
+自定义：
 public @interface My{
-    String value() default "hhh";
+    enum Status {FIXED, RED};
+    String value() default "hhh";     // 声明元素，可选的默认值, 不能为null
+    boolean abc();
+    Class<?> testCase() default Void.class;
+    Status status() default Status.RED;
+    ......
 }
 
-@My(value = "xxx")     // 一定要有值，除非有默认值：default "hhh"；
+使用：
+@My(value="xxx")  // 或使用默认值（也称标记注解）@My class A{ ... }, 一定要有值，value默认值："hhh"；
 class A{
    ......
 }
+
+注解元素的类型：
+1、基本类型（int、short、long、byte、char、double、float、boolean）
+2、String
+3、Class（具有一个可选的类型参数，如Class<？ ectends MyClass>）
+4、enum类型
+5、注解类型
+6、由前面所述类型组成的数组（由数组组成的数组不是合法的元素类型）
 
 自定义注解必须配上注解的信息处理流程（使用反射）才有意义
 自定义注解通常都会指明两个元注解：@Retention、@Target
 
 jdk提供的4种元注解
 元注解：对现有的注解进行解释说明的注解
-@Retention：指定所修饰的Annotation的生命周期，SOURCE, CLASS(默认行为)，RUNTIME 只有声明为RUNTIEM生命
+@Retention：指定所修饰的注解的生命周期，SOURCE, CLASS(默认行为)，RUNTIME 只有声明为RUNTIEM生命
                      周期的注解，才能通过反射获取。
-@Target：用于指定被修饰的Annotation能用于修饰哪些程序元素。
-@Documented：用于指定被该Annotation修饰的Annotation类被javadoc工具提取成文档，默认情况下，javadoc是
+@Target：用于指定被修饰的注解能用于修饰哪些程序元素。
+@Documented：用于指定被该注解修饰的Annotation类被javadoc工具提取成文档，默认情况下，javadoc是
                           不包含注解的。
-@Inherited：被它修饰的Annotation将具有继承性
+@Inherited：指明当这个注解应用于一个类的时候，能够自动被它的子类继承。只能应用于对类的注解。
 
 jdk8注解新特性：可重复注解、类型注解
+声明为可重复的
+@xxx(...)
+@xxx(...)
+class A ......
+
+可以多个注解
+@xxx(...)
+@yyy(...)
+class A{ ... } 
 
 
 Java 包(package):
@@ -2989,6 +3024,21 @@ try {
 脚本：
 
 编译器API：
+
+
+安全：
+java提供的三种确保安全机制：语言设计特性、访问控制机制、代码签名
+
+类加载器：
+
+字节码校验：
+类加载器将字节码传给虚拟机时，需要先接受校验器的校验，校验器负债检查哪些无法执行的明显有
+破坏性的操作，除系统类外，所有的类都要被校验，下面是校验器执行的一些检查：
+*变量要在使用前进行初始化
+*方法调用与对象引用类型之间要匹配
+*访问私有数据和方法的规则没有被违反
+*对本地变量的访问都落在运行时堆栈内
+*运行时堆栈没有溢出
 
 
 
