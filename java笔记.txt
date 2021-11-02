@@ -2306,9 +2306,21 @@ setCharAt(4)                 设置指定位置字符
 
 
 Java 泛型:
-Java 泛型（generics）是 JDK 5 中引入的一个新特性, 泛型提供了编译时类型安全检测机制，
+泛型（generics）是 JDK 5 中引入的一个新特性, 泛型提供了编译时类型安全检测机制，
 该机制允许程序员在编译时检测到非法的类型。
 泛型的本质是参数化类型，也就是说所操作的数据类型被指定为一个参数。
+
+集合接口或集合类在jdk5时都修改为带泛型的结构。
+在实例化集合类时，可以指明具体的泛型类型。
+指明完后，在集合类或接口中凡是定义类或接口时，内部结构（如：方法、构造器、属性等）使用
+到类的泛型位置，都指定为实例化的泛型类型。比如：add(E e)   -----> add(String e)。
+
+注意点：
+泛型类型必须是类，不能是基本数据类型，需要用到基本数据类型的位置，拿包装类替换。
+如果实例化时没有指定泛型类型，则默认类型为java.lang.Object类型。
+
+ArrayList<String> s = new ArrayList<>();  
+Map<String, Integer> m = new HashMap<>();
 
 最常用的类型参数名称是：
 E - 集合的元素类型（被 Java 集合框架广泛使用）
@@ -2374,7 +2386,7 @@ public static <T extends Number & Comparable> void m(){}  // 多个限定用 "&"
 <T extends Number & Comparable>  则用第一个限定的类型替换，即：“T”改为“Number”
 
 约束与局限性：
-不能用基本类型实例化类型参数，即：ArrayList<int> = new ......
+不能用基本类型实例化类型参数，即：ArrayList<int> = new ......错误
 运行时类型查询只适用于原始类型，即：a instanceof P<String> ......，p.getClass()返回擦除类型后的:P.class
 不能创建参数化类型的数组，即：P<String>[] p = new P<>[10];  不支持泛型类型的数组
 不能构造泛型数组
