@@ -2330,15 +2330,16 @@ N - 数字
 T - 任意类型（还可以使用邻近字母S、U）
 
 泛型方法:                         
-public static <T> void m( T... arr )  // 类型变量<E>放在修饰符的后面，返回类型的前面
+在方法中出现了泛型的结构，泛型参数与类的泛型参数没有任何关系。
+public static <T> T method( T... arr )  // 类型变量<T>放在修饰符的后面，返回类型的前面
  {          
          for ( T t : arr ){        
             System.out.println(t);
          }
  }
 
-调用：
-类名.<Integer>m(1, 3, 4, 5);   // 可以省略<Integer>，即：类名.m(1, 3, 4, 5);
+调用时指明泛型参数的类型：
+类名.<Integer>method(1, 3, 4, 5);   // 可以省略<Integer>，即：类名.m(1, 3, 4, 5);
 
 泛型类:
 泛型类的声明和非泛型类的声明类似，除了在类名后面添加了类型参数声明部分。
@@ -2348,6 +2349,7 @@ public static <T> void m( T... arr )  // 类型变量<E>放在修饰符的后面
 
 可以看作普通工厂类
 
+自定义泛型类或泛型接口：
 public class Box<T> {    
 
   private T t;
@@ -2361,15 +2363,35 @@ public class Box<T> {
   }
  
   public static void main(String[] args) {
-    Box<Integer> integerBox = new Box<Integer>(); 
+    Box<Integer> integerBox = new Box<Integer>();   // 实例化时指明类的泛型，注意比较好
     integerBox.add(10);     // 自动装箱
     System.out.print( integerBox.get() ); 
   }
 }
 
+public class B extends A<Integer>{  }    // 不是泛型类，由于子类在继承带泛型的父类时，指明了泛型类型，则
+                                                              实例化子类对象时，不需要再指明泛型, B b = new B();
+public class B<T> extends A<T>{  }    // 仍然是泛型类,  B<Integer> b = new B<>();
+
+泛型不同的引用不能相互赋值：
+ArrayList<String> a1 =......
+ArrayList<Integer> a2 =......
+a1 = a2;   // 报错
+List<?> a3 = ......
+a3 = a1;  // 通配符可以，但要是父类
+
+泛型要么一路用，要么一路不用。
+静态方法中不能使用类的泛型。而泛型方法可以声明为静态的，原因是泛型参数是在调用方法时确定的，并非在实例化类时确定。
+异常类不能是泛型，如catch(T t){}报错。
+T[] arr = new T[10]报错。
+
 Java SE 7 及更高版本中，<>只要编译器可以从上下文中确定或推断类型参数，
 就可以将调用泛型类的构造函数所需的类型参数替换为空的类型参数集 ( )。
 Box<Integer> integerBox = new Box<>();
+
+泛型在继承方面的体现：
+类A是类B的父类，G<A>和G<B>二者不具备子父类关系，二者是并列关系。通配符中二者共同父类是G<?>。
+类A是类B的父类，则A<G>是B<G>的父类。
 
 类型变量限定：
 传入类型不能超过限定的类型
@@ -2398,11 +2420,11 @@ public static <T extends Number & Comparable> void m(){}  // 多个限定用 "&"
 class B extends A
 ArrayList<B>不是一个ArrayList<A>
 
-类型通配符:
+类型通配符“ ？”的使用:
 B<? extends A>  表示任何泛型B类型，它的类型参数都是A的子类。子类限定。
 C<? super B>     限定为A的所有超类。超类限定。
 B<? extends A<? super T>>
-C<?>                 无限定通配符
+C<?>                 无限定通配符，不能向其内部添加数据，除了添加null外，但可以取或读数据，类型为Object
 
 B<? extends A> obj = new Xx<>();
 1、类型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等
