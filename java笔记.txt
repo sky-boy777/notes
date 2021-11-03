@@ -3052,6 +3052,20 @@ java提供的三种确保安全机制：语言设计特性、访问控制机制�
 *对本地变量的访问都落在运行时堆栈内
 *运行时堆栈没有溢出
 
+数字签名：
+消息摘要：SHA-1算法......SHA-[256, 384, 512]、MD5算法、
+import java.security.*;
+ try {
+            MessageDigest alg = MessageDigest.getInstance("SHA-256");
+            alg.update(new byte[]{'a', 'b', 1});
+            byte[] h = alg.digest();  // 返回计算所得摘要
+        }catch(Exception e){}
+消息签名：公钥私钥，使用私钥对消息摘要进行签名，用公钥进行验证“已经签名的消息摘要”
+认证问题：使用一个值得信赖的中间人解决，证书权威机构，证书签名
+
+加密：
+对数据加密
+
 
 
 
