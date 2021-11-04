@@ -650,7 +650,7 @@ m.replaceAll("a");  // 匹配到的全部替换成 a
 System.out.println("\\");       输出一个\，两个斜杠输出一个斜杠
 
 
-Java 流(Stream)、文件(File)和IO：
+流(Stream)：文件(File)、IO流：
 Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
 Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
 一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
@@ -733,27 +733,46 @@ class A implements Serializable {   // 实现Serializable接口（序列化）
 }
 
 文件操作：
-Files类，操作文件内容
+java.io.Files类，操作文件内容
 Path接口，操作路径
+Files类
 jdk7之前使用File，操作文件
+
+File类：
+File类的一个对象，代表有一个文件夹或一个文件目录。
+1、File f = new File("a.txt");                       // 创建一个文件在当前目录下（当前module），相对路径
+2、File f2 = new File("D:\\tmp", "abc");      // 目录
+3、File f3 = new File(f2, "a.txt");                //在f2目录向创建文件
+常用方法：
+f.getAbsolutePath()          获取绝对路径
+getPath()                         获取路径
+getName()                       名称
+getParent()                      获取上层目录路径，无则返回null
+length()                           大小（字节）
+lastModified()                  最后一次修改的时间 (毫秒)，转为日期格式：new Date(f.lastModified())
+exists()；                         是否存在 
+isFile()；                          是否是文件
+delete();                           删除
+f.renameTo(new File("b.txt"));     重命名，文件f必须存在，而b.txt不能存在			
+createNewFile();                         创建文件 
+public String[ ] list()                    获取目录下的所有文件或目录的“名称" 数组，文件需存在，否则报错
+public File[ ] listFiles()                 获取目录下的所有文件或目录的 “File" 数组
+toPath();                                    返回一个Path对象，与jdk7的转换
+
+System.getProperty("user.dir");    // 返回当前工作目录
+File.createTempFile("a", ".txt", new File("E:/"));  // 在指定目录下创建文件 "E:/a.txt"
+
 
 import java.io.*;   
 import java.nio.file.*;   // jdk7操作文件
 
 public static void main(String args[]){
                   try{	
-		// File类
-		File f = new File("xxx.txt");
-                                f.length();     // 文件大小（字节）
-		f.exists()；    // 是否存在 
-   		f.isFile()；    //  是否是文件
-		f.delete();    // 删除
- 	                f.renameTo(new File("bbb.txt"));    // 重命名
-		f.lastModified()；  // 文件最后修改时间		
-		f.createNewFile();   // 创建文件 
-		System.getProperty("user.dir");    // 返回当前工作目录
-		toPath();      // 返回一个Path对象，与jdk7的转换
-		File.createTempFile("a", ".txt", new File("E:/"));  // 在指定目录下创建文件 "E:/a.txt"
+		
+		
+                            
+		
+		
 
 		// Path接口
 		Path p = Paths.get("users\\tmp", "xx");   // 绝对路径或相对路径，可以不是实际存在的文件, 不会创建文件		
@@ -2421,8 +2440,9 @@ class B extends A
 ArrayList<B>不是一个ArrayList<A>
 
 类型通配符“ ？”的使用:
-B<? extends A>  表示任何泛型B类型，它的类型参数都是A的子类。子类限定。
-C<? super B>     限定为A的所有超类。超类限定。
+上限下限
+B<? extends A>  表示任何泛型B类型，它的类型参数都是A的子类。子类限定。小于等于A
+C<? super B>     限定为A的所有超类。超类限定。大于等于B
 B<? extends A<? super T>>
 C<?>                 无限定通配符，不能向其内部添加数据，除了添加null外，但可以取或读数据，类型为Object
 
