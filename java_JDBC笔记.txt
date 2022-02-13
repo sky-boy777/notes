@@ -1,0 +1,243 @@
+JDBC：
+是一个独立于特定数据库管理系统，通用的SQL数据库存取和操作的公共接口（一组API）。
+
+ODBC：
+开方式数据库连接，微软在windows平台下推出的，使用者在程序中只需要调用ODBC API，由ODBC驱动
+程序调用转换为对特定数据库的调用请求。
+
+面向接口编程
+
+Java 使用 JDBC 连接数据库，java--->JDBC--->JDBC驱动--->数据库。
+
+编写步骤：
+导入java.sql包
+附加相应厂商提供的驱动
+加载并注册驱动程序
+创建Connection对象
+创建Statement对象
+执行SQL语句
+查询---使用ResultSet对象---关闭ResultSet对象---关闭Statement对象---关闭Connection对象
+更新---关闭Statement对象---关闭Connection对象
+结束
+
+下载对应mysql数据库版本jar包，在module下新建lib文件夹，将jar放入lib文件夹，右键Add as library（idea）
+1、打开链接下载对应数据库版本：http://dev.mysql.com/downloads/connector/j/。
+2、选择：Platform Independent，下载：mysql-connector-java-5.1.47.tar.gz，只有几M大小。
+3、解压后得到 jar库文件，将mysql-connector-java-5.1.47-bin.jar放入lib包下，然后就能用了。
+
+代码：
+import java.sql.*;  // 导入相关
+public class M {
+    // MySQL8.0以上版本使用
+    // static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";	   
+    
+   public static void main(String[] args) {    
+        try{     
+            // 方式一     
+            // 加载时内部static代码块自动注册驱动，MySQL可以省略下面这一步，其他不行。反射 
+            Class.forName("com.mysql.jdbc.Driver");         
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/数据库名",   "用户名","密码");      
+
+            // 方式二（最终版）
+            // 好处：实现了数据与代码分离。实现了解耦。修改配置文件可以避免重新打包编译。
+            // 在src下创建jdbc.properties文件，填入一下内容
+                   user=root
+                   password=mysql
+                   url=jdbc:mysql://localhost:3306/blog?useSSL=false      
+                   driverClass=com.mysql.jdbc.Driver
+
+            // 读取配置文件
+            InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream("jdbc.properties");  // 类加载器加载配置文件
+            Properties pros = new Properties();
+            pros.load(is);
+
+            String user = pros.getProperty("user");
+            String password = pros.getProperty("password");
+            String url = pros.getProperty("url");
+            String driverClass = pros.getProperty("driverClass");
+            Class.forName(driverClass);
+            // 连接
+            Connection conn = DriverManager.getConnection(url, user, password);
+            
+
+            // 执行SQL，增删改
+            // PreparedStatement ，一个预编译的sql语句
+            String sql = "insert into user(username, password) values(?, ?, ?)";  // 增，"?"为占位符
+            String update = "update user set password=? where name=?";          // 改
+            String delete = "delete from user where username=?";                      // 删
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // 填充占位符“?”
+            ps.setString(1, "a");  // 数字代表数占位符的位置
+            ps.setString(2, "qq13144");
+            ps.setInt(3, 1345678932);
+            ps.setObject(1, "aaaaa");    // 使用通用的setObject
+
+            ps.execute();   // 提交，此方法如果是查询有结果集则返回true，增删改的话返回false
+            ps.executeUpdate();  // 提交方式二，此方法返回int，受影响的行数
+
+           String sql = "select id, username from user where username=?;";
+           ps = conn.prepareStatement(sql);
+           ps.setObject(1, "b");  // 数字代表数占位符的位置
+
+            // 查询并返回结果集
+            ResultSet rs = null;
+            rs = ps.executeQuery();
+
+            // 获取结果
+            while(rs.next()){                                 // 初始化时被设定在第一行之前的位置，返回布尔值
+                    int id = rs.getInt("id");               // 根据类型获取数据：rs.getXxx("字段")，id为数据库字段名
+                    String id = rs.getString("id");     // 会转换为字符串类型，转换不了则抛异常
+                    String name = rs.getString("username");
+                    String name = rs.getString(2);    // 输入int返回这一行第2列的值，索引
+                    Object name = rs.getObject(2);  // 通用获取字段
+
+                    User u = new User(id, name);      // 一条记录对应一个java类对象
+                    System.out.println(u.getName());
+            }
+
+            // 关闭资源
+            try{
+                    if(rs != null) res.close();     // 关闭当前结果集
+            }catch(SQLException e){
+                    e.printStackTrace();
+            }
+            try{
+                   if(ps != null) ps.close();       // 关闭对象以及它所对应的结果集
+            }catch (SQLException e){
+                    e.printStackTrace();
+            }
+            try{
+                    if(conn != null) conn.close();  // 关闭连接，释放由它所创建的 JDBC 资源。
+            }catch (SQLException e){
+                    e.printStackTrace();
+            }
+
+            // Statement有弊端，拼写sql语句，存在sql注入
+            ResultSet rs = stmt.executeQuery("SELECT * FROM admin");   // select操作
+            stmt.executeUpdate("create tabel ......");  // 可执行insert、update、delete，或create、drop操作
+
+            stmt.execute("use ......");                    // 执行任意sql，结果集返回true，否则返回false
+            ResultSet r = stmt.getResultSet();      // 返回结果集，没有则null，每条sql语句只能调用一次 
+            int num = stmt.getUpdateCount()； // 返回受影响的行数，没有则-1，每条sql语句只能调用一次 		
+
+        } catch(Exception e){ e.printStackTrace(); }
+   }
+}
+
+ /*
+            ORM编程思想（Object relational mapping）
+            一个表对应一个java类
+            一条记录对应java的类的一个对象
+            一个字段对应java类的属性
+ */
+
+class User{
+        private int id;
+        private String name;
+
+        public User(int id, String name){
+                super();
+                this.id = id;
+                this.name = name;
+        }
+
+        public int getId(){
+                return this.id;
+        }
+
+        public String getName(){
+                return this.name;
+        }
+}
+
+PreparedStatement好处：
+除了解决Statement的拼接、sql问题之外，还能操作Blob的数据，而Statement做不到。还可以实现
+高效的批量操作（主要是批量插入）。
+
+批量操作：
+攒够一批后一起提交，效率高。addBatch(), executeBatch(), clearBatch()
+一个语句序列最后一起提交，insert、update、delete、create table、drop table，不包括select，会抛异常
+PreparedStatement ps= conn.prepareStatement("select id, username from user where username=?;");
+for循环
+    ps.setObject(1, "b"+ i);
+    ps.addBatch();     // 添加
+ps.executeBatch();               // 提交
+
+事务：
+conn.setAutoCommit(false);                  // 将数据库默认的自动提交设为false，用于批量操作效率更高
+ps.executeUpdate();                              // 执行一系列sql
+......
+Savepoint sp = conn.setSavepoint();    // 设置保存点
+conn.rollback(sp);                                // 回滚到保存点，没有则回滚全部
+conn.releaseSavepoint(sp);                 // 不需要时，必须释放保存点
+conn.commit();                                   // 提交事务
+
+可以设置隔离级别：
+conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+
+提供操作数据表的DAO：
+将增删改封装成了方法
+
+
+可更新的结果集：
+Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, 1008);  
+rs.updateString("name", "李四");  // 更改结果集数据, name字段改成“李四”，或使用列序号
+rs.updateRow();  // 提交更新到数据库，rs.cancelRowUpdates(); 则撤消更新操作
+rs.deleteRow();  // 删除当前行，连数据库中的也一并删除
+插入新行：
+ rs.moveToInsertRow();              // 移动游标到插入行
+ rs.updateInt("id", 19);               // 设置
+ rs.updateString("name", "xx");  // 设置
+ rs.insertRow();                          // 提交更新到数据库
+ rs.moveToCurrentRow();           // 移动游标到原来位置
+
+行集：
+查询后关闭数据库连接，提交时再连接数据库
+try{
+                // 缓存行集
+                RowSetFactory f = RowSetProvider.newFactory();
+                CachedRowSet crs = f.createCachedRowSet();
+
+	// 设置数据库连接
+                crs.setUrl("jdbc:mysql://localhost:3306/xingying?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+                crs.setUsername("root");
+                crs.setPassword("root");
+
+                crs.setCommand("select * from hotel limit 0, 100");
+                crs.setPageSize(5);  // 每页5条，查询结果集太大，应该分页
+                crs.execute();  // 提交
+
+               do{
+                    while(crs.next()){
+                        System.out.println(crs.getString("name"));
+	        crs.updateString("name", "张三");  // 更新
+                        crs.updateRow();   // 更新到集
+	        crs.acceptChanges();  // 重新连接数据库提交更改
+                    }
+                }while(crs.nextPage());  // 如果有下一页
+
+                crs.close();
+}catch(......){......}
+
+Connection conn =......，放在带资源的try(){}语句中，退出时自动关闭（推荐）
+
+一个Connection对象可以创建多个Statement对象，而一个Statement对象最多只能有一个打开的结果集。
+一个Statement对象可以用于多个不相关的命令和查询。
+
+包含META-INF/services/java.sql.Driver文件的jar文件可以自动注册驱动器类，解压驱动程序jar文件就可以
+检查其是否包含该文件。
+
+数据库连接池：
+web应用中使用数据库连接池，避免频繁打开关闭连接，无限制的连接数据库。
+
+多种开源的数据库连接池：
+DBCP
+C3P0
+Proxool
+BoneCP
+***Druid
+
+
+

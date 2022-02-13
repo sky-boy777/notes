@@ -57,7 +57,7 @@ tcp四次挥手：
 4、ack
 
 对称释放方式，A发送FIN为1表示，B收到通知应用程序会话已结束，返回ACK为1
-       应答，B发送FIN为1，A收到返回ACK为1的应答给B，A端time_wait两倍报文段寿命2MSL后关闭。
+       应答，B发送FIN为1，A收到返回ACK为1的应答给B，A端time_wait两倍报文段寿命（2MSL）后关闭。
 
 tcp拥塞控制：慢启动、拥塞避免、快速重传、快速恢复。流量控制：滑动窗口
 
@@ -73,7 +73,7 @@ DNS：
 
 http：
 基于tcp
-浏览器跟服务器传输
+浏览器跟服务器传输（请求与响应）
 
 epoll：
 轮询，事件通知，一个共享空间
@@ -99,7 +99,7 @@ from multiprocessing import Pool
 if __name__ == '__main__':
 pool = Pool(5)             # 进程池，最多5个进程
 for i in range(8):           # 8个任务，多出来的排队等待
-    pool.apply_async(fun, args=(参数, )，callback=回调函数)    # 非阻塞式，返回值给callback
+    pool.apply_async(fun, args=(参数, )，callback=回调函数)        # 非阻塞式，返回值给callback
     # pool.apply(fun, args=(参数，))                                           # 阻塞式，并发，一个不结束，另一个不能进来
 pool.close()   关闭
 pool.join()     # 主进程守护
@@ -119,7 +119,7 @@ pool.join()     # 主进程守护
 垃圾回收机制(GC)：
 变量名存地址
 内存：变量存在栈区，值存在堆区
-1、引用计数：值有零个变量引用就会回收，访问不到了，手动减少计数：del 变量名
+1、引用计数：值有零个变量引用就会回收，访问不到了。手动减少计数：del 变量名
 2、标记清除：解决相互引用(循环引用)带来内存泄漏，引用计数一直不能为0
 3、分代回收：给一个权重，高的会隔很长时间才扫描一遍，解决引用计数的每次全部扫描缺点，但不能及时回收垃圾
 
@@ -138,9 +138,9 @@ http协议：请求和应答
 封装、继承、多态：python可以多继承
 
 GIL：
-Cpython，互斥锁，阻止同一进程下多个线程不能同时执行，无法利用多核优势
+Cpython，互斥锁，同一进程下多个线程不能同时执行，无法利用多核优势
 GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一
-个**线程**在cup执行（上锁）只能是并发，多核cpu使用进程就是并行
+个线程在cup执行（上锁）只能是并发。多核cpu使用进程就是并行
 进入IO，GIL会自动释放
 
 互斥锁：逻辑上避免线程间死锁
@@ -151,7 +151,6 @@ GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻
 
 服务器（nginx）----WSGI协议--------web应用（django）
 
-面向切面编程：只管一点点地方，其它已经做好了
 
 ------------------------------------------------------------------------
 python进程：
@@ -204,7 +203,7 @@ lock.release()   释放锁
 协程：
 单线程下实现并发，在代码层面的切换，程序遇到IO后在代码层面切换，yield切换
 gevent模块：
-greenlet实现了协程，需要人工切换，而gevent模块一旦遇到IO则字典切换任务
+greenlet实现了协程，需要人工切换，而gevent模块一旦遇到IO则自动切换任务
 pip insatll gevent
 
 from gevent import monkey;monkey.patch_all()      # 猴子补丁，替换sleep，简写加分号
@@ -254,8 +253,11 @@ ORM：
 数据库：类名对应表名，类属性对应字段
 解决不用手写SQL
 
-is：比较id、地址
-==：比较值
+is：比较id、地址是否相同
+==：比较值是否相等
+
+''    False
+' '   True, 一个空格 
 -----------------------------------------------------------------
 
 面向对象：
@@ -266,29 +268,42 @@ class AA([父类]):     # 定义类，驼峰命名
     """这是一个类"""
     
     name = 'xxx'        # 类属性   
-    __age = 18          # 私有
+    __age = 18          # 私有，两个下划线，方法也是一样。
     
-    def __init__(self，age, name):   # 初始化方法，双下划线开头结尾：魔法方法
+    def __init__(self，age, name):           # 初始化方法，双下划线开头结尾：魔法方法
 
         super.__init__(name)                      # 方法一，调用父类__init__初始化方法
         super.(AA, self).__init__(name)       # 方法二
         父类.__init(self, name)                    # 方法三，使用父类名直接调用
 
         self.age = age         # 实例属性
-        self.__xxx = xxx       # 私有
+        self.__xxx = xxx        # 私有
 
     def fun(self):        # 普通方法
         super().fun()    # 调用父类的方法，同名
         self.run()          # 调用方法
 
+    def __method(self):    # 私有方法
+        pass
+
     @classmethod
-    def fun(cls):       # 类方法，类来调用，类方法里面只能使用类属性
+    def fun(cls):       # 类方法，类来调用，类方法里面只能使用类属性, fun = classmethod(fun)
         cls.xx = xx     # 类属性
         cls.__age = 19  # 修改私有类属性，只能在类里面更改
 
     @staticmethod
-    def func():         # 静态方法，只能访问类的属性跟方法
+    def func():         # 静态方法，只能访问类的属性跟方法, func = staticmethod(func)
         类名.属性或方法
+
+    def method():
+        return 'aaa'
+    
+    def name():
+        return 'name' 
+
+    method = staticmethod(method)      # 也可以这样定义，staticmethod跟classmethod都是类
+    name = property(fget=get_name)     # property也是类
+    
 　　
 obj = 类名()  　# 实例化
 obj.方法()      # 使用方法
@@ -296,6 +311,17 @@ obj.xx = 'xx'   # 添加对象属性
 类名.属性       # 查看类属性
 类名.类方法()   # 使用类方法
 类名.静态方法() # 使用静态方法
+
+A.__base__                             可以查看A的父类，A.__bases__  输出多继承的几个类
+a.__class__                              查看a属于哪个类
+issubclass(A, object）            判断类A是否是object的子类
+isinstance(a, A)                      判断一个对象是否是一个类的实例     
+type(a)                                   也可以查看一个对象所属的类
+
+from 模块 import *         # 不会导入以一个下划线开头的名称，跟两个下划线一样，这也是一种私有
+import inspect               这个模块让用户能够以图形方式浏览python对象的程序
+import abc                     模块提供抽象基类（不能实例化，只能继承的类），跟java一样，子类必须实现父类的所有抽象方法
+import collections         模块
 
 同一个类里有多个相同的方法，后面的会覆盖前面的
 
@@ -307,26 +333,39 @@ obj.xx = 'xx'   # 添加对象属性
 类能向上找到元类,对象不能向上找到元类
 
 魔法方法：
-双下划线开头和结尾,满足某种条件会自动调用
+双下划线开头和结尾，满足某种条件会自动调用
 
 def __new__(cls, *args, **kwargs)    # 实例化的魔法方法，向内存申请空间,单例设计模式使用到
     return super().__new__(cls)
 
-def __init__(self)                   # 初始化
-def __str__（self）     # print打印对象会执行，返回字符串， return 'str方法'
-def __dict__
-def __del__     # 在del对象时会先执行(垃圾回收)，del obj或程序运行结束之前释放内存件
-def __call__(self, *args, **kwargs)     # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
-__doc__  # 
+__init__(self)         # 初始化，重写时需要调用父类的__init__方法，不然可能会发生意外
+__str__（self）      # print打印对象会执行，返回字符串， return 'str方法'
+__dict__               # 以字典方式返回对象的属性
+__del__                # 也称析构函数，在del对象时会先执行(垃圾回收)，del obj或程序运行结束之前释放内存件
+__call__(self, *args, **kwargs)     # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
+__doc__      
+__len__(self)   
+
+序列和映射                                     
+__getitem__(self, key)                           
+__setitem__(self, key, value)
+__delitem__(self, key)
+
+属性相关
+__getattribute__(self, name)      属性被访问时自动调用（只适用于新式类） 
+__setattr__(self, name, value)     试图给属性赋值时自动调用
+__delattr__(self, name)              试图删除属性时自动调用
+__getattr__(self, name)              在属性被访问而对象没有这样的属性时自动调用
+这几个方法效率比property低
        
 新式类：继承自Object，python3默认继承自Object
 经典类：不继承Object，python2
 
 私有，只有类内能使用，对外不对内，外界不能访问、子类也不能访问，继承不了，dir()看到变形后的
-类定义的时变形才发生一次，之后定义的双下划线"__"开头的属性就是普通属性
+类定义时变形才发生一次，之后定义的双下划线开头的属性就是普通属性
 私有属性：self.__age = 18
 私有方法：def __fun(self)：
-***双下划线，不是真正意义上的私有
+双下划线，不是真正意义上的私有
 访问：实例对象._类名.__属性名或方法
 
 为何要私有：
@@ -334,6 +373,20 @@ __doc__  #
 不想给外界直接使用，只能在内部开接口间接使用，可以在使用前附加逻辑
 
 外部访问：对象._类名__属性名,变形后的私有属性
+
+property类
+class B:
+    def get_name(self):
+        return 'b'
+
+    def set_name(self, name):
+        self.name = name
+
+    n = property(fget=get_name, fset=set_name)    # property，能把函数当作属性来使用，使不必用set_name(), get_name()这类存取方法
+
+b = B()
+b.n
+b.n = 'aaa'
 
 @property：
 类实现的装饰器，将方法当成属性使用
@@ -359,7 +412,7 @@ super().父类方法     例：super().__init__()  # 参照属性最先发起者
 父类名.方法(obj, name, age)  
 
 继承的属性查找：
-类名.__mro__    查看父类的方法调用顺序，C3算法计算继承顺序，形成一个列表
+类名.__mro__          查看父类的方法解析顺序，C3算法计算继承顺序，形成一个列表
 先从当前对象找，然后到父类找，而不是就近查找
 
 新式类：广度优先查找，一条分支一条分支找，最后才是object，python3是广度优先
@@ -385,8 +438,9 @@ obj.__bases__查看继承的类
 缺点：代码可读性变差，违背人的思维习惯，扩展性变差，引发菱形问题
 
 多继承的正确打开方式--mixins机制：
+使用一个核心超类，多个混合超类
 尽可能提升多继承的可读性
-是一种规范，在定义类时在后面添加MixIn，表示混入的一些东西、功能，提升可读性
+是一种规范，在定义类时在后面添加MixIn，表示是混入的一些东西、功能，提升可读性
 例：
 class UserMixIn：
     pass
@@ -397,15 +451,21 @@ class UserMixIn：
 方便使用者
 一种编程思想
 
+多态的体现：count， +号
+'abc'.count('a')
+['a', 'b', 'c'].count('a')
+1 + 2
+'aa' + 'bb'
+
 反射机制：
 程序运行过程中可以动态获取对象的信息
 obj是对象，类
-setattr(obj, 'age')  # 设置对象属性
-getattr(obj，'age', None)  # 获取对象属性值，不指定默认值会报错 
-delattr(obj, 'age')  # 删除
-hasattr(obj, 'age')  # 判断obj对象下是否有属性age，布尔值
+setattr(obj,  'age'， 18)            # 设置对象属性
+getattr(obj，'age', None)        # 获取对象属性值，指定默认值
+delattr(obj, 'age')                     # 删除
+hasattr(obj, 'age')                    # 判断obj对象下是否有属性age，布尔值
 例子：
-getattr(obj, 'fun')()  # 获取obj对象的fun方法，并执行
+getattr(obj, 'fun')()                   # 获取obj对象的fun方法，并执行
 
 
 类在内存中只有一份，实例对象有很多个
@@ -429,7 +489,7 @@ def 静态方法():
 一切皆对象
 父类不是元类
 是类的类type，是
-class Obj <=> Obj = type('Obj', (boject,), {...})
+class Obj <=> Obj = type('Obj', (object,), {...})
 例子：
 class mymeta(type):  # 继承了type，称为元类
     pass
@@ -474,32 +534,37 @@ type(type(a)) == <class 'type'>
 from functools import reduce
 res = reduce(lambds x，y：x+y, 可迭代对象，初始值(给第一个x))  # 将可迭代对象的每一个元素交给匿名函数运算
 
-***map(func, 可迭代对象)   得到生成器对象，list（map(func, 可迭代对象)）得到列表
-***filter(func, 可迭代对象)   过滤，结果需要转换为列表
-***all（）                  全部为真返回True否则False
-****dir（Foo）          查看有什么属性、方法
-****divmod（10，3）计算商跟余数，返回（商，余数）
-****isinstance（obj，Obj）类型判断，判断一个对象是否是一个类的实例，isinstance(2,int) True
-****zip（[1,2], [3,4]）拉链函数，[(1,3), (2,4)]
-****time = __import__('time')  导入time模块
-abs（）绝对值
-any（）有一个为真返回True
-bin（）进制
-oct（）进制
-hex（）进制
-bool（'1'）转换为布尔值
-callable（函数，类...）判断是否可调用
-chr（65） ASCII
-ord（'A'）ASCII
-enumerate（[1,2,3]）枚举下标跟值
-eval（）执行字符串中的表达式
-frozenset（{1，2，3}）不可变集合
-hash（）得到哈希值
-pow（10，2，3）平方，10的平方求余3
-round（1.4）四舍五入，返回整数
-slice（1，4，2）切片
-sum（）
-help(对象)  查看帮助信息
+map(func, 可迭代对象)                    得到生成器对象，list（map(func, 可迭代对象)）得到列表
+filter(func, 可迭代对象)                    过滤，结果需要转换为列表
+all（）                                                全部为真返回True否则False
+dir（obj）                                        查看有什么属性、方法
+divmod（10，3）                            计算商跟余数，返回（商，余数）
+isinstance（obj，Obj）                   类型判断，判断一个对象是否是一个类的实例，isinstance(2,int) True
+zip（[1,2], [3,4]）                             拉链函数，[(1,3), (2,4)]
+time = __import__('time')                 导入time模块
+abs（）                                             绝对值
+any（）                                            有一个为真返回True
+bin（）                                             2进制
+oct（）                                             8进制
+hex（）                                            16进制
+bool('1'）                                         转换为布尔值, True + False + 3 = 4
+callable（函数，类...）                    判断是否可调用
+chr（65）                                        ASCII，返回一个字符串
+ord（'A'）                                       ASCII，接收一个字符，返回一个数字
+enumerate（[1,2,3]）                    枚举下标跟值
+eval（）                                          执行字符串中的表达式
+frozenset（{1，2，3}）                   不可变集合
+hash（）                                       得到哈希值
+pow（10，2，3）                          平方，10的平方求余3
+round（1.4）                               四舍五入为指定精度，返回整数，正好为5时，舍入为偶数，round(1.5)返回2，round(0.5)返回0
+slice（1，4，2）                       切片
+sum（）                                    求和
+help(对象)                                查看帮助信息
+globals()                                   返回全局变量的一个字典，只能访问，不能设置
+locals()                                      返回局部变量的一个字典，locals()['a']，只能访问，不能设置
+
+x = 1
+a = vars()                                这个函数返回一个字典，key为变量，value为变量的值。print(a['x'])
 
 排序依据字典value：
 res = sorted(dic, key=lambda k: dic[k])     按照关键字key排序
@@ -516,7 +581,18 @@ python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 列表推导式：[表达式 for i in 列表 if 条件 for j in...]           可以多层嵌套
 字典推导式：  {key: value for key,value in dic.items()}
 集合推导式：  {i for i in range(10)}
+得到一个生成器：（i for i in range(10)）
 没有元组推导式，因为元组不可变
+
+if True:     <==>    if True:
+    pass                       "这里等同于pass"
+
+两个函数：
+exec("print('a')")        将字符串作为代码执行，无返回
+a = eval('3+4')           计算表达式并返回
+
+del                             不能删除值，只删除了变量名
+
 
 --------------------------------------------------------------------------------------
 内置可迭代的对象：生成器，列表，元组，字典，集合，str
@@ -529,34 +605,71 @@ iterator：迭代器
 迭代器（Iterator）：
 迭代器是访问集合元素的一种方式，迭代器是一个可以机制遍历的位置的对象。
 迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。
-***可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator
+可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator
 
 特点：
 迭代器只能往前不会后退，可以不依赖索引取值
-内置了__iter__方法的称为可迭代对象，__next__方法调用一次返回一个值，合起来成为迭代器对象
+实现了__iter__方法的称为可迭代对象，可以使用for循环
+实现了__next__方法称为迭代器，next(it)调用一次返回一个值
 缺点：迭代器对象不能按索引取值，不能倒退，有生命周期，取完值就没了
 
-iter(list1)               iter()函数可以将可迭代的变成一个迭代器
-***所以可迭代对象不一定是迭代器，生成器一定是迭代器
+it = iter([1, 2, 88, 55])               # 从可迭代对象创建一个迭代器
+
+所以可迭代对象不一定是迭代器，生成器一定是迭代器
+
+next(it)  <==> it.__next__()    # __next__()没有更多值可迭代时，引发异常：StopIteration
+
+使用迭代器实现斐波那契数列，需要时计算，不必一下存入列表占用大量内存
+class F:
+    def __init__(self):
+        self.a = 0
+        self.b = 1
+
+    def __next__(self):           # 调用next(obj), 或obj.__next__()，取数
+        self.a, self.b = self.b, self.a + self.b
+        if self.a > 10000:
+            raise StopIteration        # 停止
+        return self.a
+
+     def __iter__(self):      # 实现了这个方法，返回一个迭代器，使可以使用：for i in obj:
+        return self            # 返回调用者自身
+    
+f = F()
+for i in range(40):
+    print(next(f))
+
+for i in f:      # 只用定义了__iter__(self)方法，才可以这样使用
+    print(i)
+
+l = list(f)     # 转换成列表
 
 生成器：
 生成器是一种迭代器，yield让代码挂起(暂停)，下次从挂起位置继续执行，yield后默认返回None
 用到的时候再生成，节约内存
 
 创建生成器：
-方式一：将列表推导式的括号改为小括号
-g = (i for i in range(10))       创建一个生成器
-next(g)                                 内置函数取值，一次产生一个值，取不到会报错
-g.__next__()                          取值，一次产生一个值，取不到会报错
+方式一：
+将列表推导式的括号改为小括号，称为生成器表达式，或生成器推导
+g = (i for i in range(10))        # 创建一个生成器
+next(g)                                 # 内置函数取值，一次产生一个值，取不到会报错
+g.__next__()                          # 取值，一次产生一个值，取不到会报错
 
-方式二：函数里面加yield关键字
+方式二：
+函数里面包含yield关键字语句的称为生成器
 def func()
-    print('********')
-    x = yield 1                    # 函数中出现yield关键字，则变成生成器，不是函数
-f = func()                          # 调用函数返回值是一个生成器，函数体代码不会执行
-v = f.__next__()                 # 执行__next__()方法得到yield后面的值，或next(f)
-v = f.send('值')                  # 值传给了x ，第一次send只能能传None值，有next功能
-f.close()                             # 关闭后无法send()传值
+    for i in [1, 3, 5, 9]:
+        x = yield 1                     # 函数中出现yield关键字，则会返回一个生成器
+        print(x)
+
+g = func()                           # 调用函数返回值是一个生成器，函数体代码不会执行
+v1 = g.__next__()                  # 执行__next__()方法得到yield后面的值，或next(f)
+v2 = g.send(None)              # 值传给了x ，生成器刚启动时只能传None值，send返回一次next的值
+v3 = g.send('值')
+l = list(func())                     # 转换为一个列表
+g.close()                             # 关闭后无法send()传值
+g.throw()                             # 用于在生成器内部抛出异常
+
+sum(i for i in range(10))     # 直接求和，内部不再需要小括号
 
 for i in 可迭代对象，循环调用__iter__()得到迭代器对象，每次调用__next___()返回一个值给i
 
@@ -564,6 +677,22 @@ for i in 可迭代对象，循环调用__iter__()得到迭代器对象，每次�
 
 with open('aa.txt', 'r') as f:
     g = (i for i in f)     # 生成器方法读取文件，效率最高
+
+生成器应用递归：
+将多维列表转为一维
+def fun(l:list):
+    try:
+        for i in l:
+            if type(l) == str:           # 处理字符串
+                raise Exception('处理字符串')
+            for j in fun(i):
+                yield j
+    except Exception as e:    # 如果l不是一个列表则会捕获异常，并返回
+        yield l
+
+g = fun( [1,2,[3, 4, 'ab', ['bn']]] )
+print(list(g))         # [1, 2, 3, 4, 'ab', 'bn']
+
 
 ---------------------------------------------------------------------------------------------
 递归：
@@ -579,7 +708,7 @@ def sum(n):
 
 数字类型int与float：
 int(1.23) <=> 1
-int('1.23') 会报错，不能之间将字符串小数之间转为整型
+int('1.23') 会报错，不能直接将字符串小数之间转为整型
 float('1') <=> 1.0
 bin(10)  转二进制
 oct（10） 转八进制 0o33
@@ -592,40 +721,72 @@ hex（10）转十六进制 0xd
 切片[1:-1: 2]       反向步长[1:5: -1]得到为空  ，倒着走[5:1:-1]
 长度len(s)
 成员运算in 与 not in
-s.strip('字符字符字符')                  去除左右两边字符，默认空格，可以多个，s.lstrip（''）左边空格、s.rstrip（''）右边空客
+s.strip('#')                                  去除左右两边字符，默认空格，可以多个，s.lstrip（''）左边空格、s.rstrip（''）右边空客
 s.split('字符'，次数)                      切割成列表，默认空格分割，s.rsplit('xx')   从右边切割
-大小写转换：s.lower（）转小写、s.upper（）转大写
 判断开头结尾：startswith('xx')、endswih('xx')
-''.join(列表)                                   拼接，列表里同时有字符串跟数字会报错，因为字符跟数字不能相加
+''.join(列表)                                   拼接，只能是字符
 s.replace('aa', 'bb', 次数)              aa替换为bb
-s.isdigit()                                      判断字符串是否由纯数字组成，阿拉伯数字，isnumeric()能识别'4'、'四'、'IV'
-s.find('值')                                    查找，返回索引
-s.index('值')                                 返回索引
+s.isdigit()                                      判断字符串是否由纯数字组成，阿拉伯数字。isnumeric()能识别'4'、'四'、'IV'
+s.find('abc'，2, 5)                         查找，返回第一个字符a的索引，否则返回 -1，指定起始位置2，5，左闭右开
+s.index('值')                                 返回索引, rindex()
 s.count('值')                                值出现的次数
 s.isalpha（）                               是否是字母
+s.center(10, '#')                            居中，两边填充#号。左对齐ljust，右对齐rjust
+s.rfind()
+s.lower('A#%A')                            字母转为小写，upper()  ,istitle()如果开头大写，title(), islower()如果全部小写
 
+
+max('aab')   最大
+min('aab')   最小
+
+冒号后面使用转换的类型：
+b 二进制
+c  Uniconde码点, 
+d  整数, 
+e, E, 
+f浮点数, F, 
+g, G，n, 
+o    八进制
+x十六进制, X 
+%   百分比表示
+s = '{name}aa{num:.2f}'.format(name='a', num=4)                     命名格式字符串：aaa4.00
+s = '{name[1]}---{obj.name}'.format(name=['1', '2']，obj=obj)   使用列表，或对象
+
+转换标志s、r、a表示用str、repr、ascii 进行转换：
+s = '{name!r}{name!a}{name!s}'.format(name='5')     输出：'5''5'5
+s = '{name:$<10}'.format(name='aa')   指定宽度，'aa        '，字符串左对齐，数字右对齐，<,>,^分别表示左中右对齐，$为指定的填充字符，默认空格
+s = '{num:10.2f}'.format(num=3)      同时指定宽度和小数位数
+s = '{name:,}'.format(name=500000)  逗号为千位分隔符：500,000
+s = '{name:#b}'.format(name=34)      #号，0b100010，会加上类型的前缀
+
+s = '{name}'.foramt_map({'name': '张三'})         format_map()可以隐射字典
+ 
+f'{name}'                                                                                        name是一个变量
 --------------------------------------------------------------------------------------
 列表list：
+索引、切片、拼接、相乘
+
 索引：
 正序：1 2 3...，逆序：-1 -2 -3...
 取最后一个：l[-1], l[len(l)-1]        不减1会超出索引范围
 l.append()                 追加
 l.insert(位置，'值')     指定位置插入
 l.pop(索引)                弹出，默认末尾
-l.extend(列表)           合并两个列表，或：list1 = list1 + list2    
-l.clear()                     清空
-l.count（'值'）          计算值出现次数
+l.extend(列表)           合并两个列表，修改原列表。list1 = list1 + list2则返回新列表，效率比extend低    
+l.clear()                     清空，l[:] = [ ]
+l.count（'值'）          计算值出现次数，深层列表的值不计算
 l.index（'值'）          第一次出现位置的索引
 l.remove（'值'）       删除首个出现的值，无返回，找不到报异常
-l.copy()                     复制
-l.reverse()                 反转
+l.copy()                     潜拷贝，注意不是引用
 del my_list[2]           删除索引为2的
+l.reverse()                 反转
 l.sort(reverse=True，key=func)       排序，  reverse=True降序，key排序的函数，不能同时有数字跟字符
+l.sort(key=len)          参数key是一个函数，根据长度排序，len(3)报错，int不能使用len
 
 列表比较：元素依次比较，数字跟字符串比较会报错，字符串按ASCII码比较
 m = max(l，[key=lambad])              找出最大值，比较，数字跟字符不能比较，最小值min(), key可选
 s = sum(l)                求和，列表内只能是数字
-l = sorted（l）        排序，默认升序，reverse=True降序，数字跟字符不能比较         
+x = sorted（'21'）    排序，默认升序，reverse=True降序，数字跟字符不能比较，返回一个列表['1', '2']
 
 动态删除列表元素：
 l = len(my_list)
@@ -661,6 +822,14 @@ int（*[1]）                  解包
 [1,2] * 2 = [1,2,1,2]
 [1,2] + ['a'] = [1,2, 'a']
 
+切片赋值：
+l = list('aaaa')
+l[1:1] = [2, 3, 4]     l==> [2, 3,4,a,a,a] 相当于插入操作
+
+l.append(l.pop(0))   将第一个元素放到末尾  
+
+reversed()   返回一个反向迭代序列，不是列表，不能用切片
+
 -----------------------------------------------------------------------------------
 元组tuple：
 不可变，存放值对应的地址，也就是指向的地址不变，值可能修改（可变类型），
@@ -668,23 +837,24 @@ int（*[1]）                  解包
 t.index("值")     # 返回第一个匹配的值的索引
 t.count("值")    # 计数，值出现的次数
 
-可以切片、max、min、sum、len，in、*、+、is、>、<、=、、!=、sorted（元组）会返回一个排序的列表
+可以：切片（返回元组）、max、min、sum、len，in、*、+、is、>、<、=、、!=、sorted（元组）会返回一个排序的列表
 (1，2）* 2 == （1，2，1，2）
 s, y = (1, 2)              拆包
-s, *b = (1, 2, 3, 4)    拆包，b是一个列表，列表、字符串都能拆包
+s, *b = (1, 2, 3, 4)    拆包，b是一个列表。列表、字符串都能拆包
 x, *y = 9,                 拆包，y是一个空列表
 *y = （1，2，3）    装包
 print(*(1,2,3))          拆包
 
 t = (2)              # 是int类型，只有一个元素的时候要加逗号","
 
+2*(4+2,)  ==> (6, 6)
+
 ------------------------------------------------------------------------------------------
 字典类型dict:
 key=value，key不可变，不重复
-len(d)  key的个数
+len(d)                                        项的个数
 成员运算：in、not in                  针对key
-d = {}.fromkeys(列表，值)          初始化字典
-d = dict.fromkeys(列表，值)       初始化字典，列表的元素作为key，value为值        
+d = dict.fromkeys(列表，值)       初始化字典，列表的元素作为key，value为值。或{}.fromkeys(列表，'x')         
 d = dict([(1,2)])                          符合这种格式的能转成字典
 d['age'] = 18                             增加
 'xxx' in d                                    xxx是否在d的key中
@@ -698,7 +868,8 @@ d.items()                     # 列表包含元组，类型dict_items
 d.update({1: 2, 3: 4})     更新，有则覆盖，无则添加
 d.clear()
 d.get('xxx')
-d.setdefault('key', 默认值)       key不存在则添加，值默认None，存在返回字典中key对应的值，类似get
+d.setdefault('key', 默认值)       返回字典中key对应的值，key不存在则添加，值默认None，类似get
+d = d.copy()                           浅拷贝
 
 --------------------------------------------------------------------------------------------------------
 集合set：
@@ -745,30 +916,48 @@ f = frozenset({1,3})    不可变集合
 str   转     int，list，set，tuple
 ----------------------------------------------------------------------------------------------
 
+短路运算：
+a = 0 or 1         返回1
+a = 0 and 1      返回0
+
+断言：
+调试程序时使用
+assert a==1, '错误信息'            # a不等于1则呈现报错，后面是错误信息
+File "C:/Users/gg/PycharmProjects/lianxi/lianxi.py", line 8, in <module>
+    assert a==1, '错误信息'
+AssertionError: 错误信息
+
+for else：
+for 或 while：
+    ......
+else：
+    在循环正常结束时执行else
+
+
 文件操作：
 模式：
 r         默认读文本"rt"，读二进制"rb"(图片)，找不到文件报错
-w        写，覆盖原有内容，找不到文件则创建，"wb"写入二进制(图片)
-x         创建并以写方式打开,
+w        写，从头覆盖原有内容，找不到文件则创建，"wb"写入二进制(图片)
+x         创建并以写方式打开, 文件已存在则报错
 a         追加，文件不存在则创建文件进行写入
 b         二进制 
-t         默认
-+        r+、w+、a+都是以读写方式打开文件
+t         默认，文本模式
++        r+：不覆盖读写、w+：覆盖读写、a+都是以读写方式打开文件，这种使指针来回移动，效率不高
 U
 
 f = open(file, mode='r', encode='utf8')              打开文件，返回一个流
 读：
-content = f.read()                       读全部
+content = f.read(3)                       读取三个字符或字节(二进制）, 默认读全部
 f.readable()                                  判断是否可读取
-f.readline()                                   读取一行，末尾有换行
+f.readline(3)                                  读取一行中的3个字符或字节，默认读取一行
 f.readlines()                                  读取多行，返回一个列表
 f.seek()
 f.seekable()
 f.name                                          返回打开的文件名
 
 写：
-f.write('xxx')                               返回3，写入的字符数，默认没有换行
-f.writelines(['xxx\n', 'yyy'])         迭代写入'\n'换行
+count = f.write('xxx')                 返回3，返回写入的字符或字节（二进制）数，默认没有换行
+f.writelines(['xxx\n', 'yyy'])         迭代写入，需要手动写入'\n'换行
 
 f.close()                                                                关闭文件
 
@@ -780,7 +969,10 @@ with open(file, mode='r', encode='utf8') as f:     打开文件方式二，自�
 文件修改两种方式：
 1、打开全部读入内存修改，再以w模式打开，将内存中的内容写入文件，速度快，不适合大文件
 2、打开两个文件，读入一行写入一行，最后使用os.remove(文件路径)删除旧文件，然后修改新文件名，占内存小
-f.seek()
+
+f.seek(offset)   移动文件指针位置
+w = f.tell()       返回文件指针位置
+
 读取大文件：
 使用readline，每次读取一行，当读到末尾就退出
 f = open ('信息.txt')
@@ -790,6 +982,18 @@ while True:
         break
     print(t)
 f.close()
+
+import sys
+for line in sys.stdin:
+    print(line)                      # 迭代标准输入的行
+
+l = list(open('a.tt'))           # 等价于readlines
+
+with open('a.tt') as f:
+    a, b, c = f                    # 解包，左边跟右边行需要相同，否则报错
+
+f=open('a.tt', 'w')
+print('日志', file=log)          # 将print结果写入文件，默认自带换行符‘\n’
 
 ----------------------------------------------------------------------------------------
 os模块：
@@ -814,6 +1018,9 @@ os.removedirs(目录)             只能删除空目录
 os.remove('xx/aa.txt')          删除文件
 os.chdir(r'd:')                        切换目录到D:\\盘
 
+os.system('/usr/bin/a.py')         # 执行a.py
+os.startfile('C:\aa.exe')                # windows特有，执行aa.exe
+
 删除非空文件夹：
 flist = os.listdir(目录)        列出文件夹下的所有文件，然后删除所有文件，再删除空目录
 for f in flist:
@@ -823,28 +1030,60 @@ else:
     os.rmdir(目录)                                         删除空文件夹
 
 
+import webbrowser
+webbrowser.open('http://www.baidu.com')    # 这个模块可以打开浏览器指定网址
+
+
+heapq堆模块
+
+
+from collections import deque                # deque双端队列
+
+
 sys模块：
 python自身的运行环境
 import sys
 sys.path               模块搜索路径，先从当前项目下，最后的第三方包site-packages
 sys.version           python版本
 sys.argv               一个列表，终端运行python xxx.py aa bb，将后面的参数放入这个列表  
+sys.path.append('xxx/xx/x')   告诉解释器还可以去哪里找模块
+
+
+import importlib
+import test
+print('-----------')
+test = importlib.reload(test)    # 重新导入一次test模块，替换原来的
 
 
 time模块：
 import time
-****t = time.time()                时间戳
-****time.sleep(3)                   睡眠3秒
-****time.strftime('%Y-%m-%d %H:%M:%S')        输出格式转换：'2021-06-15 17:08:53'
-time.ctime(t)                   时间戳转换成日期：'Tue Jun 15 17:01:48 2021'
-a = time.localtime(t)       时间戳转为元组形式：time.struct_time(tm_year=2021, tm_mon=6, tm_mday=15, 
+time.asctime(元组)                 将当前实际转换为str：Mon Jan 24 21:03:51 2022
+t = time.time()                      时间戳
+time.sleep(3)                         睡眠3秒
+time.strftime('%Y-%m-%d %H:%M:%S')        输出格式转换：'2021-06-15 17:08:53'
+time.ctime(t)                        时间戳转换成日期：'Tue Jun 15 17:01:48 2021'
+a = time.localtime(元组)       时间戳转为元组形式：time.struct_time(tm_year=2021, tm_mon=6, tm_mday=15, 
                                         tm_hour=17, tm_min=1, tm_sec=13, tm_wday=1, tm_yday=166, tm_isdst=0)
 time.mktime(a)               元组转成时间戳, 秒形式
 time.strptime('2020/11/23', '%Y/%m/%d')    转换成元组：time.struct_time(tm_year=2020, tm_mon=11, 
                                                                         tm_mday=23, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=0, 
                                                                         tm_yday=328, tm_isdst=-1)
 
-datetime模块
+timeit模块：
+测量代码执行时间
+
+profile模块：
+分析代码效率
+
+trace模块：
+代码覆盖率分析
+
+
+fileinput模块：
+可以同时迭代多个文件或流的内容行
+
+
+datetime模块：
 import datetime
 datetime.date.today()             返回今天日期
 datetime.datetime.now()        返回现在日期时间
@@ -853,10 +1092,11 @@ datetime.timedelta(week=3)  返回3周后，可以加减的时间
 random模块：
 import random
 random.random()                   [0-1)之间小数
-random.randrange(1, 10, 2)   1到10之间整数，步长2
+random.randrange(1, 10, 2)    1到10之间整数，步长2
 random.randint(1,5)                范围内的整数
 random.choice('xx')                 随机选取
-random.shuffle(列表)                 打乱列表顺序，无返回
+random.shuffle(列表)               打乱列表顺序，无返回
+random.sample([1,1,2,3,4], 5)    从序列随机选5个值，几个值各不相同
 
 随机验证码：
 code = ''
@@ -878,15 +1118,21 @@ sha256             64位
 sha512             128位
 
 
-re模块
+re模块：
 正则表达式
 import re
 r = re.match('^xx$'， '字符串')      从开头开始匹配，没有返回None
 r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
 r = re.findall('^xx$'， '字符串')       匹配全部，找到全部
 r = re.sub(正则, '新内容'，'str')        替换
-r = re.split(正则，切割依据)             切割，返回列表
-r.group()                                        提取匹配到的内容
+r = re.split(正则，字符串)                根据正则匹配到的切割，返回列表
+com = re.compile(正则)                  创建模式对象，提高匹配效率。com.search(字符串)
+escape('www.baidu.com')               www\\.baidu\\.com  对字符串中的正则表达式特殊字符都进行转义
+
+r.group([group1, ...])                      提取匹配到的内容, 除0外，还有最多99个编组
+r.start([group])                             起始索引
+r.end([group])                              结束索引+1
+r.span([group])                             开始跟结束索引
 
 贪婪匹配：尽可能多的匹配字符
 
@@ -922,6 +1168,9 @@ func(func(1, 2), 3)   # 函数当参数
 解包：*[1,2,3]<==>1 2 3  ，*'hello'<==>h e l l o，单个*号解包字典只获得key，*{1：2，3：4}  <==>1 2
 def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1,y=2
 fun(**字典)           解包字典，传给形参**kwargs再封包
+
+解包，拆包：
+x, *y，z = 1, 2, 3            任何可迭代对象, y始终是一个列表：[ 2 ]
 
 lambda匿名函数：
 lambda 参数：返回值
@@ -1006,6 +1255,7 @@ def f1(func):                                   # 参数是一个函数对象
 test()
 
 多个装饰器先装下层的，调用则先最外层一层一层下去：
+应用顺序与列出顺序相反
 加载顺序：自下而上
 执行顺序：自上而下
 
@@ -1040,10 +1290,17 @@ test()
 异常：
 try:
     可能发生异常的代码
-except Exception as e：
-    pass
+except Exception：
+    print(Exception)
 except 异常类型 as 别名：
     print(别名)
+except(TypeError, ValueError, ZeroDivisionError) as e:     # 同时包含多种
+    print(e)    
+except：     # 不知道任何异常类，将捕获所有异常
+    pass
+else：
+    没有捕获到异常时执行else这里
+          
 ......
 finally:
     最后执行这里
@@ -1062,21 +1319,54 @@ def fun():
                              没有return，则执行这里的语句后，才执行上面try或except里面的return
 fun()
 
-主动抛出异常：
+while True：
+    try:
+        pass
+    except:
+       pass
+    else:
+        break    # 循环，指定没有捕获到错误
+
+主动抛出异常，raise语句：
 raise Exception('这是异常信息')
 try:
     raise Exception('异常')
 except:
     print('捕获异常')
+    raise ValueError from None         # raise ... from ...    提供自己的异常上下文
+
+一些内置异常类：
+Exception
+AttributeError
+OSError
+IndexError
+KeyError
+NameError
+SyntaxError
+TypeError
+ValueError
+ZeroDivisionError
+
+自定义异常类：
+需要直接或间接继承Exception类
+class MyException(Exception):
+    pass
+
+异常从函数向外传递到调用函数的地方
+
+from warnings import warn    # 可以发出警告的模块
+warn('aaaa')      # 发出警告                      
 
 -----------------------------------------------------------------------------------
 
 python包：
 __init__.py文件：
-当导入包的时候会默认执行__init__.py文件里的东西
+导入包的时候会默认执行__init__.py文件里的东西
+
+import  包          # 这样导入，__init__.py里面的内容将是包的内容。包.xxx
 
 from 模块 import *：可以使用模块里面的所有内容，如果没有定义__all__ = []
-from 包 import *： 该包中的内容(模块)是不能访问的，需要在__all__ = []定义可以访问的模块，一般
+from 包 import *：   该包中的内容(模块)是不能访问的，需要在__all__ = []定义可以访问的模块，一般
                                在包的__init__.py中定义__all__ = []暴露
 
 在模块中使用__all__ = ['通过* 可以访问的模块']，可以限制在使用from aa import *导入的内容就是__all__里的内容
@@ -1098,6 +1388,8 @@ if __name__ == '__main__'
 
 print(__file__)  # 当前文件的绝对路径
 
+模块.__file__     # 模块的绝对路径
+
 ----------------------------------------------------------------------------------
 
 r'\'不能单独出现,或在末尾出现
@@ -1110,6 +1402,192 @@ L：local 本地 局部变量
 E：encloseing 嵌套
 G：global 全局
 B：built-in 内置的
+
+
+-----------------------------------------------------------------------------------
+DB API是一套连接数据库规范，python跟数据库的连接规范，python数据库模块规范，如pymysql模块
+
+全局变量：
+apilevel                    使用的python DB API版本
+threadsafety             模块的线程安全程度如何
+paramstyle               在SQL查询中使用哪种参数风格
+
+pytho DB API指定的异常：
+StandardError                        所有异常超类
+Warning                                发生非致命问题时引发
+Error                                     所有错误条件的超类
+InterfaceError                        与接口（不是数据库）相关的错误
+DatebaseError                       与数据库相关的错误的超类
+DateError                              与数据相关的问题，如值不在合法范围内
+OperatinalError                     数据库操作内部错误
+IntegrityError                        关系完整性遭到破坏，如键未通过检查
+InternalError                         数据库内部的错误，如游标无效
+ProgrammingError                用户编程错误，如为找到数据库表
+NotSupportedError               请求不支持的功能，如会滚
+
+连接和游标：
+connect的常用参数
+dsn                       数据源名称，具体含义随数据库而异，必选
+user                      用户名
+password              密码
+host                      主机名
+dadabase              数据库名
+
+连接对象的方法
+close()                 关闭，关闭连接对象，之后连接对象及其游标将不可用
+commit()             提交，提交未提交的事务，如果支持的话，否则什么都不做
+rollback()             回滚，回滚提交的事务
+cursor()                返回连接的游标对象
+
+游标对象的方法
+callproc(name[, params])         使用指定的参数调用指定的数据库过程
+close()                                    关闭游标
+execute(oper[, params])           执行一个SQL操作，可指定参数 
+executemany(oper, pseq)        执行指定的sql操作多次，每次都序列中的一组参数
+fetchone()                              以序列的方式取回查询结果中的下一行，如果没有更多的行，返回None
+fetchall()                                以序列的方式取回余下所有行
+nextset()                                跳到下一个结果集，这个方法可选
+setinputsizes(sizes)                 用于为参数预定义内存区域
+setoutputsize(size[, col])         为取回大量数据而设置缓存区长度
+
+游标对象的属性
+description                由结果列描述组成的序列（只读）
+rowcount                   结果包含的行数（只读）
+arraysize                    fetchmany返回的行数，默认为1
+
+类型：
+Date(year, month, day)                  创建包含日期值的对象
+Time(hour, minute, second)           创建包含时间值的对象
+Timestamp(y, mon, d, h, min, s)     创建包含时间戳的对象
+DateFromTicks(ticks)                     根据从新纪元开始过去的秒数创建包含日期值的对象
+TimeFromTicks(ticks)                     根据从新纪元开始过去的秒数创建包含时间值的对象
+imestampFromTicks(ticks)             根据从新纪元开始过去的秒数创建包含时间戳的对象          
+Binary(string)                                创建包含二进制字符串的对象             
+STRING                                         描述基于字符串的列（如CHAR）
+BINARY                                         描述二进制列（如LONG或RAW）
+MUMBER                                      描述数字列
+DATETIME                                    描述日期/时间列
+ROWSID                                       描述行ID列
+
+模块：
+pymysql           连接mysql
+sqlite3              连接SQLite
+
+-------------------------------------------------------------------------------
+网络编程：
+socket模块
+urllib跟urllib2模块         ret = urllib.request.urlopen("http://www.baidu.com")
+
+标准库中一些与网络相关的模块：
+asynchat            包含补充asyncore的功能
+asyncore            异步套接字处理程序
+cgi                     基本CGI支持
+Cookie               Cookie对象操作，主页用于服务器
+cookielib            客户端Cookie支持
+email                 电子邮件支持（包括MIME）
+ftplib                 FTP客户端模块
+gopherlib          Gopher客户端模块
+httplib               HTTP客户端模块
+imaplib              IMAP4客户端模块
+mailbox             读取多种邮箱格式
+mailcap             通过mailcap文件访问MIME配置
+mhlib                访问MH邮箱
+nntplib              NNTP客户端模块
+poplib               POP客户端模块
+robotparser       解析web服务器robot文件
+SimpleXMLRPCServer      一个简单的XML-RPC服务器
+smtpd               SMTP服务器模块
+smtplib             SMTP客户端模块
+telnetlib            Telnet客户端模块  
+urlparse            用于解读URL
+xmlrpclib          XML-RPC客户端支持
+
+SocketServer模块：
+标准库提供的服务器框架基石，包括BaseHTTPServer、SimpleHTTPServer、CGIHTTPServer、
+SimpleXMLRPCServer、和DocXMLRPCServer等服务器
+四个基本服务器：TCPServer、UDPServer、UnixStreamServer、UnixDatagramServer
+
+import socketserver
+
+select模块：
+select和poll函数实现异步I/O，windows不支持poll函数
+
+Tidy模块，修复html的工具
+XHTML解析模块
+beautifulsoup4模块，解析html
+
+启动一个简易web服务器，在浏览器输入http://http://127.0.0.1:8000/，提供所在目录的文件
+# python -m http.server --cgi  
+
+python web框架：
+Flask
+Django
+TurboGears
+web2py
+Grok
+Zope2
+Pyramid
+
+测试驱动开发：
+unittest模块，通用测试模块，基于java测试框架JUnit
+doctest模块，为检查文档而设计
+标准库测试模块：pytest、nose
+
+单元测试让代码管用
+源代码检查让程序更好
+性能分析让程序更快
+
+PyChecker和PyLint：
+检查源代码模块
+# pychecker my.py          从命令行运行检查文件
+# pylint module               检查模块或包
+
+性能分析：
+import profile, cProfile          #  标准库
+profile.run("fun(3, 4)")
+cProfile.run('range(10)'，'a.txt')   # 第二个参数将结果放到一个文件
+
+------------------------------------------------------------------------------
+扩展python：
+JPython，IronPython(C#)
+JPython可以轻松导入java的已经编译的类，或使用标准库
+PyPy
+Cython
+weave
+ctypes
+NumPy
+subprocess
+PyCXX
+SIP
+Boost.Python
+
+C语言扩展python
+
+SWIG工具，主要用途是让你能够在python中使用既有的C语言代码
+
+gc模块可以访问python垃圾收集器
+
+-------------------------------------------------------------
+程序打包：
+Setuptools
+
+setup.py    固定文件名
+from setuptools import setup
+
+setup(name='hello', version='1.0')     hello.py文件与版本
+
+
+配置的级别：
+后面的覆盖前面的
+1、配置文件
+2、环境变量
+3、在命令行中向程序传递的开关和参数
+
+logging模块：
+import logging
+logging.basicConfig(level=logging.INFO, filename='my_log.log')
+logging.info('日志')    # 写入日志文件my_log.log
+
 
 
 

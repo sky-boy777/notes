@@ -277,7 +277,7 @@ protected void finalize()
 效率比if-else高
 
 方法传参：
-1、按值调用（值的拷贝），java使用按值调用
+1、按值调用（值的拷贝），java对象使用按值传递
 2、按引用调用（地址）
 
 static：
@@ -650,100 +650,19 @@ m.replaceAll("a");  // 匹配到的全部替换成 a
 System.out.println("\\");       输出一个\，两个斜杠输出一个斜杠
 
 
-流(Stream)：文件(File)、IO流：
-Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
-Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
-一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
-
-有很多方法可以产生流
-Stream<String> s = Stream.of("a", "b", "c");    // s是一个流
-s.filter(i -> i.equals("b"));     // 过滤，返回符合条件的新流
-s.map(i -> i + "x");             // lambda应用于每个元素，返回新流
-s.map(i -> i + "x").limit(5);  // 前五个，不5个取全部，相反的skip(5)则跳过前五个
-s.distinct();                        // 去重后的
-Stream.concat(非无限流，流);  // 拼接两个流  
-s.forEach(System.out::println);  // 输出每个元素
-String[] arr = s.toArray(String[]::new);  // 默认返回Object[ ]，使用String[ ]::new，转换为String[ ]
-
-输入输出流：
-一般是文件内容的读写
-抽象类：InputStream, OutputStream
-
-InputStream in = new FileInputStream("aa.txt");                 打开读取
-OutputStream out = new FileOutputStream("test.txt");       打开写入
-......
-try{                                                                                   必须捕获异常
-    byte b[ ] = {1,2,3,4,5};
-    OutputStream os = new FileOutputStream("bb.txt");    打开写入到文件，没有则创建文件
-    os.write(b);                                                                   写入字节数组
-    os.close();                                                                     关闭
-			 
-    InputStream in = new FileInputStream("bb.txt");            打开读取到内存
-    xxx xx = in.read();                                                           读入字节数组，返回读入的字节数                         
-    in.close();
-
-    // 1、创建文件并写入，指定编码格式
-   PrintWriter p = new PrintWriter("a.txt", "utf-8");   
-   p.write("登机口附近124dfkdjf\n");   // 写入
-   p.print("aa ");   // 写入
-   p.println(123);
-   p.close();
-
-    // 2、创建文件写入
-   BufferedWriter out = new BufferedWriter(new FileWriter("aa.txt", true));  // true为追加
-   out.write("1223xxx地方");   // 写入
-   out.close();                        // 关闭
-
-   // 读取
-   BufferedReader in = new BufferedReader(new FileReader("a.txt"));  
-   in.readLine();     // 读取，文件结束返回null
-   in.close();
-
-  // 文件内容复制到另一个文件
-  InputStream in = new FileInputStream(new File("srcfile"));
-  OutputStream out = new FileOutputStream(new File("destnfile"));
-  byte[] buf = new byte[1024];
-  int len;
-  while ((len = in.read(buf)) > 0) {  // 文件的字节大小
-          out.write(buf, 0, len);
-  }
-  in.close();
-  out.close();
-
-}catch(Exception e){
-    System.out.println(e+"异常");
-}
-
-对象输入输出流：
-try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("a.txt"));  // 输出流
-            out.writeObject(new A());  // 写入文件
-
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("a.txt"));  // 输入流
-            A a = ( A ) in.readObject();  // 读出文件，以被写入的顺序读出
-            System.out.println(a.i);
-
-            in.close();
-            out.close();
-
-        }catch (Exception e){ }
-
-class A implements Serializable {   // 实现Serializable接口（序列化）
-    transient int i = 1;  // 关键字transient表示此域不可被序列化，会跳过
-}
-
-文件操作：
-java.io.Files类，操作文件内容
-Path接口，操作路径
-Files类
-jdk7之前使用File，操作文件
+文件(File)、IO流（Stream）：
+1、java.io.File类，操作文件，jdk7之前使用
+2、Path接口，操作路径
+3、Paths.get("a.txt");，相当于File类，也是操作文件
+5、Files工具类，操作文件
 
 File类：
-File类的一个对象，代表有一个文件夹或一个文件目录。
-1、File f = new File("a.txt");                       // 创建一个文件在当前目录下（当前module），相对路径
+文件操作，File类的一个对象，代表有一个文件夹或一个文件目录。
+1、File f = new File("a.txt");                       // 创建一个对象，没有真正在磁盘创建文件
 2、File f2 = new File("D:\\tmp", "abc");      // 目录
-3、File f3 = new File(f2, "a.txt");                //在f2目录向创建文件
-常用方法：
+3、File f3 = new File(f2, "a.txt");                 // 在f2目录下创建
+
+File类常用方法：
 f.getAbsolutePath()          获取绝对路径
 getPath()                         获取路径
 getName()                       名称
@@ -754,13 +673,19 @@ exists()；                         是否存在
 isFile()；                          是否是文件
 delete();                           删除
 f.renameTo(new File("b.txt"));     重命名，文件f必须存在，而b.txt不能存在			
-createNewFile();                         创建文件 
+isDirectory()                               是否是文件目录
+canRead()                                  是否可读
+canWrite()                                  是否可写 
+isHidden()                                  是否是隐藏的
+createNewFile();                         创建文件，文件存在则不存在，返回false，需要捕获异常
+mkdir()                                       创建文件夹，存在则不创建
+mkdirs()                                     创建多级目录
+delete()                                      删除文件或空文件夹，不会放入回收站
 public String[ ] list()                    获取目录下的所有文件或目录的“名称" 数组，文件需存在，否则报错
 public File[ ] listFiles()                 获取目录下的所有文件或目录的 “File" 数组
 toPath();                                    返回一个Path对象，与jdk7的转换
-
-System.getProperty("user.dir");    // 返回当前工作目录
-File.createTempFile("a", ".txt", new File("E:/"));  // 在指定目录下创建文件 "E:/a.txt"
+File.createTempFile("a", ".txt", new File("E:/"));   在指定目录下创建文件 "E:/a.txt"
+System.getProperty("user.dir");   返回当前工作目录
 
 
 import java.io.*;   
@@ -768,12 +693,6 @@ import java.nio.file.*;   // jdk7操作文件
 
 public static void main(String args[]){
                   try{	
-		
-		
-                            
-		
-		
-
 		// Path接口
 		Path p = Paths.get("users\\tmp", "xx");   // 绝对路径或相对路径，可以不是实际存在的文件, 不会创建文件		
 		p.resolve("aa");    // 返回拼接路径：user\\tmp\\xx\\aa, 如果p是绝对文件路径则不拼接
@@ -784,6 +703,7 @@ public static void main(String args[]){
 		getRoot();         // 根路径，最顶层的，C:\\、linux根路径 "/"
 		normalize();      // 移除路径中的".."与"."
 		toFile();            // 返回一个File对象，与jdk7之前的转换
+
 
 		// Files类
 		byte[] f = Files.readAllBytes(Paths.get("a.txt"));  // 读入文件内容
@@ -800,18 +720,17 @@ public static void main(String args[]){
 		// 对于大文件跟二进制文件，应该使用输入输出流或读入器写出器
 		InputStream in1 = Files.newInputStream(Paths.get("a.txt"));  // 输出流outputSream
             		Reader in = Files.newBufferedReader(Paths.get("a.PNG"), StandardCharsets.UTF_8);  //   写出器Writer
-
-		// 创建文件、目录
+		
+                             // 创建文件、目录
 		Files.createFile(Paths.get("F:\\a.txt"));  // 在F盘下创建文件，默认在当前目录，如果存在则抛出异常，检查和创建的原子性的
 		Files.createDirectory(Paths.get("F:\\tmp\\aa"));  // 在F:\tmp盘下创建aa目录，aa之前的目录必须存在
 		Files.createDirectories(Paths.get("F:\\bb\\cc"));  // 创建多级目录
-		
+
 		// 复制、移动和删除文件
 		Files.copy(Paths.get("a.png"), Paths.get("bb\\a.png"));  // 复制时可以改名 ,替换：StandardCopyOption.REPLACE_EXISTING
 		Files.move(Paths.get("bb\\a.png"), Paths.get("cc\\a.png"));  // 移动时也可以改名，原子性：StandardCopyOption.ATOMIC_MOVE
 		Files.delete(Path path);
 		Files.deleteIfExists(Path path);  // 如果存在则删除，返回布尔值，可以删除空目录：Files.deleteIfExists(Paths.get("bb\\cc"));
-
 		Files.copy(inputStream, toPath);  // 将输入流复制到toPath中
 		Files.copy(fromPath, outputStream);  // 同上相反
 
@@ -819,19 +738,162 @@ public static void main(String args[]){
 		Files.exists(path);  // 是否存在，隐藏isHiden、可读isReadable、可写isWritable、是目录isDirectory，......
 		Files.size(path);   // 返回文件字节数，long型
 		PosixFileAttributes a = Files.readAttributes(Paths.get("a.png"), BasicFileAttributes.class);  // 文件属性集
-
-	   }catch(IOException e){
-		   System.out.print(e);  
-	   }
+	   }catch ......
    }
 
+流：
+Java.io 包几乎包含了所有操作输入、输出需要的类。所有这些流类代表了输入源和输出目标。
+Java.io 包中的流支持很多种格式，比如：基本类型、对象、本地化字符集等等。
+一个流可以理解为一个数据的序列。输入流表示从一个源读取数据，输出流表示向一个目标写数据。
+
+流分类：
+按单位：字节流(8bit），字符流(16bit）
+按流向：输入流，输出流
+按角色：节点流，处理流
+
+抽象基类      字节流               字符流
+输入流     InputStream         Reader
+输出流     OutputStream       Writer
+如：
+访问文件的节点流（或文件流）：FileInputStream，FileOutputStream，FileReader，FileWriter
+缓冲流（处理流的一种）：BufferedInputStream，BufferedOutputStream，BufferedReader，BufferedWriter
+
+缓冲流效率高，提高读取和写入的速度，开发中使用。包在已有流之上使用。
+内部有一个8192字节的缓冲区，满了就读入或写出文件，且自动刷新（flush）缓冲区。
+
+有很多方法可以产生流
+Stream<String> s = Stream.of("a", "b", "c");    // s是一个流
+s.filter(i -> i.equals("b"));                                 // 过滤，返回符合条件的新流
+s.map(i -> i + "x");                                          // lambda应用于每个元素，返回新流
+s.map(i -> i + "x").limit(5);                              // 前五个，不5个取全部，相反的skip(5)则跳过前五个
+s.distinct();                                                     // 去重后的
+Stream.concat(非无限流，流);                         // 拼接两个流  
+s.forEach(System.out::println);                       // 输出每个元素
+String[] arr = s.toArray(String[]::new);            // 默认返回Object[ ]，使用String[ ]::new，转换为String[ ]
+
+文件内容的读写：
+try{                                                                                   必须捕获异常
+    
+    // 字符流，读
+    FileReader f = new FileReader("a.txt");   // 打开读取文件，文件必须存在
+    char data = (char) f.read();        // 返回一个ascii码的整型，读到末尾返回-1，read像迭代器一样一次读一个
+    // 一个数组一个数组的读，返回读入数组的字符个数
+    char[] chr = new char[5];
+    int len;                                    
+    while(len = f.read(chr) != -1){
+        String str = new String(chr, 0, len);
+    }
+    // 字符流，写
+    FileWriter f = new FileWriter("a.txt"，true);    // 写出到文件，存在则覆盖，不存在则创建，true为追加
+    f.write("aaa");                           // 写入    
+
+    f.close();                                   // 需要手动关闭
+    
+    // 字节流，写（处理图片跟视频，非文本文件：.jpg, .mp3, .doc, .ppt）
+    byte[] b = {1,2,3,4,5};
+    OutputStream out = new FileOutputStream("b.jpg");    写出，没有则创建文件
+    out.write(b);                                                                 写入字节数组
+    out.close();                                                                   关闭
+	
+    // 字节流，读		 
+    InputStream in = new FileInputStream("b.jpg");           读入
+    int len = in.read();                                                        返回读入的字节数，读到末尾返回-1                         
+    in.close();
+
+    // 缓冲流，写
+   BufferedOuptuStream out = new BufferedOuputStream(new FileOuputStream("a.jpg", true));  // 写，true为追加
+   out.write(byte[] b);             // 写
+   out.close();                        // 关闭，内层FileReader也会自动关闭
+
+   // 缓冲流，读
+   BufferedReader in = new BufferedReader(new FileReader("a.txt"));          // 读入，文本文件 
+   int xxx = in.read();               // 文件结尾返回-1
+   String str = in.readLine();     // 一行一行读取，文件结尾返回null
+   in.close();          
+
+  // 图片内容复制
+  InputStream in = new FileInputStream(new File("a.jpg"));
+  OutputStream out = new FileOutputStream(new File("b.jpg"));
+  byte[] buf = new byte[1024];
+  int len;
+  while ((len = in.read(buf)) != -1) {      // 文件末尾为-1
+          out.write(buf, 0, len);  // 写入
+  }
+  in.close();
+  out.close();
+
+  // 转换流（处理流的一种）：字节流跟字符流的相互转换（char，byte）
+  // InputStreamReader：将字节的输入流转换为字符的输入流，解码
+  // OutputStreamWriter：将字符的输出流转换为字节的输出流，编码
+  FileInputStream f = new FileInputStream("a.txt");
+  InputStreamReader i = new InputStreamReader(f, "UTF-8");  // 读入，使用什么方式编码就用什么方式解码
+  char[] chr = new char[1024];
+   int len;
+   while((len = i.read(chr)) != -1){
+   String str = new String(chr, 0, len);
+           System.out.println(str);
+    }
+   i.close();
+}catch ......
+
+对象流：
+用于存储和读取基本数据类型数据和对象的处理流
+不能序列化static和transient修饰的成员变量
+try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("a.txt"));  // 输出流，序列化
+            out.writeObject(new A());  // 写入文件，也可以使用new String("xxxx")
+            out.flush();  // 刷新操作会将内存中的数据写入磁盘
+
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("a.txt"));  // 输入流，反序列化
+            A a = ( A ) in.readObject();  // 读出文件，需要强转或使用Object，以被写入的顺序读出
+            System.out.println(a.i);
+
+            in.close();
+            out.close();
+
+        }catch (Exception e){ }
+
+ // 自定义类需要实现Serializable接口，提供一个全局常量serialVersionUID才能序列化
+class A implements Serializable {  
+    private static final long serialVersionUID = 3637384833L;  // 没写系统默认会生成，但是修改了类A，这个id会变化
+    transient int i = 1;  // 关键字transient表示此域不可被序列化，会跳过
+    private B b;            // B类不可序列化，序列化时会报错 
+}
+
+class B{ }
+
+随机存取文件流：
+RandomAccessFile类，既可以输入，又可以输出
+
+模式：
+r：只读方式打开文件
+rw：可读可写
+rwd：可读可写，同步文件内容更新
+rws：可读可写，同步文件内容和元数据的更新
+
+RandomAccessFile f = new RandomAccessFile("a.txt","rw");  // 文件不存在会创建
+f.write(new byte[]{'a','b'});  // 对文件内容从头覆盖
+f.seek(3);                          // 移动指针到指定位置，末尾-1
+f.readLine()                         
+f.read();
+f.close();
+
+其他流：
+标准输入输出流：System.out/in，键盘输入，控制台输出，字节流
+打印流：PrintStream，PrintWriter，将基本数据类型转换为字符串输出到文件（输出重定向）
+   PrintWriter p = new PrintWriter("a.txt", "utf-8");    // 文件不存则创建
+   p.write("登机口附近124dfkdjf\n");   // 写入
+   p.print("aa ");   // 写入
+   p.println(123);  // 写入
+   p.close();
+数据流：DataInputstream，DataOutputStream，用于读取或写出基本数据类型的变量或字符串
+
+读取控制台输入：
+Scanner类 + System.in
 
 
 java.lang包中的类不需要import导入，其他需要
 
-
-读取控制台输入：
-Scanner类 + System.in
 
 import java.util.*;
 
@@ -1799,6 +1861,9 @@ import package1[.package2…].(classname|*);  // 导入指定包下的类或接�
 
 java5后不需要设置类路径：CLASSPATH
 
+导入第三方jar包：
+通常在idea创建libs文件夹，将jar文件放进去，然后再jar文件上右键单击Add as Library
+
 
 Java 数据结构：
 Java工具包提供了强大的数据结构。在Java中的数据结构主要包括以下几种接口和类：
@@ -2456,6 +2521,18 @@ B<? extends A> obj = new Xx<>();
 
 带有超类型限定的通配符可以向泛型对象写入，带有子类型限定的通配符可以从泛型对象读取。
 
+遍历泛型：
+Map<String, Integer> map = new HashMap<>();
+Set<String> ks = map.keySet();  // 遍历key，map.values()遍历值
+遍历键值对:
+Set<Map.Entry<String, Integer>> entrySet = map.entrySet();   
+Iterater<Map.Entry<String, Integer>> ite = entrySet.iterator();
+while(ite.hashNext()){
+    Map.Entry<String, Integer> entry = ite.next();
+    ...... = entry.getKey();
+    ...... = entry.getValue();
+}
+
 
 Java 序列化：  
 （对象序列化进文件，从文件反序列化对象出来）
@@ -2470,9 +2547,11 @@ Java 提供了一种对象序列化的机制，该机制中，一个对象可以
 类 ObjectInputStream 和 ObjectOutputStream 是高层次的数据流，它们包含反序列化和序列化对象的方法。
 
 
-网络编程（socket）：
+网络编程：
 import java.net.Socket;
 import java.net.ServerSocket;
+
+IP跟端口号组合得出一个网络套接字Socket
 
 实例
 import java.net.*;
@@ -2480,11 +2559,11 @@ public class Main {
    public static void main(String[ ] args){
      try{
 	InetAddress.getByName("www.baidu.com");  // 获取主机跟ip地址
-	InetAddress.getLocalHost()； // 本地IP地址跟计算机名
+	InetAddress.getLocalHost()；                         // 本地IP地址跟计算机名
 
-	// 获取web数据
-	URL url = new URL("https://www.baidu.com");  // 创建请求url
-                URLConnection con = url.openConnection();  // 发送请求
+	 // URL，获取web数据
+	 URL url = new URL("https://www.baidu.com");    // 创建请求url
+                URLConnection con = url.openConnection();      // 发送请求
                 Scanner in = new Scanner(con.getInputStream(), "utf-8");  // 返回输入流
                 while(in.hasNext()){
                     System.out.println(in.nextLine());  // 打印出html
@@ -2492,18 +2571,21 @@ public class Main {
 	con.getInputStream().close();  // 关闭
 	
 	// 客户端Socket
-	// Socket s = new Socket("www.baidu.com", 80);  方式一 连接到指定主机
-	Socket s = new Socket();  // 创建一个未连接套接字
-                s.connect(new InetSocketAddress("www.baidu.com", 8000), 5000);  // 连接，超时时间5秒，毫秒
-	s.getInetAddress();  // 获取ip
+	// Socket s = new Socket("www.baidu.com", 80);  方式一 连接到指定主机，ip+端口号
+	Socket s = new Socket();  // 方式二，创建一个未连接套接字
+               s.connect(new InetSocketAddress("www.baidu.com", 8000), 5000);  // 连接ip+端口号，超时时间5秒
+	s.getInetAddress();  // 获取对方ip
 	s.close();		
 	
 	// 服务端ServerSocket
-	ServerSocket server = new ServerSocket(8000);  // 一个监控8000端口的服务器
+	 ServerSocket server = new ServerSocket(8000);  // 一个监控8000端口的服务器
                 Socket acc = server.accept();  // 等待客户端连接
                 Scanner in = new Scanner(acc.getInputStream(), "utf-8");  // 接受客户端数据
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(acc.getOutputStream(), "utf-8")，true);  // 发送
+                PrintWriter out = new PrintWriter(new OutputStreamWriter(acc.getOutputStream(), "utf-8")，true);  // 流，发送
                 out.println("hello");  // 发送信息给客户端
+
+                in.close();
+                out.close();
                 server.close();
 
      }catch(Exception e){
@@ -2511,6 +2593,8 @@ public class Main {
       }
    }
 }
+
+UDP套接字：DatagramSocket
 
 URLEncoder.encode("你好", "utf-8");  // 编码
 URLDecoder.decode("%E7%9A", "utf-8);  // 解码
@@ -2814,7 +2898,53 @@ lock.unlock();  // 释放锁，放在finally子句比较好
 Lock-->同步代码块-->同步方法
 
 
-Java 8 新特性 Lambda 表达式：
+反射机制（reflection）：
+被视为动态语言的关键，反射机制允许程序在执行期间借助Reflection API取得任何类的内部信息，并能直
+接操作任意对象的内部属性及方法。
+
+主要API：
+java.lang.Class;     // 类的类
+java.lang.reflect.*;
+
+通过反射，可以调用类的私有结构
+
+类的加载过程：
+程序经过javac.exe命令后，生成一个字节码文件（.class），接着我们使用java.exe命令对某个字节码进行解释运行，
+相当于将某个字节码文件加载到内存中，此过程就称为类的加载。加载到内存中的类，就称为运行时类，此运行时类
+就作为一个Class的一个实例。
+
+Class的实例就是一个运行时的类。
+加载到内存中的运行时类，会缓存一定的时间，在此时间之内，可以通过不同的方式获取此运行时类。
+
+获取Class实例的方式：
+1、Class clazz = String.class;
+2、Class clazz = obj.getClass();
+3、Class clazz =Class.forName("java.lang.String");  // 通过类的全路径获取，***这种方式用的多***，体现反射的动态性，运行时才知道
+4、ClassLoader c = String.class.getClassLoader();
+     Class clazz = c.loadClass("java.lang.String");  // 通过类的加载器，这种方式用的少
+
+MyClass obj = (MyClass) clazz.newInstance();  // 实例化，创建运行时类的对象，调用Xxx类的构造器，必须：空参构造器，权限够
+
+调用运行时类的指定结构：
+Field name = clazz.getDeclaredField("name")  // 获取运行时类中指定的属性
+name.setAccessible(true);  // 保证当前属性是可访问的
+name.set(obj, "张三");  // 设置obj对象的属性name为张三
+name.get(obj);  // 获取obj对象的name属性
+
+Method method = clazz.getDeclaredMethod("getBytes", String.class);  // 获取方法，后面是形参列表
+method.setAccessible(true);  // 保证当前方法是可访问的
+Object returnValue = method.invoke(obj, "xxx");  // 调用方法，后面是实参，invoke方法的返回值就是method方法的返回值，没有则返回null
+Xxx xxx = staticMethod.invoke(String.class);  // 如果是静态方法，则使用“类.class”，也可以使用null
+
+反射的动态性：运行时才知道创建哪个对象
+
+
+动态代理：
+代理模式原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象，任何对原始对象的调用都要通过代理，代理
+对象决定是否以及何时将方法调用转到原始对象上。
+
+
+Java 8  Lambda 表达式：
 Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。
 Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。
 使用 Lambda 表达式可以使代码变的更加简洁紧凑。
@@ -2824,18 +2954,25 @@ Lambda 允许把函数作为一个方法的参数（函数作为参数传递进�
 或
 (参数) ->{ 语句; }    // 无需指定返回类型，根据上下文推导得出
 
+实例：
+Runnable r = () -> System.out.print("lambdb表达式");
+r.run();
+
+lambda表达式本质：就是作为函数式接口的实例。
+如果一个接口中，只声明了一个抽象方法，则此接口就称为函数式接口。
+
 相当于匿名函数，但不能使用变量接收
 ArrayList：list.removeIf(e -> e==null);
 
 特征：
-可选类型声明：不需要声明参数类型，编译器可以统一识别参数值。
-可选的参数圆括号：一个参数无需定义圆括号，但多个参数需要定义圆括号。
-可选的大括号：如果主体包含了一个语句，就不需要使用大括号。
+可选的参数类型：参数类型可以省略，因为编译器可以统一识别参数值。
+可选的参数圆括号：只有一个参数可以不用小括号，但多个参数需要括号。
+可选的大括号：只有一条语句，可以省略大括号。
 可选的返回关键字：如果主体只有一个表达式返回值则编译器会自动返回值，大括号需要指定表达式返回了一个数值。
 
 注意：
 Lambda 表达式主要用来定义行内执行的方法类型接
- Lambda 表达式当中不允许声明一个与局部变量同名的参数或者局部变量。
+Lambda 表达式当中不允许声明一个与局部变量同名的参数或者局部变量。
 lambda 表达式的局部变量可以不用声明为 final，但是必须不可被后面的代码修改（即隐性的具有 final 的语义）
 
 变量作用域：
@@ -2843,7 +2980,14 @@ lambda 表达式只能引用标记了 final 的外层局部变量，这就是说
 部修改定义在域外的局部变量，否则会编译错误
 
 
-Java 8 方法引用：
+Java 8 方法引用与构造器引用：
+当要传递给lambda体的操作已经有实现的方法了，可以使用方法引用。
+使用格式：类（或对象）: : 方法名
+三种情况：
+对象 :: 非静态方法
+类 :: 静态方法
+类 :: 非静态方法
+
 ArrayList<String> names = new ArrayList();
       names.add("Baidu");
       names.add("Sina");
@@ -2862,9 +3006,56 @@ super::xxx
 lambda中，只能引用值不会改变的变量，如lambda表达式外for循环的i变量
 this关键字表示创建这个lambda表达式的方法的this
 
-java中，lambda表达式就是闭包
+java中，lambda表达式就是闭包。
 
-lambda表达式重点是延迟执行
+lambda表达式重点是延迟执行。
+
+
+Stream API：
+关注的是数据的运算，跟cpu打交道
+1、自己不会存储元素。
+2、不会改变源对象，相反，他们会返回一个持有结果的新Stream。
+3、操作是延迟执行的，这意味着他们会等到需要结果的时候才执行。
+
+实例化：
+List<Integer> list = new ArrayList<>();
+Stream<Integer> stream = list.stream();
+
+中间操作：
+stream.filter(i -> );
+limit(3)     前三个    
+skip(4)      跳过4个
+distinct()   去重
+映射：
+flatMap(Function f)  接收一个函数作为参数，将流中的每个值都替换成另一个流，然后把所有流连成一个流。
+map()                       接收一个函数作为参数，操作每一个元素。
+list.stream().map(str -> str.toUpperCase()).forEach(System.out::println);    // lambda
+list.stream().map(String::toUpperCase).forEach(System.out::println);         // 方法引用
+排序：
+sorted()                             产生一个新流，其中按自然顺序排序
+sorted(Comparator com)   产生一个新流，其中按比较器顺序排序
+list.stream().sorted().forEach(System.out::println);
+list.stream().filter(i -> i.equals("a"));    过滤
+
+终止操作：
+终止后就不能再用stream了，需要重新实例化。
+allMatfch(Predicate p)             检查是否匹配所有元素，返回true或false
+anyMatch(Predicate p)             检查是否至少匹配一个元素
+noneMatch(Predicate p)          是否没有匹配元素
+findFirst()   第一个
+findAny()    任意一个
+count()       计数
+max(Comparator c)
+min()
+forEach()  内部迭代
+
+归约：
+求和
+reduce(T iden, BinaryOperator b)     可以将流中的元素反复结合起来，得到一个值。返回T
+reduce(BinaryOperator b)      可以将流中的元素反复结合起来，得到一个值。返回Optional<T>
+
+收集：
+collect(Collector c)   将流转换为其他形式，接收一个Collector接口的实现，用于给Stream中的元素做汇总的方法。
 
 
 Java 8 函数式接口:
@@ -2873,125 +3064,11 @@ lambda表达式传递到函数式接口
 java8跟之前的日期转换：
 java.sql.Date d = new java.sql.Date(new java.util.Date().getTime());
 
+java 8 java.util.Optional类：
+是一个容器类，它可以保存类型T的值，代表这个值存在，或仅仅保存null，表示这个值不存在，原来用null
+表示一个值不存在，现在Optional可以更好的表达这个概念，并且可以避免空指针异常。
 
-连接mysql：
-Java 使用 JDBC 连接 MySQL 数据库
-
-下载对应mysql数据库版本jar包，放入jdk8\jre\lib\ext下
-1、打开链接下载对应数据库版本：http://dev.mysql.com/downloads/connector/j/
-2、选择：Platform Independent，下载：mysql-connector-java-5.1.47.tar.gz，只有几M大小
-3、解压后得到 jar库文件，将mysql-connector-java-5.1.47-bin.jar放入jdk8\jre\lib\ext下，然
-     后在对应的项目中导入该库文件。
-
-代码：
-import java.sql.*;  // 导入相关
-public class M {
-    // MySQL8.0以上版本使用
-    // static final String DB_URL = "jdbc:mysql://localhost:3306/数据库名?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";	   
-    
-   public static void main(String[] args) {    
-        try{          
-            Class.forName("com.mysql.jdbc.Driver");   // 注册 JDBC 驱动，不要导包       
-
-            Connection conn = DriverManager.getConnection(
-		"jdbc:mysql://localhost:3306/数据库名",   
-		 "用户名",
-		 "密码");   // 连接数据库       
-            
-            // 执行查询
-            Statement stmt = conn.createStatement();
-  
-            ResultSet rs = stmt.executeQuery("SELECT * FROM admin");   // select操作
-            stmt.executeUpdate("create tabel ......");  // 可执行insert、update、delete，或create、drop操作
-
-            stmt.execute("use ......");                    // 执行任意sql，结果集返回true，否则返回false
-            ResultSet r = stmt.getResultSet();      // 返回结果集，没有则null，每条sql语句只能调用一次 
-            int num = stmt.getUpdateCount()； // 返回受影响的行数，没有则-1，每条sql语句只能调用一次 		
-            
-            // 获取结果
-            while( rs.next() ){                             // 初始化时被设定在第一行之前的位置，返回布尔值
-	int id = rs.getInt("id");                 // 根据类型获取数据：rs.getXxx("字段")，id为数据库字段名
-	String id = rs.getString("id");       // 会转换为字符串类型，转换不了则抛异常
-	String name = rs.getString("name");
-	String name = rs.getString(2);    // 输入int返回这一行第2列的值，索引
-
-	System.out.println(id +"\t"+name);
-            }
-	
-           rs.close();        // 关闭当前结果集
-           stmt.close();   // 关闭Statement对象以及它所对应的结果集
-           // stmt.closeOnCompletion();  // 在其所有的结果集被关闭后，该语句会立即被自动关闭
-           conn.close();  // 关闭连接，释放由它所创建的 JDBC 资源。
-
-        } catch(Exception e){ e.printStackTrace(); }
-   }
-}
-
-可更新的结果集：
-Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, 1008);  
-rs.updateString("name", "李四");  // 更改结果集数据, name字段改成“李四”，或使用列序号
-rs.updateRow();  // 提交更新到数据库，rs.cancelRowUpdates(); 则撤消更新操作
-rs.deleteRow();  // 删除当前行，连数据库中的也一并删除
-插入新行：
- rs.moveToInsertRow();              // 移动游标到插入行
- rs.updateInt("id", 19);               // 设置
- rs.updateString("name", "xx");  // 设置
- rs.insertRow();                          // 提交更新到数据库
- rs.moveToCurrentRow();           // 移动游标到原来位置
-
-行集：
-查询后关闭数据库连接，提交时再连接数据库
-try{
-                // 缓存行集
-                RowSetFactory f = RowSetProvider.newFactory();
-                CachedRowSet crs = f.createCachedRowSet();
-
-	// 设置数据库连接
-                crs.setUrl("jdbc:mysql://localhost:3306/xingying?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
-                crs.setUsername("root");
-                crs.setPassword("root");
-
-                crs.setCommand("select * from hotel limit 0, 100");
-                crs.setPageSize(5);  // 每页5条，查询结果集太大，应该分页
-                crs.execute();  // 提交
-
-               do{
-                    while(crs.next()){
-                        System.out.println(crs.getString("name"));
-	        crs.updateString("name", "张三");  // 更新
-                        crs.updateRow();   // 更新到集
-	        crs.acceptChanges();  // 重新连接数据库提交更改
-                    }
-                }while(crs.nextPage());  // 如果有下一页
-
-                crs.close();
-}catch(......){......}
-
-事务：
-conn.setAutoCommit(false);                  // 将数据库默认的自动提交设为false
-stmt.executeUpdate("create tabel ......");   
-......
-Savepoint sp = conn.setSavepoint();    // 设置保存点
-conn.commit();                                   // 提交事务
-conn.rollback(sp);                               // 回滚到保存点，没有则回滚全部
-conn.releaseSavepoint(sp);                 // 不需要时，必须释放保存点
-
-批量操作：
-一个语句序列最后一起提交，insert、update、delete、create table、drop table，不包括select，会抛异常
-Statement stmt = conn.createStatement();
-stmt.addBatch("insert ......");     // 添加
-stmt.addBatch("update ......");  // 添加
-stmt.executeBatch();               // 提交
-
-Connection conn =......，放在带资源的try(){}语句中，退出时自动关闭（推荐）
-
-一个Connection对象可以创建多个Statement对象，而一个Statement对象最多只能有一个打开的结果集。
-一个Statement对象可以用于多个不相关的命令和查询。
-
-包含META-INF/services/java.sql.Driver文件的jar文件可以自动注册驱动器类，解压驱动程序jar文件就可以
-检查其是否包含该文件。
-
-web应用中使用数据库连接池，避免频繁打开关闭连接，无限制的连接数据库。
+为了解决java的空指针问题而生。
 
 
 JavaBean：
@@ -3107,6 +3184,48 @@ import java.security.*;
 
 加密：
 对数据加密
+
+
+java 9更新：
+模块化系统
+jShell命令，交互式命令行
+多版本兼容jar包
+接口的私有方法
+钻石操作符（泛型）的使用升级
+语法改进：try语句
+String存储结构的变更
+变量的集合特性：of()
+增强的Stream API
+全新的HTTP客户端API
+Deprecated的相关API
+
+
+java 10更新：
+局部变量类型推断
+以前：
+int i = 10;
+
+现在：
+var i = 10
+var s = "张三"
+for(var i : list){
+  ........
+}
+使用var定义变量，但是必须定义的时候赋值，根据所附的值推断变量类型
+lambda左边的不能用var声明
+var不是关键字，是标识符
+
+
+java 11更新，长期支持版LTS：
+String新增方法
+Optional类加强
+局部变量类型推断升级
+全新的HTTP客户端API
+更简化的编译运行程序：编译跟运行使用一条命令，即java xxxx.java
+废弃Nashorn引擎
+ZGC垃圾收集器
+
+
 
 
 
