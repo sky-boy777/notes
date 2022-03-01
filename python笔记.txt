@@ -302,7 +302,7 @@ class AA([父类]):     # 定义类，驼峰命名
         return 'name' 
 
     method = staticmethod(method)      # 也可以这样定义，staticmethod跟classmethod都是类
-    name = property(fget=get_name)     # property也是类
+    NAME = property(fget=name)          # property也是类，四个参数：对应获取，设置，删除，文档
     
 　　
 obj = 类名()  　# 实例化
@@ -333,23 +333,44 @@ import collections         模块
 类能向上找到元类,对象不能向上找到元类
 
 魔法方法：
-双下划线开头和结尾，满足某种条件会自动调用
+双下划线开头和结尾，满足某种条件会自动调用: __init__(self)读作：双下-init, 双下方法
+一般只有python的解释器会频繁直接调用魔法方法
+80几个魔法方法
 
 def __new__(cls, *args, **kwargs)    # 实例化的魔法方法，向内存申请空间,单例设计模式使用到
     return super().__new__(cls)
 
 __init__(self)         # 初始化，重写时需要调用父类的__init__方法，不然可能会发生意外
-__str__（self）      # print打印对象会执行，返回字符串， return 'str方法'
+__str__（self）      # print打印对象会执行，返回字符串， return 'str方法'， str()
 __dict__               # 以字典方式返回对象的属性
 __del__                # 也称析构函数，在del对象时会先执行(垃圾回收)，del obj或程序运行结束之前释放内存件
-__call__(self, *args, **kwargs)     # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
-__doc__      
-__len__(self)   
+__call__(self)        # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
+__doc__                 # 属性
+__len__(self)           # len(x), x是内置类型时速度会非常快，CPython会直接从一个C结构体读取对象的长度，不会调用任何方法。
+__repr__(self)         # 内置函数repr()，将对象用字符串表示出来
+__add__(self)          # '+' 加法，对不可变序列做重复拼接效率会很低，每次都重新赋值，str是例外，CPython做了优化
+__iadd__(self)         #  '+='  可变序列使用则就地加法，地址不变。不可变序列内部没有实现__iadd__, 而会调用__add__，会重新赋值
+__mul__(self)          # '*'  乘法
+__bool__(self)        # bool()，类中不存在这个方法则会调用__len__(), 为0则返回False
+__enter__(self)和__exit__(self)      # 上下文管理with
+
+就地加法：
+t = (1, 2, [3, 4])
+try:
+    t[2] += [55]
+except:
+    pass
+print(t)                        # t变成(1, 2, [3, 4, 55])，并且会抛出：TypeError: 'tuple' object does not support item assignment，元组不支持项赋值
+t[2].extend([33,44])     # 则不会抛出以上异常
+
+import dis
+dis.dis('s[a] += b')            # 在控制台中输入背后的字节码
 
 序列和映射                                     
-__getitem__(self, key)                           
+__getitem__(self, key)                     字典d['key'] 背后就是__getitem__方法：d.__getitem__('key')    
 __setitem__(self, key, value)
 __delitem__(self, key)
+__missing__(self，key)                           在d[k]没有取到值的时候返回一个默认的值，dict中没有实现这个方法
 
 属性相关
 __getattribute__(self, name)      属性被访问时自动调用（只适用于新式类） 
@@ -382,18 +403,23 @@ class B:
     def set_name(self, name):
         self.name = name
 
-    n = property(fget=get_name, fset=set_name)    # property，能把函数当作属性来使用，使不必用set_name(), get_name()这类存取方法
+   def del_name(self):
+        del self.name
+
+    name = property(fget=get_name, fset=set_name，del_name, "文档字符串")    # property，能把函数当作属性来使用，使不必用set_name(), get_name()这类存取方法
 
 b = B()
-b.n
-b.n = 'aaa'
+b.name                      获取
+b.name = 'aaa'          设置
+del b.name                删除
+B.name.__doc__         文档字符串
 
 @property：
 类实现的装饰器，将方法当成属性使用
 
 使用方式：@property或老版本name = property(get_name(), set_name())
 @property
-def name(self):      # 先使用property装饰，才能使用下面的
+def name(self):      # 先使用property装饰，能使用obj.name获取，才能使用下面的
     return self.__age
 
 @name.setter          # 能使用obj.name = '张三'
@@ -535,15 +561,15 @@ from functools import reduce
 res = reduce(lambds x，y：x+y, 可迭代对象，初始值(给第一个x))  # 将可迭代对象的每一个元素交给匿名函数运算
 
 map(func, 可迭代对象)                    得到生成器对象，list（map(func, 可迭代对象)）得到列表
-filter(func, 可迭代对象)                    过滤，结果需要转换为列表
-all（）                                                全部为真返回True否则False
+filter(func, 可迭代对象)                    过滤，返回生成器对象，结果需要转换为列表
+all()                                                全部为真返回True否则False, all([])返回True，all({})True
 dir（obj）                                        查看有什么属性、方法
 divmod（10，3）                            计算商跟余数，返回（商，余数）
 isinstance（obj，Obj）                   类型判断，判断一个对象是否是一个类的实例，isinstance(2,int) True
 zip（[1,2], [3,4]）                             拉链函数，[(1,3), (2,4)]
 time = __import__('time')                 导入time模块
 abs（）                                             绝对值
-any（）                                            有一个为真返回True
+any（）                                            有一个为真返回True, any([])返回False，any({})False
 bin（）                                             2进制
 oct（）                                             8进制
 hex（）                                            16进制
@@ -567,7 +593,12 @@ x = 1
 a = vars()                                这个函数返回一个字典，key为变量，value为变量的值。print(a['x'])
 
 排序依据字典value：
-res = sorted(dic, key=lambda k: dic[k])     按照关键字key排序
+res = sorted(dic, key=lambda k: dic[k])     # 按照关键字key排序，任何可迭代对象，不可变元组做参数，都返回一个新列表
+res = sorted(list, key=len， resverse=True)    # 按照元素长度降序排序，sorted是稳定排序
+
+bisect模块：实现了二分查找法
+bisect.insort(有序列表， 4)           # 将4插入列表，并保持列表有序
+
 
 async def：定义协程函数
 
@@ -578,14 +609,14 @@ sys.getrefcount(对象)      查看引用次数
 
 python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 
-列表推导式：[表达式 for i in 列表 if 条件 for j in...]           可以多层嵌套
+列表推导式：[表达式 for i in 列表 if 条件 for j in...]         #  可以多层嵌套，在外面再使用 i 会报错，因此不会导致变量泄露
 字典推导式：  {key: value for key,value in dic.items()}
 集合推导式：  {i for i in range(10)}
-得到一个生成器：（i for i in range(10)）
+得到一个生成器：（i for i in range(10)）        # 生成器表达式，用到再产生元素，更节省内存
 没有元组推导式，因为元组不可变
 
 if True:     <==>    if True:
-    pass                       "这里等同于pass"
+    pass                       "xxx"           # 使用字符串做占位符
 
 两个函数：
 exec("print('a')")        将字符串作为代码执行，无返回
@@ -598,6 +629,8 @@ del                             不能删除值，只删除了变量名
 内置可迭代的对象：生成器，列表，元组，字典，集合，str
 from collections import Iterable
 isinstance(list1, Iterable)              # 判断对象是否是可迭代的
+
+for i in list:     背后隐式调用iter(list), 这个函数背后则是list.__iter__()方法, 前提是list里面实现了__iter__()方法
 
 iterable：可迭代的
 iterator：迭代器
@@ -694,6 +727,13 @@ g = fun( [1,2,[3, 4, 'ab', ['bn']]] )
 print(list(g))         # [1, 2, 3, 4, 'ab', 'bn']
 
 
+
+with open('4.jpg', 'rb') as f:
+    for i in f:
+        print(i)    # 判断是否是图片，第六位后面的字母JFIF，b'\xff\xd8\xff\xe0\x00\x10 JFIF   \x00\x01\x     
+        break
+
+
 ---------------------------------------------------------------------------------------------
 递归：
 python递归默认是1000层，可以修改
@@ -715,8 +755,8 @@ oct（10） 转八进制 0o33
 hex（10）转十六进制 0xd
 复数：x = 10 + 3j
 
-字符类型：
-不可变类型，str(任何类型)
+字符类型str：
+不可变类型，str(任何类型)，str对象中获取的元素是Unicode字符
 按索引取值，正取0，倒取-1，只能取不能赋值
 切片[1:-1: 2]       反向步长[1:5: -1]得到为空  ，倒着走[5:1:-1]
 长度len(s)
@@ -762,7 +802,102 @@ s = '{name:#b}'.format(name=34)      #号，0b100010，会加上类型的前缀
 s = '{name}'.foramt_map({'name': '张三'})         format_map()可以隐射字典
  
 f'{name}'                                                                                        name是一个变量
+
+bytes和bytesarray：
+b'abc'， b'ca\xc3\xa9', \n, \r
+都能使用字符串的方法: endswith、replace、strip、 upper等
+my_bytes[1]        获取的是一个0-255的整数
+my_bytes[0: 1]     得到的是一个长度为1的bytes对象
+
+b = 'abc'.encode('utf-8', errors='replace')          # 编码: b'abc',  无法编码的字符替换成？问号
+b'\xe9al'.decode('utf-8', errors='replace')          # 解码 ，无法解码则替换为问号：�al
+
+utf-8, u8, U8, utf8, utf_8           # utf-8的几种表示方式
+
 --------------------------------------------------------------------------------------
+
+容器序列：
+list，tuple，collections.deque   
+存放的是它们包含的任意类型的对象的引用
+
+扁平序列：
+str、bytes、bytearray、memoryview、array.array
+只能容纳一组类型，存放的是值。或者说是一段连续的内存空间
+
+可变：
+list，collections.deque 、bytearray、memoryview、array.array
+
+不可变：
+str、bytes、tuple
+
+collections.deque      # 双端队列，反复做先进先出操作，效率比list高
+
+集合set检查元素是否存在效率比较高，set转为检查元素做过优化
+
+
+数组array：
+存放1000万个浮点数的话，array数组比列表效率高的多
+支持跟列表一样的操作: pop, insert, extend, append，+，+=，frombytes, tofile，等。。。
+只能存放单一类型
+from array import array
+arr = array('d'，[1,2,3,4,5])    # 类型码 'd' 代表有类型的字符，指定底层C语言应该存放什么数据类型
+arr.tofile(file)                       #  放入文件
+arr.fromfile(file, 1000)          # 将1000个从文件读出
+arr[-1]                                 # 数组最后的元素
+
+
+双端队列：
+collections.deque类
+是线程安全，可以快速从两端添加或删除元素
+dq = collections.deque(range(10), maxlen=10)    # 队列多存放10个元素
+实现了列表大部分操作：
++=
+dq.append(e)
+appendleft(e)
+clear()
+__copy__()                # copy.copy()的支持
+count(e)
+__delitem__(p)
+extend(i)
+extendleft(i)
+__getitem__(p)
+__iter__()
+__len__()
+pop()
+popleft()
+remove(e)
+reverse()
+__reversed__()
+rotate(n)                    # 旋转n个元素，从一段放到另一端，n>0则右边n个数出队，然后从左边入队，反之亦然
+__setitem__(p, e)         # s[p] = e
+队满添加元素会挤掉另一边的元素
+
+
+queue模块：
+线程安全的队列，同步
+Queue
+LifoQueue
+PriorityQueue
+SimpleQueue
+队满会被锁住，停止入队
+
+
+multiprocessing模块：
+Queue
+oinableQueue
+
+
+asyncio模块：
+Queue
+LifoQueue
+PriorityQueue
+JoinableQueue
+
+
+heapq模块：
+让用户把可变序列当作  堆队列  或  优先队列  使用
+
+
 列表list：
 索引、切片、拼接、相乘
 
@@ -786,7 +921,7 @@ l.sort(key=len)          参数key是一个函数，根据长度排序，len(3)�
 列表比较：元素依次比较，数字跟字符串比较会报错，字符串按ASCII码比较
 m = max(l，[key=lambad])              找出最大值，比较，数字跟字符不能比较，最小值min(), key可选
 s = sum(l)                求和，列表内只能是数字
-x = sorted（'21'）    排序，默认升序，reverse=True降序，数字跟字符不能比较，返回一个列表['1', '2']
+x = （'21'）    排序，默认升序，reverse=True降序，数字跟字符不能比较，返回一个列表['1', '2']
 
 动态删除列表元素：
 l = len(my_list)
@@ -804,6 +939,15 @@ l[1:3:2]       正向
 l[-3:-1]       逆向
 l[-1: :-2]     逆向
 l[-5:]          从-5开始正向取，能取到-5，-4、.....-1
+l[:len(l)]      全部，或l[:], 或l[:None]
+l[:4], l[4:]    两个不重复的部分
+my_list[start:stop:step]       会调用 my_list.__getitem__(slice(start, stop, setp))
+
+l[3::2] = [11, 22]          # 切片赋值，不允许：l[2: 3] = 20  这种操作
+l[2:3] = (44,)               # 返回还是列表
+
+a = [1,3]
+b = [1, 3, a] * 3          # 嵌套乘法，内部得到的是a的三个引用，等价于循环 l.append(a) 三次
 
 a = 'hello'
 a[a.find("llo"): a.find('llo')+len('llo')]         切片取出子串 'llo'
@@ -830,6 +974,9 @@ l.append(l.pop(0))   将第一个元素放到末尾
 
 reversed()   返回一个反向迭代序列，不是列表，不能用切片
 
+sorted和list.sort()背后的算法是Timsort，一种自适应算法，根据原始数据的顺序
+特点交替使用插入排序和归并排序。以达到最佳效率。
+
 -----------------------------------------------------------------------------------
 元组tuple：
 不可变，存放值对应的地址，也就是指向的地址不变，值可能修改（可变类型），
@@ -851,39 +998,96 @@ t = (2)              # 是int类型，只有一个元素的时候要加逗号","
 
 ------------------------------------------------------------------------------------------
 字典类型dict:
+底层基于散列表
+可散列对象：调用hash()函数不报错
 key=value，key不可变，不重复
+
 len(d)                                        项的个数
-成员运算：in、not in                  针对key
+in、not in                                  成员运算，针对key
+'xxx' in d                                   xxx是否在d的key中
 d = dict.fromkeys(列表，值)       初始化字典，列表的元素作为key，value为值。或{}.fromkeys(列表，'x')         
 d = dict([(1,2)])                          符合这种格式的能转成字典
-d['age'] = 18                             增加
-'xxx' in d                                    xxx是否在d的key中
+d['age'] = 18                             增加，d.__getitem__('age')
 del d['xxx']                                删除
 
 d.pop('key'，y可选)            # 返回删除的key的值，无则返回y，没有y会报错
-d.popitem()                 # 元组方式返回随机删除的键值对，一般从末尾删除
-d.keys()                       # 类型dict_keys，python2是列表
-d.values()                    # 类型dict_values
-d.items()                     # 列表包含元组，类型dict_items
-d.update({1: 2, 3: 4})     更新，有则覆盖，无则添加
-d.clear()
-d.get('xxx')
-d.setdefault('key', 默认值)       返回字典中key对应的值，key不存在则添加，值默认None，类似get
-d = d.copy()                           浅拷贝
+d.popitem()                       # 元组方式返回随机删除的键值对，一般从末尾删除
+d.keys()                            # 类型dict_keys，python2是列表
+d.values()                         # 类型dict_values
+d.items()                          # 列表包含元组，类型dict_items
+d.update({1: 2, 3: 4})         # 更新，有则覆盖，无则添加
+d.clear()                                  # 清空
+d.get('xxx'，默认值)                 # 获取            
+d.setdefault('key', 默认值)        # 返回字典中key对应的值，key不存在则添加，值默认None，类似get
+d = d.copy()                            #  浅拷贝
+
+内置模块的字典，实现的方法跟dict差不多
+collections.defaultdict
+collections.OrderedDict
+
+字典里的键值对都是引用，存入时先做hash()运算
+
+每次启动pythno解释器都会生成一个随机盐值，是为了防止DOS攻击而采取的一种安全措施，
+str、bytes、datetime对象的散列值计算过程会多了随机加盐这一步，盐值是python进程内的
+一个常量
+
+如果有一个整型对象，而且它能被存进一个机器字中，那么它的散列值就是它本身。hash(1)==1
+
+dic[key]背后散列表算法：
+python首先调用hash(key)计算key的散列值，把这个值的低几位数字当作偏移量，在散列表里查找
+表元(一个键值对为一个表元)，具体取几位，需要看散列表的大小，若找到表元为空，则抛出KeyEeeor
+异常，否则，表元里会有一对found_key: found_value，这时候校验key == found_key是否为真
+，相等则返回found_value。
+不相等的情况称为散列冲突，算法会在散列值中再另取几位，用特殊方法处理一下，把得到的的数字再
+当作索引来寻找元素，然后重复上面步骤。
+
+字典更新跟添加新值跟上面基本一样
+
+1、字典键必须是可散列的。支持hahs()函数，支持通过__eq__方法检测相等性，若a == b, 则hash(a) == hash(b) 也为真。
+2、字典在内存上开销巨大。字典使用散列表，散列表是稀疏数组(总有空白元素的数组)
+3、键查询很快
+4、键的次序却决与添加的顺序
+5、往字典里添加新键可能会改变已有键的顺序。添加键，解释器可能做出为字典扩容的决定：新建一个更大的散列表，把字典已有的
+     元素添加到新表里。过程可能发生散列冲突导致键的次序变化。一边迭代字典一边修改字典，循环可能跳过一些键，甚至是跳过字
+     典中已有的键。
 
 --------------------------------------------------------------------------------------------------------
 集合set：
+背后是散列表
+集合中的对象必须是可散列的
+set本身不可散列，但frozenset（不可变集合）可以
+
+方法：
 s1.discard('xx')         删除元素
-s1.remove('xxx')      删除元素不存在会报错
+s1.remove('xxx')       删除元素，不存在会报错
 s1.clear()                  清空
-s = pop()                 删除，返回值，没有则报错，一般删除第一个元素
-s1.update({1,2,3})    更新，无则添加
+s1.pop()                   删除，返回值，没有则报错，一般删除第一个元素
+s1.update({1,2,3})     更新，无则添加
+s1.copy()                   浅拷贝
+
 s1.add('xxx')            添加，一次添加一个，update一次可以添加多个
 s.add(元组)              元组是不可变类型，可以添加
 
-支持的符号：len、in，not in、
-set1 == set2             判等或不等!=
-不支持加"+"号
+支持的符号：len、in、not in、set1 == set2   判等或不等!=，不支持加"+"号
+__ior__
+__iand__             交集，s &= z
+__ixor__              并集，s |= z,  s.update(it, ..)
+__isub__             差集， s -= z， s.difference_update(it, ...)
+__le__                 <=, s.issubset(z), 是否为z的子集
+__lt__                  <
+__gt__                 >
+__ge__                >=
+__eq__
+__ne__
+__and__              交集，s & b
+__or__                 并集，s | b,  s.union(it, ...)
+__sub__               差集，s - b
+__xor__               对称差集，s ^ b，s.symmetric_difference(it)
+__contains__       in 操作
+__iter__               返回迭代器
+__len__
+s.isdisjoint(z)          是否不相交
+
 for i in lenumerate(集合):                枚举，元组(0,1)（1，2） 
     print(l)  
 
@@ -892,11 +1096,13 @@ for i in lenumerate(集合):                枚举，元组(0,1)（1，2）
 空集合s = set()  ，s={1}集合， s = {}是空字典
 类型转换：s = set('hellooo') == {'h', 'e', 'l', 'o'}，转换的类型里不能有可变类型，如列表嵌套列表
 转换字典只是得到字典的key
+
 内置方法(关系运算)：
-交集：s = set1 & set2      # set1.intersection(set2)
+交集：set1 & set2             # set1.intersection(set2)
 并集：set1 | set2               # set1.union(set2)
 差集：set1 - set2               # set1.difference(set2), 有先后顺序，得到set1在set2中没有的
 对称差集：set1 ^ set2       # set1.symmetric_difference(set2), 并集中去掉交集部分
+
 父子集，包含关系：
 a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
 s1.issuperset(s2)   s1是s2的父集，返回布尔值
@@ -904,7 +1110,19 @@ s1.issubset(s2)       s1是s2的子集
 去重后无序
 s1.isdisjoint({1,2,3})    判断，没有共同部分返回true
 
-f = frozenset({1,3})    不可变集合
+fset = frozenset({1,3})            不可变集合
+fset = frozenset(range(10))
+
+s = {1，2，3} 效率比 s = set([1,2,3])这样创建效率要高，前者利用一个专门的叫做BUILD_SET的字节码来创建集合
+
+set、frozenseet跟字典一样，背后也是散列表，存放元素的引用
+1、集合里的元素必须是可散列的
+2、集合很消耗内存
+3、可以很高效的判断元素是否存在某个集合
+4、元素次序却决于添加顺序
+5、添加元素，可能会改变集合里已有元素的次序
+
+
 
 ---------------------------------------------------------------------------------------------
 
@@ -1068,6 +1286,11 @@ time.mktime(a)               元组转成时间戳, 秒形式
 time.strptime('2020/11/23', '%Y/%m/%d')    转换成元组：time.struct_time(tm_year=2020, tm_mon=11, 
                                                                         tm_mday=23, tm_hour=0, tm_min=0, tm_sec=0, tm_wday=0, 
                                                                         tm_yday=328, tm_isdst=-1)
+from time import perf_counter as pc
+t = pc()
+print('a')
+a = pc()-t
+print(a)                   # 精度较高的计时器
 
 timeit模块：
 测量代码执行时间
@@ -1095,7 +1318,7 @@ random.random()                   [0-1)之间小数
 random.randrange(1, 10, 2)    1到10之间整数，步长2
 random.randint(1,5)                范围内的整数
 random.choice('xx')                 随机选取
-random.shuffle(列表)               打乱列表顺序，无返回
+random.shuffle(列表)               打乱列表顺序，返回None一般表示就地修改列表
 random.sample([1,1,2,3,4], 5)    从序列随机选5个值，几个值各不相同
 
 随机验证码：
@@ -1121,7 +1344,7 @@ sha512             128位
 re模块：
 正则表达式
 import re
-r = re.match('^xx$'， '字符串')      从开头开始匹配，没有返回None
+r = re.match(r'^xx$'， '字符串')      从开头开始匹配，没有返回None
 r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
 r = re.findall('^xx$'， '字符串')       匹配全部，找到全部
 r = re.sub(正则, '新内容'，'str')        替换
@@ -1152,6 +1375,8 @@ r.span([group])                             开始跟结束索引
 "|"           或
 ()             分组，r.group(1)提取第一组
 
+re.match(rb'\d+', b'\xd2\ffd3')             # rb匹配字节序列
+
 
 第三方模块：
 pip install 模块名
@@ -1159,8 +1384,10 @@ pillow    处理图片
 ----------------------------------------------------------------------------------------------------
 函数：
 申请内存空间保存函数体代码，内存地址绑定函数名，定义会检测语法
+
 func(1, 3) * 10        # 函数的返回值乘10
 func(func(1, 2), 3)   # 函数当参数
+
 关键字参数：key=value，位置参数放在关键字参数前面，不能重复传参数
 默认参数在函数定义阶段赋值：def func(a=3)  而列表做参数会改变
 默认参数不应该使用可变类型，如列表
@@ -1168,6 +1395,13 @@ func(func(1, 2), 3)   # 函数当参数
 解包：*[1,2,3]<==>1 2 3  ，*'hello'<==>h e l l o，单个*号解包字典只获得key，*{1：2，3：4}  <==>1 2
 def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1,y=2
 fun(**字典)           解包字典，传给形参**kwargs再封包
+
+高阶函数：接受函数作为参数，或者把函数作为返回结果的函数是高阶函数。如map、filter、reduce
+
+函数注解：
+提示参数类型，参数有默认值，注解放在参数和等号=之间
+def fun(s:str, text:'int > 0'=20) -> str:              
+    pass
 
 解包，拆包：
 x, *y，z = 1, 2, 3            任何可迭代对象, y始终是一个列表：[ 2 ]
@@ -1236,7 +1470,16 @@ my_fun(2)                         执行fun2函数
 不改变原代码，改变原函数的指向，还是原来的调用方式，在它执行的前后加功能
 在闭包基础上，传入**函数作为参数**
 
+特性：
+1、能把被装饰的函数替换成其它函数
+2、装饰器在加载模块时立即执行
+
 ***先执行装饰器，再执行被装饰的函数
+
+@decorate            等价于：func = decorate(func)
+def func():
+    pass
+
 
 通用装饰器：有返回值，有不定参数：
 import functools
@@ -1588,6 +1831,9 @@ import logging
 logging.basicConfig(level=logging.INFO, filename='my_log.log')
 logging.info('日志')    # 写入日志文件my_log.log
 
+
+pygame模块：
+游戏
 
 
 
