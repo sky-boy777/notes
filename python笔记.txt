@@ -105,6 +105,9 @@ pool.close()   关闭
 pool.join()     # 主进程守护
 
 
+concurrent.futures包很快，可以处理线程和进程
+
+
 开放封闭原则：
 封闭:已实现的功能代码块
 开放：对扩展开放
@@ -144,10 +147,13 @@ http协议：请求和应答
 封装、继承、多态：python可以多继承
 
 GIL：
+全局解释器锁
 Cpython，互斥锁，同一进程下多个线程不能同时执行，无法利用多核优势
 GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一
-个线程在cup执行（上锁）只能是并发。多核cpu使用进程就是并行
-进入IO，GIL会自动释放
+个线程在cpu执行（上锁）只能是并发。多核cpu使用进程就是并行
+进入IO，GIL会自动释放。如time.sleep()会释放GIL。
+
+python线程在I/O密集型应用中能发挥作用
 
 互斥锁：逻辑上避免线程间死锁
 
@@ -239,6 +245,10 @@ g.join()  # 主进程等待，或gevent.joinall(g, g1, g2...)
 IO密集型用线程，因为线程切换开销小，进程切换开销大
 
 ****一般多进程下面开多线程下面开协程
+
+asyncio内置包：
+使用事件循环驱动的协程实现并发
+
 
 递归锁：
 所有人都可以加锁跟释放锁，里面会有个计数器，加锁+1，释放-1，但只能有一个人能执行
@@ -687,11 +697,15 @@ iterator：迭代器
 实现了__next__方法称为迭代器，next(it)调用一次返回一个值
 缺点：迭代器对象不能按索引取值，不能倒退，有生命周期，取完值就没了
 
-it = iter([1, 2, 88, 55])               # 从可迭代对象创建一个迭代器
+可迭代对象：__iter__
+迭代器：__iter__ + __next__
+
+it = iter([1, 2, 88, 55])               # 从可迭代对象获取一个迭代器
+
+迭代器使用next()函数取值
+item = next(it)  <==> it.__next__()      # __next__()没有更多值可迭代时，引发异常：StopIteration
 
 所以可迭代对象不一定是迭代器，生成器一定是迭代器
-
-next(it)  <==> it.__next__()    # __next__()没有更多值可迭代时，引发异常：StopIteration
 
 使用迭代器实现斐波那契数列，需要时计算，不必一下存入列表占用大量内存
 class F:
@@ -723,29 +737,41 @@ l = list(f)     # 转换成列表
 
 创建生成器：
 方式一：
-将列表推导式的括号改为小括号，称为生成器表达式，或生成器推导
-g = (i for i in range(10))        # 创建一个生成器
-next(g)                                 # 内置函数取值，一次产生一个值，取不到会报错
+将列表推导式的括号改为小括号，称为生成器表达式，或生成器推导，是语法糖
+g = (i for i in [1, 2, 3])           # 创建一个生成器
+next(g)                                 # 取值，内置函数取值，一次产生一个值，取不到会报错
 g.__next__()                          # 取值，一次产生一个值，取不到会报错
 
 方式二：
 函数里面包含yield关键字语句的称为生成器
-def func()
+def func():
     for i in [1, 3, 5, 9]:
-        x = yield 1                     # 函数中出现yield关键字，则会返回一个生成器
+        x = yield i                     # 函数中出现yield关键字，则会返回一个生成器
         print(x)
 
 g = func()                           # 调用函数返回值是一个生成器，函数体代码不会执行
-v1 = g.__next__()                  # 执行__next__()方法得到yield后面的值，或next(f)
-v2 = g.send(None)              # 值传给了x ，生成器刚启动时只能传None值，send返回一次next的值
+v1 = g.__next__()                # 执行__next__()方法得到yield后面的值，或next(g)
+v2 = g.send(None)             # 值传给了x ，生成器刚启动时只能传None值，send返回一次next的值
 v3 = g.send('值')
 l = list(func())                     # 转换为一个列表
-g.close()                             # 关闭后无法send()传值
-g.throw()                             # 用于在生成器内部抛出异常
+g.close()                            # 关闭后无法send()传值
+g.throw(Exception)            # 用于在生成器内部抛出异常
 
-sum(i for i in range(10))     # 直接求和，内部不再需要小括号
+
+yield from 句法：              可以用于简化循环中的yield
+def fun():
+    yield from 'ab'          # 子生成器, yield from x  第一件事就是调用iter(x), x可以
+    yield from '12'          # 是任何可迭代对象。PEP 380：把职责委托给子生成器 
+
+
+print(list(fun()))             # ['a', 'b', '1', '2']
+
+句法：
+sum(i for i in range(10))     # 求和，内部不需要小括号，函数有其它参数则必须要加
 
 for i in 可迭代对象，循环调用__iter__()得到迭代器对象，每次调用__next___()返回一个值给i
+
+只有for循环迭代时，才执行生成器函数体。
 
 生成器应用：协程（交替执行，并发）
 
@@ -768,11 +794,38 @@ g = fun( [1,2,[3, 4, 'ab', ['bn']]] )
 print(list(g))         # [1, 2, 3, 4, 'ab', 'bn']
 
 
+os.walk(top='路径')      # 生成器函数，遍历目录树的过程中产出文件名
+
+
+itertools:
+内置生成器模块, 提供了19个生成器函数
+g = itertools.count(start, step)       # 无限生成，无参数则从默认0，步长1
+g = itertools.takewhile(lambda n: n < 3, itertools.count(1, 1))   # 小于3
+next(g)
+g = itertools.groupby('aabbccddd'，key=func)        # (key的分组标准，生成器)，（'a', ['a', 'a']）
+
 
 with open('4.jpg', 'rb') as f:
     for i in f:
         print(i)    # 判断是否是图片，第六位后面的字母JFIF，b'\xff\xd8\xff\xe0\x00\x10 JFIF   \x00\x01\x     
         break
+
+--------------------------------------------------------------------------------------------
+上下文管理器和with块：
+1、with语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。
+2、上下文管理器协议包含__enter__和__exit__两个方法，with语句开始时，在上下文管理器对象
+调用__enter__, 结束时调用__exit__方法
+
+with块没有定义新的作用域
+
+with open('a.txt','r') as f:         # 在上下文管理器调用__enter__方法，结果返回给f变量
+    pass
+
+
+else在for、while、try中：
+for：         # 仅当for循环运行完毕时（没有被break语句终止）才运行else
+while：     # 仅当while循环移位条件为假而退出时（没有被break语句终止）才运行else
+try：         # 仅当try块中没有异常抛出时才运行else
 
 
 ---------------------------------------------------------------------------------------------
@@ -1388,6 +1441,7 @@ import re
 r = re.match(r'^xx$'， '字符串')      从开头开始匹配，没有返回None
 r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
 r = re.findall('^xx$'， '字符串')       匹配全部，找到全部
+r = re.finditer('^xx$'， '字符串')      跟findall一样，不过返回迭代器
 r = re.sub(正则, '新内容'，'str')        替换
 r = re.split(正则，字符串)                根据正则匹配到的切割，返回列表
 com = re.compile(正则)                  创建模式对象，提高匹配效率。com.search(字符串)
