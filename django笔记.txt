@@ -1,6 +1,6 @@
 1、新建项目文件
 2、创建虚拟环境 ：python -m venv 虚拟环境名字
-3、激活虚拟环境： cd  Scripts，   然后 ：.\activate或source activate
+3、激活虚拟环境： cd  Scripts，   然后 ：.\activate或linux下使用source activate
 3、退出虚拟环境：deactivate
 
 4、创建Django项目： django-admin startproject 项目名 

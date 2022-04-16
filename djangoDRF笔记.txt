@@ -13,4 +13,4 @@ return Response({
 	
 get方法问号传参http://www.xxx.com/index/?id=1&username=boy	 都是字符串，数字类型后端需要转换
 request.GET.get('id')                       django
-request.query_params.get('id')        rest_framework
+request.query_params.get('id')       rest_framework

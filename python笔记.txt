@@ -1,6 +1,9 @@
 ﻿安装：pip install -r requirements.txt
 导出：pip freeze > requirements.txt
 
+pip download -r requirement.txt -i https://pypi.douban.com/simple/      下载whl文件到当前目录
+pip install --no-index --find-links=./whl文件目录 -r requitements.txt        安装whl文件
+
 python的传递都是内存地址或引用传递
 
 select、poll、epoll：
@@ -246,8 +249,35 @@ IO密集型用线程，因为线程切换开销小，进程切换开销大
 
 ****一般多进程下面开多线程下面开协程
 
-asyncio内置包：
+
+asyncio内置包：      
+https://docs.python.org/zh-cn/3.7/library/asyncio-task.html
+异步I/O, 协程通过async/await语法声明，async表示定义异步函数，对象可在await语句中使用
+那么它就是可等待对象，如协程、任务、Future
 使用事件循环驱动的协程实现并发
+import asyncio
+
+async def main():
+    print('hell')
+    await asyncio.sleep(1)
+    print('worl')
+
+asyncio.run(main())   # 运行协程的方式
+
+------asyncio.create_task()  用来并发运行作为asyncio任务的多个协程
+async def s(s, num):
+    await asyncio.sleep(num)
+    print(s)
+
+async def main():
+    t1 = asyncio.create_task(s('hello', 1))
+    t2 = asyncio.create_task(s('world', 2))
+    await t1
+    await t2
+
+asyncio.run(main())
+
+aiohttp包是异步网络请求，而requests是同步的
 
 
 递归锁：
@@ -262,16 +292,20 @@ log日志：
 5、critical  严重错误
 一般是：年月日时分秒 哪个文件 第几行 日志级别 信息
 
+
 元类：
+元类是用于构建类的类
 在创建类的时候给它加功能，相当于装饰器最顶层，元类创建类，是类的类，元类创建元类
 元类--->类--->实例对象
 
 type就是一个元类，创建类：
-myclass = type('MyClass', (元组要继承的类,), {'a':1, 'b':2, 'fun': 实例方法，静态方法...})
+myclass = type('MyClass', (MyClass继承的类, ), {'a':1, 'b':2, 'fun': 实例方法，静态方法...})
 等价于：
 class MyClass: 
     a=1
     b=2
+
+所有类都是type的实例，但是元类还是type的子类
 
 
 globals()可以查看所有全局对象(函数、变量、类等)的引用，返回的是字典
@@ -301,11 +335,11 @@ str、bytes、array.array是在连续的内存中保存数据本身（字符，�
 提升程序解耦合度，扩展性增强
 缺点：设计复杂
 
-class AA([父类]):     # 定义类，驼峰命名
+class AA([父类]):                                  # 定义类，驼峰命名
     """这是一个类"""
     
-    name = 'xxx'        # 类属性   
-    __age = 18          # 私有，两个下划线开头且尾部最多有一个下划线，存放在实例的__dict__属性中：_AA__age，方法也是一样。
+    name = 'xxx'                                  # 类属性   
+    __age = 18                                    # 私有，两个下划线开头且尾部最多有一个下划线，存放在实例的__dict__属性中：_AA__age，方法也是一样。
     
     def __init__(self，age, name):           # 初始化方法，双下划线开头结尾：魔法方法
 
@@ -313,35 +347,38 @@ class AA([父类]):     # 定义类，驼峰命名
         super.(AA, self).__init__(name)       # 方法二
         父类.__init(self, name)                    # 方法三，使用父类名直接调用
 
-        self.age = age         # 实例属性
-        self.__xxx = xxx        # 私有
+        self.age = age                           # 实例属性
+        self.__xxx = xxx                          # 私有
 
-    def fun(self):        # 普通方法
-        super().fun()    # 调用父类的方法，同名
-        self.run()          # 调用方法
+    def fun(self):                                  # 普通方法
+        super().fun()                               # 调用父类的方法，同名
+        self.run()                                   # 调用方法
 
-    def __method(self):    # 私有方法
+    def __method(self):                        # 私有方法
         pass
 
     @classmethod
-    def fun(cls):       # 类方法，类来调用，类方法里面只能使用类属性, fun = classmethod(fun)
-        cls.xx = xx     # 类属性
-        cls.__age = 19  # 修改私有类属性，只能在类里面更改
+    def fun(cls):                                # 类方法，类来调用，类方法里面只能使用类属性, fun = classmethod(fun)
+        cls.xx = xx                              # 类属性
+        cls.__age = 19                       # 修改私有类属性，只能在类里面更改
 
     @staticmethod
-    def func():         # 静态方法，只能访问类的属性跟方法, func = staticmethod(func)
+    def func():                              # 静态方法，只能访问类的属性跟方法, func = staticmethod(func)
         类名.属性或方法
 
     def method():
         return 'aaa'
     
-    def name():
-        return 'name' 
+    @property                                                   # 推荐使用装饰器的形式
+    def name(self):
+        """这里会是property的doc参数的文档"""     #  doc参数值
+        return self.__name 
 
     method = staticmethod(method)      # 也可以这样定义，staticmethod跟classmethod都是类
-    NAME = property(fget=name)          # property也是类，四个参数：对应获取，设置，删除，文档
+    name = property(fget=name)           # property也是类，四个参数：对应获取，设置，删除，文档
+                                                            # property(fget=None, fset=None, fdel=None, doc=None)
     
-　　
+
 obj = 类名()  　# 实例化
 obj.方法()      # 使用方法
 obj.xx = 'xx'   # 添加对象属性
@@ -349,10 +386,15 @@ obj.xx = 'xx'   # 添加对象属性
 类名.类方法()   # 使用类方法
 类名.静态方法() # 使用静态方法
 
+在类上调用方法相当于调用函数：Class.fun(obj)         # obj就是方法的参数self，实参可以是其它
+type(Class.fun)                                                      # 函数
+type(obj.fun)                                                         # 方法  
+obj.fun()       <==>       Class.fun.__get__(obj)        # 返回对应绑定的方法
+ 
 一般使用一个前下划线说明是私有属性，跟用全大写表示常量一样，是一种约定。
 
 A.__base__                             可以查看A的父类，A.__bases__  输出多继承的几个类
-a.__class__                              查看a属于哪个类
+a.__class__                             查看a属于哪个类, 等同于type(a)
 issubclass(A, object）            判断类A是否是object的子类
 isinstance(a, A)                      判断一个对象是否是一个类的实例     
 type(a)                                   也可以查看一个对象所属的类
@@ -381,7 +423,7 @@ def __new__(cls, *args, **kwargs)    # 实例化的魔法方法，向内存申�
 
 __init__(self)         # 初始化，重写时需要调用父类的__init__方法，不然可能会发生意外
 __str__（self）      # print打印对象会执行，返回字符串， return 'str方法'， str()
-__dict__               # 以字典方式返回对象的属性
+__dict__               # 一个映射，存储对象或类的可写属性
 __del__                # 也称析构函数，在del对象时会先执行(垃圾回收)，del obj或程序运行结束之前释放内存件
 __call__(self)        # 使对象能加括号调用，类似函数，例：obj = Obj(), obj()
 __doc__                 # 属性
@@ -391,8 +433,8 @@ __add__(self)          # '+' 加法，对不可变序列做重复拼接效率会
 __iadd__(self)         #  '+='  可变序列使用则就地加法，地址不变。不可变序列内部没有实现__iadd__, 而会调用__add__，会重新赋值
 __mul__(self)          # '*'  乘法
 __bool__(self)        # bool()，类中不存在这个方法则会调用__len__(), 为0则返回False
-__enter__(self)和__exit__(self)      # 上下文管理with
-__slots__               # 属性，使用得当，能节省内存
+__slots__               # 限制实例能有哪些属性，使用得当，能节省内存
+__enter__(self) 和 __exit__(self)      # 上下文管理with
 
 就地加法：
 t = (1, 2, [3, 4])
@@ -413,10 +455,11 @@ __delitem__(self, key)
 __missing__(self，key)                           在d[k]没有取到值的时候返回一个默认的值，dict中没有实现这个方法
 
 属性相关
-__getattribute__(self, name)      属性被访问时自动调用（只适用于新式类） 
+__getattribute__(self, name)       属性被访问时自动调用（只适用于新式类） 
 __setattr__(self, name, value)     试图给属性赋值时自动调用
-__delattr__(self, name)              试图删除属性时自动调用
-__getattr__(self, name)              在属性被访问而对象没有这样的属性时自动调用
+__delattr__(self, name)               试图删除属性时自动调用
+
+__getattr__(self, name)              在属性被访问而对象没有这样的属性时自动调用, 只在对象的类中寻找，而不在实例中寻找
 这几个方法效率比property低
        
 新式类：继承自Object，python3默认继承自Object
@@ -435,7 +478,9 @@ __getattr__(self, name)              在属性被访问而对象没有这样的�
 
 外部访问：对象._类名__属性名,变形后的私有属性
 
-property类
+property：特性都是类属性，但是特性管理的其实是实例属性
+
+property是类
 class B:
     def get_name(self):
         return 'b'
@@ -459,10 +504,10 @@ B.name.__doc__         文档字符串
 
 使用方式：@property或老版本name = property(get_name(), set_name())
 @property
-def name(self):      # 先使用property装饰，能使用obj.name获取，才能使用下面的
+def name(self):          # 先使用property装饰，能使用obj.name获取，才能使用下面的
     return self.__age
 
-@name.setter          # 能使用obj.name = '张三'
+@name.setter           # 能使用obj.name = '张三'
 def name(self, age):
     if age:
         self.__age = age
@@ -537,10 +582,10 @@ class UserMixIn：
 反射机制：
 程序运行过程中可以动态获取对象的信息
 obj是对象，类
-setattr(obj,  'age'， 18)            # 设置对象属性
-getattr(obj，'age', None)        # 获取对象属性值，指定默认值
+getattr(obj，'age', default)        # 获取对象age属性值，可能来自类或超类，无则返回默认值，没有默认值抛出AttributeError异常
+hasattr(obj, 'age')                    # 判断obj对象下是否有属性age，布尔值。其实是是调用getattr(obj, 'obj')看看是否抛出了AttributeError异常
+setattr(obj,  'age'， 18)            # 给对象设置属性，覆盖或创建
 delattr(obj, 'age')                     # 删除
-hasattr(obj, 'age')                    # 判断obj对象下是否有属性age，布尔值
 例子：
 getattr(obj, 'fun')()                   # 获取obj对象的fun方法，并执行
 
@@ -614,7 +659,7 @@ res = reduce(lambds x，y：x+y, 可迭代对象，初始值(给第一个x))  # 
 map(func, 可迭代对象)                    得到生成器对象，list（map(func, 可迭代对象)）得到列表
 filter(func, 可迭代对象)                    过滤，返回生成器对象，结果需要转换为列表
 all()                                                全部为真返回True否则False, all([])返回True，all({})True
-dir（obj）                                        查看有什么属性、方法
+dir（obj）                                        列出对象的属性、方法，当前作用域，不会列出__dict__、__mro__、__bases__、__name__
 divmod（10，3）                            计算商跟余数，返回（商，余数）
 isinstance（obj，Obj）                   类型判断，判断一个对象是否是一个类的实例，isinstance(2,int) True
 zip（[1,2], [3,4]）                             拉链函数，[(1,3), (2,4)]
@@ -641,7 +686,8 @@ globals()                                   返回全局变量的一个字典，
 locals()                                      返回局部变量的一个字典，locals()['a']，只能访问，不能设置
 
 x = 1
-a = vars()                                这个函数返回一个字典，key为变量，value为变量的值。print(a['x'])
+a = vars()                                 无参数则跟locals()一样，返回本地作用域
+vars(obj)                                  指定obj，返回obj对象的__dict__属性
 
 排序依据字典value：
 res = sorted(dic, key=lambda k: dic[k])     # 按照关键字key排序，任何可迭代对象，不可变元组做参数，都返回一个新列表
@@ -651,12 +697,10 @@ bisect模块：实现了二分查找法
 bisect.insort(有序列表， 4)           # 将4插入列表，并保持列表有序
 
 
-async def：定义协程函数
-
 垃圾回收机制：引用计数、标记清除、分代回收
-sys.getrefcount(对象)      查看引用次数
+sys.getrefcount(对象)      查看被引用次数
 
-转为二进制：bytes（'hello', encode='utf-8'）
+转为二进制：bytes('hello', encode='utf-8'）
 
 python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 
@@ -665,6 +709,8 @@ python 三元表达式 ： a = 'b'  if  x>y  else  'c'
 集合推导式：  {i for i in range(10)}
 得到一个生成器：（i for i in range(10)）        # 生成器表达式，用到再产生元素，更节省内存
 没有元组推导式，因为元组不可变
+
+列表推导会及早求值，与惰性求值相反
 
 if True:     <==>    if True:
     pass                       "xxx"           # 使用字符串做占位符
@@ -706,6 +752,8 @@ it = iter([1, 2, 88, 55])               # 从可迭代对象获取一个迭代�
 item = next(it)  <==> it.__next__()      # __next__()没有更多值可迭代时，引发异常：StopIteration
 
 所以可迭代对象不一定是迭代器，生成器一定是迭代器
+
+实现__getitem__方法的对象也是可迭代的对象
 
 使用迭代器实现斐波那契数列，需要时计算，不必一下存入列表占用大量内存
 class F:
@@ -868,7 +916,7 @@ s.isalpha（）                               是否是字母
 s.center(10, '#')                            居中，两边填充#号。左对齐ljust，右对齐rjust
 s.rfind()
 s.lower('A#%A')                            字母转为小写，upper()  ,istitle()如果开头大写，title(), islower()如果全部小写
-
+s.isidentifier()                               判断是否为有效标识符（变量）
 
 max('aab')   最大
 min('aab')   最小
