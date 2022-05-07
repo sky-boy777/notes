@@ -1,14 +1,14 @@
 局部更新
-异步
+异步提交
 ---------------------------------------------------------
 js创建ajax：
 var xhr = new XMLHttpRequest();     创建ajax对象
 xhr.open('post', 'url');                         构建请求
 xhr.setRequestHeader('Content-Type', 'application/json')   请求信息
-xhr.send();                                发送
+xhr.send();                               发送
 xhr.onload = function(){          监听，请求有响应后会触发加载事件
              xhr.responseText        获取响应数据，一般是json
-             xhr.status                    http状态码
+             xhr.status                   http状态码
 }
 ------------------------------------------------------------------------------
 json转化为js对象：
@@ -70,7 +70,7 @@ fd.set('key', 'value')   设置值，覆盖相同key
 fd.delete('key')          删除
 fd.append('key', 'value')   追加，不会覆盖相同key，服务端只会接收最后一个
 
-formData二进制文件上传：
+formData对象二进制文件上传：
 var file = document.getElementById('file')    获取input表单type='file'元素
 var fd = new FormData()
 file.onchange = function(){              // 有文件上传时触发事件
@@ -115,6 +115,7 @@ ajax跨浏览器请求
 服务器端：header('Access-Control-Allow-Credentials', true)   表示跨域允许携带cookie
 客户端ajax：withCredentials：true      跨域请求是否携带cookie，默认为false
 -----------------------------------------------------------------------------------------------------------
+
 jQuery发送Ajax：
 $.ajax({ 
        type: 'get',
@@ -128,15 +129,33 @@ $.ajax({
 
 jquery发送jsonp请求：
 $.ajax({ 
-       url: 'url',
-       dataType：'jsonp',   
-        success：function(response){},   
+       url: 'url',                                          不写默认是当前浏览器地址
+       type: 'post',                                     不写默认get
+       data：JSON.stringify({'username': '张三'， 'password': '1234'})           要发送的数据, 转换成json格式
+       dataType：'jsonp',                                                     预期返回格式，或dataType: 'json', 自动将返回的json转换成js对象
+       contentType: 'application/json',                                 指定发送的数据的编码格式 ，json格式
+       success：function(data){ alert(data); }                        回调函数, 后端返回字符串   
 })；
 
 post、get请求：
 参数可选
 $.get('url', {name: xxx, age: xxx}, function(){})
 $.post('url', {name: xxx, age: xxx}, function(){})
+
+
+ajax发送文件：
+需要借助js的FormData对象
+let fd = new FormData()；
+fd.append('username', $('#id').val());          普通数据
+fd.append('myfile', $(#file_id)[0].files[0]);    获取表单文件
+$ajax({
+    ...
+    data: fd,                         FormData对象
+    contentType: false,         不需要任何编码
+    processData: false,          告诉浏览器不要对数据做任何处理
+    ....
+}
+
 
 jQuery中Ajax全局事件：
 全局，相当于中间件，必须绑定在document上

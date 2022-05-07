@@ -37,9 +37,9 @@ kill -9 进程id
 http://redisdoc.com/      redis命令参考大全
 
 五大数据类型：
-**list              列表，底层是链表
-**hash           哈希，键值对集合，一个string类型的field的value的映射表，适合存储对象
-**string          字符串，一个key对应一个value，value最多是512M
+list                  列表，底层是链表
+hash               哈希，键值对集合，一个string类型的field的value的映射表，适合存储对象
+string              字符串，一个key对应一个value，value最多是512M
 set                  集合，无序无重复，它是通过HashTable实现的
 zset                有序集合，每个元素都会关联一个double类型的分数，通过这个数升序排序
                        成员唯一，分数可重复

@@ -1,16 +1,322 @@
-创建django项目
-修改配置，在apps下注册rest：rest_framework
-创建模型
-序列化模型
-视图：查询数据，序列化数据，返回json数据
+django前后端分离：  drf
 
-标准格式返回，前端会收到json数据
-return Response({
-            'code': 200,
-            'msg': 'ok',
-            'data': ds.data,
-        })  
+1、安装：pip install djangorestframework
+2、在settings.py 下注册app：rest_framework
+3、在应用下定义序列化serializers.py文件，编写序列化类，为了将在orm查询出来的对象转换成json数据
+     返回给前端，序列化具体是在views.py下完成的，简化了手动转换的步骤，序列化类下可以写类似form
+    表单的验证，保存数据进数据库，重写update方法，不然在view报错
+4、序列化后验证数据
+
+
+Request.data                    json数据
+Request.query_params     查询参数，？a=12&b=123
+
+
+serializers.py文件
+
+from rest_framework import serializers     # 序列化器
+from app.models import Data                  # 数据表模型
+
+# 自定义验证字段函数
+def text_yanzheng(value):
+    if len(value) < 3:
+        raise serializers.ValidationError('字数不能少于三个')
+
+
+class QbSerializers(serializers.ModelSerializer):                       # 或继承serializers.Serializer
+    text = serializers.CharField(validators=[text_yanzheng])      # 使用自定义验证字段函数,验证text字段，注意：字段必须跟模型里的字段名一致
+
+    class Meta:
+        model = Data                  # 模型类
+        # fields = '__all__'             # 所有字段
+        # fields = ['id', 'text']        # 自定义需要的字段，使用列表或元组： fields = ('id', 'text')
+        exclude = ['id']                # 排除的字段
+
+   
+    def validate_text(self, value):                         # 单字段验证：validate_字段名，value为字段形参
+        if len(value) < 2:
+            raise serializers.ValidationError('字数不能少于两个')     # 返回错误信息
+        return value
+
+    def validate(self, attrs):                                # 验证多个字段，attrs为字段集
+        if attrs['text'] == '0':
+            raise serializers.ValidationError('不能输入0')
+        if re.search(r'反政府', attrs['text']):                                 # 如果有不允许的字样，抛异常
+            raise serializers.ValidationError('有不允许的字')
+        return attrs
+
+    def update(self, instance, validated_data):      # 更新数据到数据库            
+         ......
+         instance.save()
+         return instance
 	
-get方法问号传参http://www.xxx.com/index/?id=1&username=boy	 都是字符串，数字类型后端需要转换
-request.GET.get('id')                       django
-request.query_params.get('id')       rest_framework
+views.py下
+
+from rest_framework.generics import GenericAPIView  # 类视图要继承的父类
+from app.models import Data  # 数据表模型
+from app.serializers import QbSerializers  # 自定义的序列号类
+from rest_framework.response import Response  # 响应
+
+# 从数据库查询，转换成json数据传递给前端（序列化）
+class InfoView(GenericAPIView):
+    # 要有查询集
+    queryset = Data.objects.all()
+
+    # 处理get请求
+    def get(self, request, did=0):
+        # 查询所有段子信息
+        # duanzi = Data.objects.all()
+        # 序列化：将对象或queryset直接转换成字典或列表套字典
+        #                     查询的对象
+        # ds = QbSerializers(instance=self.queryset.all(), many=True)  # 多个对象则:many=True
+        # print(ds.data)
+        # return Response(ds.data)  # 返回，前端会收到json数据
+		
+		
+        # 判断查询全部还是一条数据
+        if did < 1:
+            return self.find_all(request, did)
+        return self.find_one(request, did)
+
+    # 查询所有
+    def find_all(self, request, did=0):
+        ds = QbSerializers(instance=self.queryset.all(), many=True)  # 多个对象则:many=True
+        return Response(ds.data)  # 返回，前端会收到json数据
+
+    # 查询一条
+    def find_one(self, request, did):
+        # 查询一个
+        duanzi = self.queryset.get(id=did)
+        # 序列化
+        ds = QbSerializers(instance=duanzi)
+        # 以json格式返回给前端
+        return Response(ds.data)
+
+# 接受前端传过来的json数据，转换成对象存入数据库（反序列化），这里需要用到验证
+class AddView(GenericAPIView):
+    queryset = Data.objects.all()
+    serializer_class = QbSerializers
+
+    def post(self, request):
+        # 将前端传过来的数据反序列化，json字符串转换成对象
+        ds = QbSerializers(data=request.data)
+
+        # 验证数据
+        if ds.is_valid():
+
+            # 验证通过，保存到数据库
+            ds.save()  # 调用的是create，直接创建并保存
+            return Response({"code": 1, 'msg': 'ok'})
+        else:
+            # 没通过，返回错误信息
+            return Response({'code': 0,'msg': ds.errors})
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+rest_framework验证、权限、节流
+
+验证
+myAuthentications.py
+
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+
+# 自定义验证类,身份验证本身不会允许或不允许传入的请求，它只会标识发出请求的凭据,告诉你验证是否通过，其他还会继续执行
+class MyAuthentications(BaseAuthentication):
+    # 必须重写authenticate方法
+    def authenticate(self, request):
+        # 获取token
+        token = request.query_params.get('token')  # query_params等于GET
+        # 验证token
+        if token == 'abcd':
+            print('验证成功')
+            return None  # 必须返回一个元组,第二个参数可以是None
+        else:
+            print('验证不成功')
+            # 验证不成功直接返回
+            raise AuthenticationFailed('验证不成功')
+            # 如果return None则会继续执行请求
+            # return None
+
+全局验证需要在settings里配置以下
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 自定义的验证,可以多个
+        'app.myAuthentications.MyAuthentications',
+    ]
+}	
+	
+局部验证只要在相对应的类视图加上以下
+# 对特定的视图进行验证，后面是一个元组，可以有多个验证类
+authentication_classes = (MyAuthentications,)
+
+
+权限
+myPermissions.py
+
+from rest_framework.permissions import BasePermission
+
+# 自定义权限类
+class MyPerssion(BasePermission):
+    # 对视图
+    def has_permission(self, request, view):
+        print('权限')
+        return True  # 返回True则通过，返回False则不通过
+
+        # 如果登录了，则通过
+        # return request.user
+
+    def has_object_permission(self, request, view, obj):
+		 '''权限规则自定'''
+        return True  # 同上
+	
+在基于类的视图里加上
+ # 权限判断
+ permission_classes = (MyPerssion,)
+ 
+ 
+ 节流
+ from rest_framework.throttling import SimpleRateThrottle
+
+自定义节流
+class MyThrottle(SimpleRateThrottle):
+    '''('s', 'sec', 'm', 'min', 'h', 'hour', 'd', 'day')，秒，分，时，天'''
+    rate = '3/m'  # 请求次数/时间（分）
+    # scope = 'anon'  # 范围：匿名用户
+    def get_cache_key(self, request, view):
+        # 根据用户id用户名，登录不限制，不登录则限制每分钟请求次数
+        if request.user and request.user.id:
+            return None  # 返回None表示不限制
+        else:
+            return 1  # 返回其他，有限制
+
+		
+在视图类里局部节流
+throttle_classes = (MyThrottle,)
+
+
+在settings里面设置全局节流
+# rest_framework全局节流，认证跟权限的全局配置基本相同
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        # 自定义节流类
+        # 'app.myThrottle.MyThrottle',
+
+        # 框架的类, 需要在下面定义限制频率
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    # 节流的全局设置,在类里面定义了，这里就不用定义了
+    'DEFAULT_THROTTLE_RATES': {
+         'anon': '2/m',  # 匿名用户
+         'user': '1000/day',  # 已登录用户
+     }
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+rest_framework分页
+
+视图类里面局部分页
+from rest_framework.pagination import PageNumberPagination  # 分页类
+from app.myPagination import MyPage  # 自定义的分页类
+
+# 分页
+class DataView(GenericAPIView):  # 继承ListAPIView可以快速实现分页
+    queryset = Data.objects.all()  # 查询集（必须）
+    serializer_class = QbSerializers  # 序列化器（必须）
+
+    # 局部分页
+    # pagination_class = PageNumberPagination  # 分页类
+    # PageNumberPagination.page_size_query_param = 'page_size'  # 使用内置分页类必须声明这个，不声明默认禁用分页(None)
+    pagination_class = MyPage  # 使用自定义的分页类
+
+    # 继承GenericAPIView,如果继承ListAPIView则不用写下面
+    def get(self, *args, **kwargs):
+        # 过滤结果集
+        queryset = self.filter_queryset(self.get_queryset())
+        # 获取分页对象
+        page = self.paginate_queryset(queryset=queryset)
+        if page is not None:  # 分页对象存在
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # 不分页，返回所有数据
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+settings里面全局分页
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,   # 每页的数目
+}
+
+
+自定义分页类
+from rest_framework.pagination import PageNumberPagination, OrderedDict
+from rest_framework.response import Response
+
+# 自定义分页类
+class MyPage(PageNumberPagination):
+    page_size = 5  # 每页数目，为空则表示禁用分页
+    page_size_query_param = 'page_size'  # 页面大小，可以由前端传过来
+
+    # 自定义分页形式, 重写get_paginated_response方法
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),  # 总数
+            ('page_range', list(self.page.paginator.page_range)),  # 页码范围
+            ('has_next', self.page.has_next()),   # 是否有下一页
+            ('has_prious', self.page.has_previous()),  # 是否有上一页
+            ('next_page_number', self.page.next_page_number()),  # 下一页页码
+            ('results', data)  #
+        ]))
+------------------------------------------------------------------------------------------------------------------------------
+rest_framework过滤
+pip install django-filter
+
+在settings下app注册：'django_filters',
+REST_FRAMEWORK = {
+   'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
+
+自定义过滤类
+from django_filters import rest_framework as filters
+from app.models import Data
+
+# 自定义过滤类
+class MyFilter(filters.FilterSet):
+    class Meta:
+        model = Data  # 指定模型
+
+        # 字段过滤
+        fields = {
+            # 跟ORM运算一样
+            # http://127.0.0.1:8000/list/?id__gt=5, 过滤id大于5的
+            'id': ['exact', 'lt', 'lte', 'in'],  # 等于，小于,小于等于，在里面
+            'text': ['icontains', 'startswith', 'iendswith'],  # 包含、以什么开头，以什么结尾
+        }
+
+在视图类调用
+# 过滤
+class ListView(ListAPIView):
+    queryset = Data.objects.all()
+    serializer_class = QbSerializers
+
+    # 过滤字段（搜索框）
+    # filter_fields = ('id',)   # 只能判等
+    
+    # 使用自定义过滤类
+    filter_class = MyFilter
+--------------------------------------------------------------------------------------------------------------------------------
+
+自动生成接口开发文档
+1、pip install coreapi
+2、settings配置
+	REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+	}
+3、根路由urls.py
+	from rest_framework.documentation import include_docs_urls   # 接口文档
+	urlpatterns = [
+			path('docs/', include_docs_urls(title='使用coreapi生成的接口文档')),
+]
+4、在视图（views.py）下，每个类视图或函数视图使用三引号写文档
+5、浏览器输入：http://127.0.0.1:8000/docs/

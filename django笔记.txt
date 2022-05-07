@@ -12,27 +12,18 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 django¿ªÆôÊÂÎñ£º
 Ê¹ÓÃ×°ÊÎÆ÷£¬ĞèÒªµ¼Èë£¬¿ÉÒÔÉèÖÃ±£´æµã£¬·½±ã»Ø¹öµ½±£´æµãÎ»ÖÃ
+from django.db import transaction
+1¡¢
+with transaction.atomic():      ¿ªÆôÊÂÎñ£¬ÔÚwithÀïÃæ
+    sqlÓï¾ä1
+    sqlÓï¾ä2
 
+2¡¢
 @transaction.atomic
 def xxx(self, request):
     pass
 
 -----------------------------------------------------------------------------------------------------------------------------
-centos°²×°MySQL£º
-wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
-yum -y install mysql57-community-release-el7-10.noarch.rpm
-yum -y install mysql-community-server
-Æô¶¯£ºsystemctl start  mysqld.service
-²é¿´×´Ì¬£ºsystemctl status mysqld.service
-ÕÒ³öÃÜÂë£ºgrep "password" /var/log/mysqld.log
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
- MySQL±¸·İÊı¾İ¿â£ºmysqldump -u root -p Êı¾İ¿âÃû > blog.sql
- MySQLµ¼ÈëÊı¾İ¿â£º
- Ô¶³Ì¸´ÖÆ£ºscp -r ±¾µØÄ¿Â¼ gg@192.168.1.101:/home/gg/
- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
  uwsgiÆô¶¯£ºuwsgi uwsgi.ini
  ¹Ø±Õ£ºuwsgi  --stop   uwsgi.ini   »ò kill  -9   ½ø³Ìid
  ÖØÆô£ºuwsgi --reload uwsgi.pid
@@ -48,13 +39,72 @@ django¿ò¼Ü£º¿ìËÙ¿ª·¢£¬²»ÖØ¸´×öÒ»Ğ©¶«Î÷
 ORM£º
 object relations mapping ¶ÔÏó¹ØÏµÓ³Éä
 
-Ä£ĞÍ×Ö¶ÎÔ¼Êø£º
-ÉèÖÃ³¤¶È¡¢Î¨Ò»¡¢Ë÷Òı
-name = models.CharField(max_length=20, unique=True, db_index=True)
-ImageField  Í¼Æ¬
+ormÄ£ĞÍ³£ÓÃ×Ö¶Î£º
+AutoField                    Ö÷¼ü£¬primary_key=True
+CharField                     varchar, verbose_name×Ö¶Î×¢ÊÍ£¬max_length³¤¶È
+IntegrField                   int
+BigIntegerField             bigint
+DecimalField                max_digits=8×ÜÎ»Êı, decimal_places=2Ğ¡ÊıÎ» 
+EmailField                    varchar(254)
+DateField                     date
+DateTimeField             datetime, ÈÕÆÚ¶¼ÓĞÁ½¸ö²ÎÊı£ºauto_nowÃ¿´Î¸üĞÂÈÕÆÚ£¬auto_now_add´´½¨Ê±Ìí¼ÓÈÕÆÚ
+BooleanField               ´«²¼¶ûÖµTrue£¬False£¬µ«Êı¾İ¿â´æ 0 »ò 1 
+TextField                     ´ó¶ÎÎÄ±¾ÀàĞÍ
+FileField                      ÎÄ¼ş£¬upload_to='ÎÄ¼şÂ·¾¶'£¬´«ÎÄ¼ş×Ô¶¯±£´æµ½¸ÃÂ·¾¶£¬Êı¾İ¿â´æÂ·¾¶
+ImageField                  Í¼Æ¬£¬Ê¹ÓÃ£º{{ user.avatar.url }} ×Ô¶¯Éú³É  /media/avatar/default.jpg
 
-Ìí¼Ó£º
-User.objects.create(key=value)
+×Ô¶¨ÒåÄ£ĞÍ×Ö¶Î£º
+class MyCharField(models.Field):
+    def __init__(self, max_length, *args, **kwargs):
+        self.max_length = max_length
+        super().__init__(max_length=max_length, *args, **kwargs)
+
+    def db_type(self, connection):
+        return 'char(%s)'%self.max_length
+
+class User(models.Model):
+    name = MyCharField(max_length=20)       Ê¹ÓÃ×Ô¶¨ÒåÄ£ĞÍ×Ö¶Î
+
+
+xxx = models.ForeignKey(to='self')           # ×Ô¹ØÁª
+
+
+Ä£ĞÍ×Ö¶ÎÔ¼Êø£º
+name = models.CharField(max_length=20 )
+max_length=20         ³¤¶È
+unique=True              Î¨Ò»£¬ForeignKey(unique=True)  <==> OneToOneField()
+db_index=True          ½«´Ë×Ö¶Î¶¨ÒåÎªË÷Òı
+null=True                  ÔÊĞíÎª¿Õ
+to_field                     Íâ¼üÖĞ£¬ÉèÖÃÒª¹ØÁªµÄ×Ö¶Î£¬²»Ğ´Ä¬ÈÏÊÇÁíÒ»ÕÅ±íµÄÖ÷¼ü×Ö¶Î
+on_delete                  django2.xÖ¸¶¨Íâ¼ü×Ö¶ÎµÄ¼¶Áª¸üĞÂ
+choices                     Ñ¡Ôñ
+db_constraint            ForeignKeyÖĞÊ¹ÓÃ£¬ÊÇ·ñÔÚÕæÊµÊı¾İ¿âÖĞ´´½¨Íâ¼ü×Ö¶Î£¬Ä¬ÈÏTrue 
+
+g_choices = (
+	(1, 'ÄĞ')£¬
+	(2, 'Å®')
+    )
+gen = models.IntegerField(choices=g_choices)       choices²ÎÊıÊ¹ÓÃ, Êı¾İ¿âÀï´æµÄÊÇÊı×Ö    
+user = User.objects.filter(pk=1).first()
+user.get__gen_display()                         È¡³öÊ¹ÓÃget__×Ö¶ÎÃû_display(), Ã»ÓĞ¶ÔÓ¦ÔòÊä³öÔ­±¾Êı×Ö
+
+Êı¾İ¿â²éÑ¯ÓÅ»¯£ºdjangoÊÇ¶èĞÔ²éÑ¯
+onlyÓëdefer
+Book.objects.only('title')
+Book.objects.defer('title')
+deferÓëonlyÏà·´£¬deferÀ¨ºÅÄÚ·ÅµÄ×Ö¶Î²»ÔÚ²éÑ¯´¦ÀíµÄ¶ÔÏóÀïÃæ£¬²éÑ¯¸Ã×Ö¶ÎĞèÒª
+ÖØĞÂ×ßÊı¾İ¿â£¬¶øÈç¹û²éÑ¯µÄÊÇ·ÇÀ¨ºÅÄÚµÄ×Ö¶Î£¬Ôò²»ĞèÒª×ßÊı¾İ¿â¡£
+
+select_relatedÓëprefetch_related£º
+¸ú¿ç±í²Ù×÷ÓĞ¹Ø
+Book.objects.select_related('Ö»ÄÜÊÇÍâ¼ü×Ö¶Î')         ÄÚ²¿ÊÇÁ¬½Ó²éÑ¯£¬inner join£¬Ö»ÄÜÒ»¶Ô¶à£¬Ò»¶ÔÒ»
+Book.objects.prefetch_related('Ö»ÄÜÊÇÍâ¼ü×Ö¶Î')     ÄÚ²¿ÊÇ×Ó²éÑ¯
+
+select_reatedÄÚ²¿Ö±½ÓÏÈ½«Á½¸ö±íÁ¬ÆğÀ´£¬È»ºóÒ»´ÎĞÔ½«ÀïÃæµÄËùÓĞÊı¾İÈ«²¿·â×°¸ø
+²éÑ¯³öÀ´µÄ¶ÔÏó£¬Ò²¾ÍÊÇËµ²»ÊÇ¶èĞÔ²éÑ¯¡£
+prefetch_relatedÀûÓÃ×Ó²éÑ¯Ò»´ÎĞÔ½«ÀïÃæµÄËùÓĞÊı¾İÈ«²¿·â×°¸ø
+²éÑ¯³öÀ´µÄ¶ÔÏó¡£Í¬ÉÏÒ»Ñù¡£
+
 --------------------------------------------------------------------
 ½â¾ö²¢·¢ÎÊÌâ£¬¼ÓËø£º
 ±¯¹ÛËø£¬²éÖ®Ç°ÏÈÉÏËø£ºselect_for_update()£¬±ğµÄÊÂÎïÖ´ĞĞÏàÍ¬²éÑ¯»á×èÈû
@@ -67,53 +117,164 @@ update user set username='xxx' where xxx='xxx'            whereÌõ¼şÅĞ¶ÏÊÇ·ñ±»ÆäË
 num = User.objects.filter(id=sid£¬xxx='xxx').update(username='xxx')       ·µ»ØÊÜÓ°ÏìµÄĞĞÊı£º1¸üĞÂ»ò0Î´¸üĞÂ
 
 ---------------------------------------------------------------------------
+²âÊÔ»·¾³test.py:
+manage.pyÇ°¼¸ĞĞµ¼Èë
+import os
+import sys
+if __name__ == '__main__':
+    import django
+    diango.setup()
+
+
 ²éÑ¯£º
-User.objects.get(id=1) 
-get(Ìõ¼ş)        Ò»Ìõ
-all()                È«²¿
-filter(Ìõ¼ş)     Âú×ãÌõ¼şµÄ
-exclude(Ìõ¼ş)    ²»Âú×ãÌõ¼şµÄ
+User.objects.filter(id=1) 
+
+get()                             Ò»Ìõ£¬Ã»ÓĞ»á±¨´í£¬ÉÙÓÃ
+all()                              È«²¿
+filter()                          Âú×ãÌõ¼şµÄ
+values()                       »ñÈ¡Ö¸¶¨×Ô¶¯¶ÔÓ¦µÄÊı¾İ£¬·µ»Øquery¶ÔÏó£¬ÁĞ±íÌ××Öµä
+values_list()                  queryset£¬ÁĞ±íÌ×Ôª×é
+count()                         Í³¼Æ
+first()                            µÚÒ»¸ö
+last()                             ×îºóÒ»¸ö
+order_by()                     ÅÅĞò£¬¸ººÅ½µĞò
+reverse()                        ·´×ª£¬Ç°Ãæ±ØĞëÅÅ¹ıĞò²ÅÉúĞ§
+exclude()                     queryset£¬·µ»Ø²»Âú×ãÌõ¼şµÄ
+distinct()                       È¥ÖØÏàÍ¬Á½Ìõ¼ÇÂ¼£¬Ö÷¼ü²»ÒªÍü¼Ç£¬Ö÷¼ü¶¼ÊÇ²»Í¬µÄ
+exists()                          ÅĞ¶ÏÊÇ·ñÓĞÖµ£¬²¼¶ûÖµ
+create()                        Ìí¼Ó£¬Ìí¼Ó£ºUser.objects.create(key=value)
+
 User.objects.filter().order_by('-id')  ½á¹ûÅÅĞò,½µĞò¼Ó¼õºÅ
 User.objects.filter().count()             ¼ÆÊı
 
-²éÑ¯¼¯£º¶èĞÔ²éÑ¯£ºÊµ¼ÊÊ¹ÓÃ²Å²éÑ¯¡£»º´æ£ºµÚÒ»´Î²éÑ¯Ê±»º´æÆğÀ´
+²éÑ¯¼¯queryset¶ÔÏó£º¶èĞÔ²éÑ¯£ºÊµ¼ÊÊ¹ÓÃ²Å²éÑ¯¡£»º´æ£ºµÚÒ»´Î²éÑ¯Ê±»º´æÆğÀ´
 
 ²éÑ¯Ìõ¼ş£º
-°üº¬£ºcontains
-ÒÔxx½áÎ²£º endswith
-ÒÔxx¿ªÍ·£ºstartswith
 ÅĞ¿Õ£ºisnull
-·¶Î§£º×Ö¶Î__in = [1,2,3]
 
-Í¨¹ıÁ½¸öÏÂ»®Ïß²éÑ¯£º
-User.objects.filter(ÓÃ»§id__gt=3)  
-gt  ´óÓÚ
-gte  ´óÓÚµÈÓÚ
-lt
-lte
+Ë«ÏÂ»®Ïß²éÑ¯£º
+User.objects.filter(age__gt=3)  
+xxx__gt                                           ´óÓÚ
+xxx__gte                                         ´óÓÚµÈÓÚ
+xxx__lt
+xxx__lte
+xxx__in = [1,2,3]                             ·¶Î§in
+xxx__range                                    ·¶Î§£¬a<100
+xxx__contains                                °üº¬£¬like
+xxx__icontains                               °üº¬£¬¿ªÍ·¼Ó i£¬ºöÂÔ´óĞ¡Ğ´
+xxx__endswith                               
+xxx__startswith                              ÒÔxx¿ªÍ·
+time__year                                    ÈÕÆÚÀà×Ö¶Î£¬»ñÈ¡Äê
+time__month                                ÔÂ£¬day£¬...
 
-ĞèÒªµ¼Èë£º 
-F¶ÔÏó£ºÀàÊôĞÔÖ®¼äµÄ±È½Ï
-Q¶ÔÏó£ºÓë»ò·ÇµÄ²Ù×÷
 
-¾ÛºÏº¯Êı£º
-ĞèÒªµ¼Èë
-aggeregate£ºSum¡¢Count¡¢Avg¡¢Max¡¢Min
+Íâ¼ü×Ö¶ÎÔöÉ¾¸Ä²é£º¼¶ÁªÉ¾³ı
+Ò»¶Ô¶à£º
+±í_id = 1
+±í = ±í_obj 
 
-·µ»Ø½á¹ûÊıÄ¿£ºcount£¨£©
-User.objects.filter(Ìõ¼ş).count()
+Íâ¼ü×Ö¶Î±£´æÊ±:
+user = models.ForeignKey('UserModel', ......)
+user´«UserModel¶ÔÏó£¬user_id´«¾ßÌåÊı×Öid
 
-±£´æ£º
+
+¶à¶Ô¶à£º
+1¡¢×Ô¶¯£¬Ö»´´½¨¶à¶Ô¶à×Ô¶¯£¬orm×Ô¶¯´´½¨µÚÈıÕÅ±í£¬¿ÉÒÔÊ¹ÓÃadd¡¢remove¡¢set¡¢clear·½·¨
+2¡¢ÊÖ¶¯£¬×Ô¼º´´½¨µÚÈıÕÅ±í
+3¡¢°ë×Ô¶¯£¨***ÍÆ¼ö***£©£¬ÈçÏÂ£¬²»ÄÜÊ¹ÓÃadd¡¢remove¡¢set¡¢clear·½·¨
+class User(models.Model):
+    book = models.ManyToManyFiled(to='Book', through='Xxx', through_fields=('user', 'book'))     userÔÚÇ°£¬µ±Ç°±í    
+
+class Book(models.Model):
+  ......
+
+µÚÈıÕÅ±í
+class Xxx(models.Model):
+    user = models.ManyToManyFiled(to='User')             ¹ØÁª±í, orm»á×Ö¶Î½«Êı¾İ¿â×Ö¶Î¸ÄÎª: user_id
+    book = models.ManyToManyFiled(to='Book')           
+    
+
+¶à¶Ô¶àÄÜÊ¹ÓÃµÄ·½·¨£º
+add()
+remove()        Ç°Á½¸öÀ¨ºÅÄÚ¿ÉÒÔ´«Êı×Ö»ò¶ÔÏó
+set()               À¨ºÅÄÚ´«Ò»¸ö¿Éµü´ú¶ÔÏó
+clear()            Çå¿Õ¶ÔÓ¦¹ØÏµÊı¾İ
+
+¶à±í²éÑ¯£º
+Õı·´Ïò¸ÅÄî£ºÍâ¼üÒ»·½ÊÇÕıÏò
+Ğ¡ÌáÊ¾£ºÕıÏò²éÑ¯°´Íâ¼ü×Ö¶Î£¬·´Ïò²éÑ¯°´±íÃûĞ¡Ğ´
+
+»ùÓÚ¶ÔÏóµÄ¿ç±í²éÑ¯£º×Ó²éÑ¯
+user = User.objects.filter(pk=2)
+user.xxx                   µÃµ½¹ØÁªµÄ±í£¬¿ÉÒÔuser.xxx_×Ö¶Î
+user.xxx.all()             µÃµ½¶àÌõ£¬ÀıÈçÊôÓÚÕâ¸öÓÃ»§µÄÆÀÂÛ
+xxx.user_set.all()      ·´¹ıÀ´
+
+»ùÓÚË«ÏÂ»®ÏßµÄ¿ç±í²éÑ¯£ºÁ¬±í²Ù×÷, ¿ÉÒÔ¿ç¶àÕÅ±í
+Book.objects.filter(pk=2).values('title', 'publist__name')     publist__nameÊÇ¹ØÁªµÄ±íµÄ×Ö¶Î
+Publish.objects.filter(book__id=2).values('book__title', 'name')    filterÀïÃæµÄ ±íÃû__id
+
+
+²é¿´ormÄÚ²¿sqlÓï¾ä£º
+1¡¢queryset¶ÔÏó.query
+2¡¢ÅäÖÃÎÄ¼şÖĞÈÕÖ¾Ïà¹Ø´úÂë
+
+¾ÛºÏº¯Êı£ºaggregate
+¸úÊı¾İ¿âÏà¹ØµÄÄ£¿é»ù±¾¶¼ÊÇdjango.db.modeles»òdjango.dbÀïÃæ
+¾ÛºÏº¯ÊıÍ¨³£¶¼¸ú·Ö×éÒ»ÆğÊ¹ÓÃ
+Ğèµ¼Èë
+from django.db.models import Sum£¬Count, Avg, Max, Min
+Book.objects.aggregate(Max('xxx'), Avg('age'))
+
+·Ö×é²éÑ¯£ºannotate
+Book.objects.annotate()                          Ä¬ÈÏ°´Ç°ÃæBook·Ö×é
+Book.objects.values('ÀàĞÍ').annotate()     °´ÕÕ¡°ÀàĞÍ¡±·Ö×é
+Book.objects.annotate(·Ö×é±ğÃû=Count('Íâ¼ü×Ö¶Î')).values('title', '·Ö×é±ğÃû')        CountµÄÍ³¼Æ£¬Max, ....
+·Ö×é±¨´íµÄ¿ÉÄÜÔ­Òò£ºÊı¾İ¿âÉèÖÃÁËÑÏ¸ñÄ£Ê½
+
+FÓëQ²éÑ¯£º
+F¶ÔÏó£ºÀàÊôĞÔÖ®¼äµÄ±È½Ï£¬ÄÜ¹»Ö±½Ó»ñÈ¡µ½±íÖĞÄ³¸ö×Ö¶Î¶ÔÓ¦µÄÊı¾İ
+Book.objects.filter(xxx__gt=F('±í×Ö¶Î'))
+Book.objects.update(price=F('price') + 10)     ½«ËùÓĞprice×Ö¶ÎµÄÖµ¼Ó10     
+Book.objects.updae(title=Concat(F('titel'), Value('ÕÅÈı')))     ×Ö·ûµÄÆ´½ÓĞèÒªµ¼Èë£ºdjango.db.models.functions.Concat,   django.db.models.Value
+
+Q¶ÔÏó£ºÓë¡¢»ò¡¢·Ç¡¢µÄ²Ù×÷
+Book.objects.filter(Q(pk=1), Q(pk=5))         ÖĞ¼ä¶ººÅÊÇand²Ù×÷
+Book.objects.filter(Q(pk=1) | Q(pk=5))        ÖĞ¼ä | ÊÇor²Ù×÷
+Book.objects.filter(~Q(pk=1) | Q(pk=5))      Ç°Ãæ~ºÅ£¬È¡·´
+
+Q¸ß½×£º
+q = Q()
+q.connector = 'or'                              Ä¬ÈÏand£¬¸ÄÎªor
+q.children.append(('price__gt', 100))
+q.children.append(('price__lt', 300))
+Book.objects.filter(q)                        Ö±½ÓÔÚfilterÀï·Åq¶ÔÏó
+
 user = User()
-user.save()
+user.save()               ±£´æ
+user.delect()            É¾³ı
+user = User.objects.filter(pk=1).update(name='ÕÅÈı')      ¸üĞÂ£¨ÍÆ¼ö£©
 
+Ö»ÒªormÓï¾ä·µ»ØÒ»¸öqueryset¶ÔÏó£¬ÔòËüºóÃæ¿ÉÒÔ¼ÌĞøÊ¹ÓÃqueryset¶ÔÏó·â×°µÄ·½·¨£ºfilter£¬get, values, ...
+
+ÅúÁ¿²åÈëÊı¾İ£º
+ÏÈ°Ñ¶ÔÏó·ÅÈëÁĞ±í£¬ÔÙÒ»´ÎĞÔ²åÈë
+user_list = [ ]
+for i in range(10000):
+    user = User(name='%s'%i)
+    user_list.append(user)
+User.objects.bulk_create(user_list)               ÅúÁ¿²åÈë
 ---------------------------------------------------------------------------------------------
+
 ÊÓÍ¼£º
 ÕıÔòÆğÃû£º(?P<num\d+>)
 request.POST.get()
 request.GET.get()
-request.path  ÇëÇóÍêÕûÂ·¾¶
+request.GET.getlist()          Ç°¶Ë¶à¸ö²ÎÊıÊ±
+request.path                     ÇëÇóÍêÕûÂ·¾¶
+request.is_ajax()                ÅĞ¶ÏÊÇ·ñajaxÇëÇó£¬json¸ñÊ½Êı¾İÔÚrequest.body, ¶øÇÒÊÇ¶ş½øÖÆ¸ñÊ½£¬ĞèÒªdecode('utf-8')½âÂë£¬json.loads()Ö±½Ó¿ÉÒÔ×ª»»
 request.method
+request.FILES                    ÎÄ¼ş
 
 ÉÏ´«ÎÄ¼ş£º
 ±ØĞëpostÇëÇó
@@ -127,6 +288,18 @@ f.chunks()    ·µ»ØÉú³ÉÆ÷£¬Ê¹ÓÃforÑ­»·²»¶ÏĞ´ÈëÎÄ¼ş¾ÍĞĞÁË
 ajaxÄ¬ÈÏÊÇÒì²½ÇëÇó
 ajaxÀïÃæ¼Ó'async': false¿ÉÒÔÎªÍ¬²½
 dataType£ºÔ¤ÆÚ·µ»ØµÄÊı¾İÀàĞÍ
+
+djangoĞòÁĞ»¯£º
+from django.core import serializers
+user = User.objects.all()
+res = searializers.serialize('json', users)           ½«²éÑ¯¼¯ĞòÁĞ»¯³Éjson¸ñÊ½Êı¾İ£¬ĞèÒªµ¼Èë
+return HttpResponse(res)
+
+---------------------------------------------------------------------------------------------
+Ç°ºó¶Ë´«ÊäÊı¾İ±àÂë¸ñÊ½£ºcontentType
+1¡¢urlencoded                  user=aa&pass=123
+2¡¢formdata                     form±íµ¥²»ÄÜ·¢ËÍjson¸ñÊ½Êı¾İ
+3¡¢json
 
 ----------------------------------------------------------------------------------------------
 Ä£°å£º
@@ -144,7 +317,7 @@ length  ³¤¶È
 default  Ä¬ÈÏÖµ£¬¹ÜµÀÇ°ÎªFalseÊ±Ê¹ÓÃ
 ---------------------------------------------------------------------
 ×Ô¶¨Òå¹ıÂËÆ÷£º
-ÔÚÏîÄ¿Ä¿Â¼ÏÂĞÂ½¨python°ü£ºÃû×Ö±ØĞëÊÇtemplatetags
+ÔÚÓ¦ÓÃappÄ¿Â¼ÏÂĞÂ½¨python°ü£ºÃû×Ö±ØĞëÊÇtemplatetags
 Ê¹ÓÃÊ±ÏÈ¼ÓÔØ£º{% load ¹ıÂËÆ÷Ä£¿éÃû %}      # pyÎÄ¼ş
 µ¼Èë£º
 from django.template import Library
@@ -187,20 +360,56 @@ View£ºredirect(reverse('xxx : xxx'£¬ arsg=(²ÎÊı)£¬ kwargs={'xx': xx}))
 --------------------------------------------------------------------------------------------
 ÖĞ¼ä¼ş£º
 ¸ÉÔ¤ÇëÇóºÍÏìÓ¦µÄ¹ı³Ì
-request.META['REMOTE_ADDR']  »ñÈ¡ÇëÇóµÄipµØÖ·
+
+Éí·İÑéÖ¤ºÚ°×Ãûµ¥
+ÇëÇóÆµÂÊÏŞÖÆ
 
 ×Ô¶¨ÒåÖĞ¼ä¼ş£º
-1¡¢ĞÂ½¨middleware.py£¨Ò»°ãÊÇÕâ¸öÃû×Ö£©
-2¡¢´´½¨Àà£ºxxx
-3¡¢¹Ì¶¨µÄ·½·¨£º
-    1¡¢__init__:      ·şÎñÆ÷Æô¶¯ºóµÚÒ»¸öÇëÇóµ÷ÓÃ£¬Ö»Ò»´Î
-    2¡¢process_request(self, request):     ²úÉúÇëÇó¶ÔÏó£¬½øĞĞurlÆ¥ÅäÇ°µ÷ÓÃ
-    3¡¢process_view(self, request, view_func, *args, **kwargs)  Ã¿¸öÇëÇóÇ°µ÷ÓÃ
-    4¡¢process_response(self, request, response):   µ÷ÓÃÊÓÍ¼ºó£¬·µ»Øä¯ÀÀÆ÷Ö®Ç°µ÷ÓÃ
-                 return response
-    process_exception(self, request, exception):   ÊÓÍ¼º¯Êı³öÏÖÒì³£Ê±µ÷ÓÃ£¬***µ÷ÓÃË³Ğò¸ú×¢²áË³ĞòÏà·´
-4¡¢ÔÚsetting×¢²á£º
- Ó¦ÓÃ.xxx.middleware.xxxÀà
+from django.utils.deprecation import MiddlewareMixin  # ×Ô¶¨ÒåÖĞ¼ä¼şÒª¼Ì³ĞµÄ¸¸Àà
+1¡¢ÔÚÓ¦ÓÃ»òÏîÄ¿ÏÂĞÂ½¨ÎÄ¼ş¼Ğ£¬ÏÂÃæĞÂ½¨middleware.py£¨Ò»°ãÊÇÕâ¸öÃû×Ö£©
+2¡¢´´½¨Àà£ºXxx(MiddlewareMixin)                                         # ¼Ì³ĞMiddlewareMixin
+3¡¢¹Ì¶¨µÄ·½·¨Ãû£¬ÓÃ¼¸¸ö¶¨Òå¼¸¸ö£º
+    __init__(self):                                                                       # ·şÎñÆ÷Æô¶¯ºóµÚÒ»¸öÇëÇóµ÷ÓÃ£¬Ö»Ò»´Î
+
+    process_request(self, request):                                           # Ã¿´ÎÇëÇóÀ´Ê±µÚÒ»¸öµ÷ÓÃ£¬returnÔòÖ±½Ó·µ»Ø
+
+    process_response(self, request, response):                         # µ÷ÓÃÊÓÍ¼ºó£¬·µ»Øä¯ÀÀÆ÷Ö®Ç°µ÷ÓÃ
+             return response                                             
+           
+    process_view(self, request, view_func, *args, **kwargs)      # Â·ÓÉÆ¥Åä³É¹¦ºó£¬Ö´ĞĞÊÓÍ¼º¯ÊıÇ°µ÷ÓÃ
+
+    process_template_response(self, request, response):          # ÊÓÍ¼º¯Êıºó£¬ ·µ»ØµÄHttpResponse¶ÔÏóÓĞrenderÊôĞÔÊ±²Å»á´¥·¢£¬´ÓÏÂµ½ÉÏ
+    
+    process_exception(self, request, exception):                       # ÊÓÍ¼º¯Êı³öÏÖÒì³£Ê±µ÷ÓÃ£¬***µ÷ÓÃË³Ğò°´ÕÕ×¢²á´ÓÏÂÍùÉÏ
+4¡¢ÔÚsetting.py×¢²á£º"Ó¦ÓÃ.xxx.middleware.xxxÀà"£¬Ö´ĞĞË³Ğò´ÓÉÏµ½ÏÂ
+
+request.META['REMOTE_ADDR']                     »ñÈ¡ÇëÇóµÄipµØÖ·
+
+µ±process_request·µ»ØHttpResponse¶ÔÏóÖ®ºó»áÖ±½Ó×ßÍ¬¼¶±ğµÄprocess_response£¬¶ø²»»á½«ËùÓĞµÄprocess_response¶¼×ßÒ»±é¡£
+flask¿ò¼ÜÔòÊÇ£¬Ö»Òª²úÉúÏìÓ¦¾ÍÈ«²¿×ßÒ»±é
+
+--------------------------------------------------------------------------------------------
+
+csrf¿çÕ¾ÇëÇóÎ±Ôì£º
+{{% csrf_token %}}              ¸øÃ¿Ò»¸ö±íµ¥Ìá½»Ò³Ãæ£¬Ìá¹©Ò»¸öÎ¨Ò»±êÊ¶
+ajax·½Ê½£º
+1¡¢data: {'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()}
+2¡¢data: {'csrfmiddlewaretoken': {{ csrf_token }}}
+3¡¢django¹Ù·½Ìá¹©µÄjs´úÂë
+
+csrf×°ÊÎÆ÷£º
+Ö»ĞèÄ³Ğ©±íµ¥ĞèÒªĞ£ÑéµÄÊ±ºòÓÃ
+from django.views.decorators.csrf import csrf_protect, csrf_exemp
+csrf_protect        ĞèÒªĞ£Ñé
+csrf_exemp         ºöÂÔĞ£Ñé, ÔÚCBVÖĞÖ»¶ÔdispatchÉúĞ§
+FBV£º×°ÊÎÔÚÊÓÍ¼º¯ÊıÉÏ
+
+CBV:   method_decorator(csrf_protect)                        ×°ÊÎÔÚ·½·¨
+          method_decorator(csrf_protect£¬ 'post')            ×°ÊÎÔÚÀà¡£ »òÕß²ÎÊı´«method_decorator(csrf_exemp£¬ 'dispatch')
+         @method_decorator(csrf_protect)                      ×°ÊÎÔÚdispatch
+         def dispatch(self, request, *args, **kwargs):           
+             return super(Login, self).dispatch(request, *args, **kwargs)
+
 --------------------------------------------------------------------------------------------
 ºóÌ¨¹ÜÀí£º
 1¡¢±¾µØĞŞ¸ÄÊ±Çø¡¢ÓïÑÔ
@@ -215,14 +424,20 @@ settingÉèÖÃÉÏ´«Â·¾¶
 ºóÌ¨¹ÜÀí×¢²áÄ£ĞÍ
 -------------------------------------------------------------------------------------------
 ·ÖÒ³£º
+×Ô¶¨Òå·ÖÒ³Æ÷
+¹«Ê½£º¿ªÊ¼=£¨Ò³Âë-1£©£¬½áÊø=Ò³Âë*Ã¿Ò³ÌõÊı£¬¼´£ºlimit page-1, page*num£»
+È·¶¨Ç°¶ËÕ¹Ê¾¶àÉÙ¸öÒ³Âë£ºfor i in range(µ±Ç°Ò³-5£¬ µ±Ç°Ò³+6), ´¦ÀíĞ¡ÓÚ6µÄ
+user = User.objects.all()[start: end]                 # ÇĞÆ¬·µ»Ø£¬¶èĞÔ²éÑ¯
+
+ÄÚÖÃ·ÖÒ³Æ÷£º
 pag = Pageintor(²éÑ¯¼¯£¬ Ã¿Ò³ÌõÊı)
-pag.page(1)  Ä³Ò³ÄÚÈİ
-num_pages()  ×ÜÒ³Êı
-number  µ±Ç°Ò³Âë
-pag.object_list   ²éÑ¯¼¯
+pag.page(1)                             Ä³Ò³ÄÚÈİ
+pag.num_pages()                     ×ÜÒ³Êı
+pag.number                            µ±Ç°Ò³Âë
+pag.object_list                         ²éÑ¯¼¯
 
 ----------------------------------------------------------------------------------------
-ÖØ¶¨Ïò
+ÖØ¶¨Ïò£º
 redirect £º  HttpResponseRedirectµÄ¿ì½İ·½Ê½
 HttpResponseRedirect£º 
 
@@ -230,43 +445,85 @@ HttpResponseRedirect£º
 return redirect('/')
 return HttpResponseRedirect('/')
 
-return redirect('user:index')  # ·´Ïò½âÎö
- return redirect(reverse('user:index'))  # ·´Ïò½âÎö+reverse
-return HttpResponseRedirect(reverse('user:index'))  # ×¢Òâ£ºÕâÀïÊ¹ÓÃ·´Ïò±ØĞë¼Óreverse²»È»±¨´í
+return redirect('user:index')                # ·´Ïò½âÎö
+return redirect(reverse('user:index'))   # ·´Ïò½âÎö+reverse£¬ÓĞ²ÎÊıÊ±Ê¹ÓÃ
+return HttpResponseRedirect(reverse('user:index'))     # ×¢Òâ£ºÕâÀïÊ¹ÓÃ·´Ïò±ØĞë¼Óreverse²»È»±¨´í
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-9¡¢Ô­Éúsql²éÑ¯data =  User.objects.raw("select * from ±íÃû where Ìõ¼ş")  ¿ÉÒÔÖ´ĞĞÈÎºÎsqlÓï¾ä£¬ÓëuserÎŞ¹Ø
+9¡¢Ô­Éúsql²éÑ¯data =  User.objects.raw("select * from ±íÃû where Ìõ¼ş")       ¿ÉÒÔÖ´ĞĞÈÎºÎsqlÓï¾ä£¬ÓëuserÎŞ¹Ø
 ·ÀÖ¹sql×¢Èë£¬²»ÒªÊ¹ÓÃformat£¬Ó¦¸ÃÊ¹ÓÃ%s£ºsql = "select * from user where username=%s"      user.objects.raw(sql,[username, nane, djf])  ÁĞ±íÀïÃæ·Å²ÎÊı¡£
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-							µÇÂ¼                                   ×´Ì¬                                 ÍË³öµÇÂ¼
-±£´æµÇÂ¼×´Ì¬ÈıÁ¬£ºÉèÖÃ£¨cookie£¬session£©£¬»ñÈ¡£¨cookie£¬session£©£¬É¾³ı£¨cookie£¬session£©
-ÉèÖÃcookieÒªÏÈÊµÀıÒ»¸öÏìÓ¦¶ÔÏó
+cookieÓësession£º		
+cookie£º·şÎñ¶Ë±£´æÔÚ¿Í»§¶Ë£¨ä¯ÀÀÆ÷£©ÉÏµÄĞÅÏ¢¶¼¿ÉÒÔ³ÆÎªcookie£¬k£¬v¼üÖµ¶Ô£¬²»Ì«°²È«
+session£º±£´æÔÚ·şÎñ¶Ë£¬session»ùÓÚcookie¹¤×÷£¬Á¿´óµÄ»°£¬·şÎñÆ÷Ñ¹Á¦´ó
+token£ºµÇÂ¼³É¹¦£¬½«ÓÃ»§ĞÅÏ¢¼ÓÃÜ£¬½á¹ûÆ´½ÓÔÙĞÅÏ¢ºóÃæ£¬·µ»Ø¸ø¿Í»§¶Ë£¬¿Í»§¶ËÃ¿´Î·ÃÎÊ
+              ´ø×Å¸ÃĞÅÏ¢£¬·şÎñ¶ËÄÃµ½ºóÇĞÈ¥Ç°Ãæ²¿·Ö£¬È»ºó¶Ô±È¡£jwtÈÏÖ¤               
+			
+±£´æµÇÂ¼×´Ì¬ÈıÁ¬£º
+1¡¢ÉèÖÃ£¨cookie£¬session£©
+2¡¢»ñÈ¡£¨cookie£¬session£©
+3¡¢É¾³ı£¨cookie£¬session£©
+
+ÉèÖÃcookie
+ÒªÏÈÊµÀıÒ»¸öÏìÓ¦¶ÔÏó£¬HttpResponse, render,  redirect
 res = redirect('/')
 cookies_time = datetime.datetime.now() + datetime.timedelta(hours=3)
-res.set_cookie('username', user.username, expires=ÈÕÆÚ)  # ÉèÖÃcookie£¬max_age=ÃëÊı
+res.set_cookie('username', user.username, max_age=Ãë£¬expires=Ãë)     # ÉèÖÃcookie£¬¹ıÆÚÊ±¼ämax_age£¬expiresÕë¶Ôieä¯ÀÀÆ÷
+res.delete_cookie('username')                  # É¾³ı£¬Ò²ĞèÒªÏìÓ¦¶ÔÏó
 return res
-»ñÈ¡cookies£ºrequest.COOKIES.get()
+request.COOKIES.get('username')            # »ñÈ¡cookie
 
 ÉèÖÃsession£º
 ÒÀÀµÓÚcookies£¬´æÈëÊ²Ã´ÀàĞÍ£¬È¡³öÀ´¾ÍÊÇÊ²Ã´ÀàĞÍ
-request.session['username'] = user.username
-ä¯ÀÀÆ÷sessionµÄÖµ»á¾­¹ıbase64±àÂë
-
-»ñÈ¡session
-username = request.session.get('username')
-request.session.has_key() ÅĞ¶ÏÊÇ·ñÓĞÖµ
+request.session['username'] = user.username             # ÉèÖÃsession
+request.session.get('username')                                  # »ñÈ¡session
+request.session.has_key()                                            # ÅĞ¶ÏÊÇ·ñÓĞÖµ
 
 É¾³ısession
-request.session.clear()  #Çå³ıËùÓĞsessionÖµ²¿·Ö£¬²»Çå³ısessionid
- request.session.flush()   # Çå³ıËùÓĞsession¼üÖµ¶Ô£¬Á¬Êı¾İ¿âÀïÃæµÄÒ²Çå³ı
- del request.session['username']  # Çå³ıÖ¸¶¨session¼üÖµ¶Ô
+request.session.delect()                     # É¾³ıµ±Ç°»á»°£¬Ö»É¾³ı·şÎñµÄ
+request.session.clear()                       #Çå³ıËùÓĞsessionÖµ²¿·Ö£¬²»Çå³ısessionid
+request.session.flush()                       # Çå³ıËùÓĞsession¼üÖµ¶Ô£¬Á¬Êı¾İ¿âÀïÃæµÄÒ²Çå³ı£¨ÍÆ¼ö£©
+del request.session['username']         # Çå³ıÖ¸¶¨session¼üÖµ¶Ô
 
-sessionÉèÖÃ¹ıÆÚÊ±¼ä£º
-request.session.set_expiry(Ãë)
-Ä¬ÈÏ14Ìì
+request.session.set_expiry(Ãë)            # ÉèÖÃ¹ıÆÚÊ±¼ä£ºÃë£¬ÈÕÆÚ¶ÔÏó£¬0£¬²»Ğ´Ä¬ÈÏ14Ìì
 0£º¹Ø±Õä¯ÀÀÆ÷¹ıÆÚ
- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+django²Ù×÷sessionĞèÒªÄ¬ÈÏµÄÒ»ÕÅ±ídjango_session, Ç¨ÒÆ×Ô¶¯Éú³É£¬´æ´¢¼ü£¬Öµ£¬¹ıÆÚÊ±¼ä£¨Ä¬ÈÏ14Ìì£©
+ÉèÖÃsessionÄÚ²¿£º
+1¡¢Éú³ÉÒ»¸öËæ»ú×Ö·û´®
+2¡¢×Ô¶¯½«Ëæ»ú×Ö·û´®ºÍ¶ÔÓ¦Êı¾İ´æ´¢µ½django_session±íÖĞ
+     2.1ÏÈÔÚÄÚ´æÖĞ²úÉú²Ù×÷Êı¾İµÄ»º´æ
+     2.2ÔÙÏìÓ¦½á¹ûdjangoÖĞ¼ä¼şµÄÊ±ºò²ÅÕæÕı²Ù×÷Êı¾İ¿â
+3¡¢½«²úÉúµÄËæ»ú×Ö·û´®·µ»Ø¸ø¿Í»§¶Ë±£´æ£ºsessionid£ºËæ»ú×Ö·û´®
+
+django_session±íµÄÊı¾İ£¬Ò»¸öä¯ÀÀÆ÷Ö»¶ÔÓ¦Ò»Ìõ£¬ÉèÖÃÁË¶à¸ösessionÖµ»á·ÅÔÚrequest.session¶ÔÏó
+
+session¿ÉÒÔ´æÔÚÊı¾İ¿â¡¢ÎÄ¼ş¡¢redis¡¢ÄÚ´æ
+
+×Ô¶¨Òå×°ÊÎÆ÷ÑéÖ¤ÓÃ»§µÇÂ¼ÈÏÖ¤£¨FBV£©
+def login_auth(func):
+    def inner(request, *args, **kwargs):
+        if µÇÂ¼£º
+            return func(request, *args, **kwargs)
+        else£º
+            return redirect('/login/?next=%s'%request.get_full_path())          # ´«ÈëÓÃ»§À´Ê±µÄµØÖ·£¬µÇÂ¼³É¹¦ºóÌø×ª»ØÈ¥£¬loginº¯Êı»ñÈ¡nextÖµ
+    return inner
+
+CBVÌí¼Ó×°ÊÎÆ÷
+form django.utils.decorators import method_decorator
+
+@method_decorator(login_auth, 'get')                         # ·½Ê½1 Õë¶ÔÀà£¬¿ÉÒÔµş¼Ó¶à¸ö
+@method_decorator(login_auth, 'post')
+class Login(View):
+    @method_decorator(login_auth)    
+    def dispatch(self, request, *args, **kwargs):            # ·½Ê½2 ¶ÔÕâ¸ö·½·¨×°ÊÎ£¬»á×÷ÓÃÓëµ±Ç°ÀàÀïÃæµÄËùÓĞ·½·¨
+        return super(Login, self).dispatch(request, *args, **kwargs)
+
+    @method_decorator(login_auth)                             # ·½Ê½3 Õë¶Ô·½·¨
+    def get(self, request):
+        pass 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
  ×Ô¶¨ÒåÊı¾İ¿â   settings.py
  DATABASES = {
@@ -280,7 +537,6 @@ request.session.set_expiry(Ãë)
     }
 }
  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- 
  
  djangoÍ¼ÏñÑéÖ¤Âë
  
@@ -351,62 +607,141 @@ class CaptchaTestForm(forms.Form):
 </html>
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-±íµ¥ÑéÖ¤
+form×é¼ş±íµ¥ÑéÖ¤£º
+from django import forms
+
 1¡¢´´½¨±íµ¥Àà
 form.pyÎÄ¼ş
-class RegisterForm(forms.Form): # ×î´ó³¤¶È      # ²»ÄÜÎª¿Õ       # ÌáÊ¾µÄ´íÎóĞÅÏ¢
+class RegisterForm(forms.Form):       # ×î´ó³¤¶È      # ²»ÄÜÎª¿Õ       # ÌáÊ¾µÄ´íÎóĞÅÏ¢
     username = forms.CharField(max_length=15, required=True, error_messages={
         'required': 'ÓÃ»§Ãû²»ÄÜÎª¿Õ',
         'max_length': 'ÓÃ»§Ãû³¤¶È²»ÄÜ³¬¹ı15¸ö×Ö·û'
     })
+
     password = forms.CharField(min_length=3, required=True, error_messages={
         'required': 'ÃÜÂë²»ÄÜÎª¿Õ',
         'min_length': 'ÃÜÂë³¤¶È²»ÄÜÉÙÓÚÈı¸ö×Ö·û'
     })
+
+    email = forms.EmailField(......error_messages{'invalid': 'ÓÊÏä¸ñÊ½´íÎó' })               # ÓÊ¼ş×Ö¶Î
+
+    gender = forms.ChoiceField(                                                                             # Ñ¡Ôñ×Ö¶Î£¬redio
+                                         choices=((1, 'ÄĞ')£¬(2, 'Å®'))£¬
+                                         label='ĞÔ±ğ',
+                                         initial=1,
+                                         widget=forms.widgets.RadioSelect()                              # ¶àÑ¡£¬ Select()ÔòÊÇµ¥Ñ¡
+                           )
+
+formµÄ¹³×Óº¯Êı£¨hook£©£º
+×Ô¶¨ÒåĞ£Ñé¹æÔò£¬·½·¨
+1¡¢¾Ö²¿¹³×Ó£º¸øµ¥¸ö×Ö¶Î
+def clean_username(self):
+    username = self.cleaned_data.get('username')
+    if 'xxx' in username:
+        self.add_error(filed='username', message='´íÎóÌáÊ¾ĞÅÏ¢')
+    return username
+
+2¡¢È«¾Ö¹³×Ó£º¸ø¶à¸ö×Ö¶Î
+def clean(self):
+    p1 = self.cleaned_data.get('p1')
+    p2 = self.cleaned_data.get('p2')
+    if p1 != p2 :
+        self.add_error(filed='p2', message='Á½´ÎÃÜÂë²»Ò»ÖÂ')      # »òÕßÖ÷¶¯Å×³öÒì³££ºraise ValidationError('Á½´ÎÃÜÂë²»Ò»ÖÂ')
+    return self.cleaned_data
+
+²ÎÊı£º
+max_length         ×î´ó³¤¶È
+required              Ä¬ÈÏ±ØÌî
+min_length          ×îĞ¡³¤¶È
+label                    Ç°¶Ëlabel£¬Ä¬ÈÏÕ¹Ê¾formÀà×Ö¶ÎÊ××ÖÄ¸´óĞ´ĞÎÊ½
+error_mesages     ×Ö¶Î£¬´íÎóÌáÊ¾ĞÅÏ¢
+initial                   Ç°¶Ëinput±êÇ©Ä¬ÈÏÖµ
+widget=forms.widgets.TextInput(attrs={'class': 'c1 c2'})          ¿ØÖÆ±íµ¥×Ö¶Î input ±êÇ©ÀàĞÍ, ÄÚ²¿¿ØÖÆcssÑ¡ÔñÆ÷
+validators=[RegexValidator(r'[0-9]')£¬ '´íÎóÌáÊ¾ĞÅÏ¢']                ÕıÔòĞ£Ñé£¬from django.core.exceptions import RegexValidator
+
 	
 2¡¢ÔÚÊÓÍ¼µ÷ÓÃ±íµ¥Àà
-form = RegisterForm(request.POST)
+form = RegisterForm(request.POST)            # ´«×Öµä½øÈ¥£¬Ö»ÑéÖ¤RegisterFormÀàÖĞÓĞµÄ×Ö¶Î, ¿ÉÒÔ±£ÁôÉÏ´Î±íµ¥¼ÇÂ¼
 if form.is_valid():
-       Âß¼­´¦Àí
+    form.cleaned_data                                  # ²é¿´Í¨¹ıµÄ×Ö¶Î
 else:
-		# ÑéÖ¤²»³É¹¦½«´íÎóĞÅÏ¢·µ»Ø£¬äÖÈ¾µ½Ò³Ãæ
-		return render(request, 'register.html', {'form': form})
+    form.errors                                             # ²é¿´²»Í¨¹ıµÄÌõ¼şºÍÔ­Òò
+    return render(request, 'register.html', {'form': form})     # ÑéÖ¤²»³É¹¦½«´íÎóĞÅÏ¢·µ»Ø£¬äÖÈ¾µ½Ò³Ãæ
+
 
 3¡¢htmlÒ³ÃæäÖÈ¾
-{{ form.×Ö¶ÎÃû.errors }}
+<form action="" method="post" novalidate>       # novalidate±íÊ¾²»Ğ£Ñé±íµ¥×Ö¶Î£¬Èçemail
+
+<span>{{ form.×Ö¶ÎÃû.errors.0 }}</span>         äÖÈ¾´íÎóĞÅÏ¢, ÁĞ±íĞÎÊ½
+
+Ö±½ÓäÖÈ¾±íµ¥
+{{ form.as_p }}                       
+{{ form.as_ul }}
+{{ form.as_table }}
+
+{{ form.×Ö¶Î.label }}{{ form.×Ö¶Î }}    µÈ¼ÛÓÚ   Username<input>
+
+ÍÆ¼öäÖÈ¾·½Ê½£º
+{% for f in form %}
+    <p>{{ f.label }}{{ f }}</p>
+{% endfor %}
+
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-djangoÄÚÖÃÓÃ»§ÈÏÖ¤
+djangoÄÚÖÃÓÃ»§ÈÏÖ¤£º
+AuthÄ£¿é
+auth_user±í£¬ÃÜÂëÓÃsha256¼ÓÃÜ
+ÔÚviewsµ¼Èë£ºfrom django.contrib import auth
 
+´´½¨ÓÃ»§£¬ÃÜÂë×Ô¶¯Ç©Ãû£¨¼ÓÃÜ£©
+user = User.objects.create_user(username=username, password=password)
+admin = User.objects.create_superuser(username=username, password=password, email='aaa@163')   # ´´½¨³¬¼¶ÓÃ»§£¬ÓÊÏä±ØÌî
+
+ÑéÖ¤ÃÜÂë£º
+ÕıÈ··µ»Øuser¶ÔÏó£¬´íÎó·µ»ØNone
+user = auth.authenticate(request, username=username, password=password)         # ÑéÖ¤£¬±ØĞëÍ¬Ê±´«ÈëÓÃ»§Ãû¸úÃÜÂë
+if user£º
+    user.username
+    auth.login(request, user)                   # ±£´æµÇÂ¼×´Ì¬£¬µÈ¼Û£ºrequest.session[key] = user
+
+ÔÚÈÎºÎµØ·½¶¼ÄÜÊ¹ÓÃrequest.user»ñÈ¡µÇÂ¼µÄ¶ÔÏó£¬Ã»µÇÂ½ÔòµÃµ½AnonymousUserÄäÃûÓÃ»§
+
+request.user.is_authenticated()                                      # ÅĞ¶ÏÓÃ»§ÊÇ·ñµÇÂ¼
+
+if request.user.cheak_password(passwd)£º                     # ×Ô¶¯¼ÓÃÜ¶Ô±ÈÃÜÂë£¬·µ»Ø²¼¶ûÖµ
+             request.user.set_password(new_password)        # ĞŞ¸ÄÃÜÂë
+              request.user.save()                                           # ±£´æĞŞ¸Ä
+
+È¨ÏŞÈÏÖ¤£º
+from django.contrib.auth.decorators import login_required         # Â·ÓÉ±£»¤×°ÊÎÆ÷, ×°ÊÎÆ÷£¬µÇÂ¼ºó²ÅÄÜ·ÃÎÊ
+
+@login_required(login_url='user:login')              # Î´µÇÂ¼£¬Ìø×ªµ½Ö¸¶¨url                                     
+def xxx(request):
+
+È«¾ÖÅäÖÃ£º
+LOGIN_URL = '/login/'                                        # Î´µÇÂ¼£¬Ìø×ªµ½Ö¸¶¨url     
+
+¾Ö²¿ºÍÈ«¾Ö¶¼ÓĞ£¬ÔòÌø×ª¾Ö²¿¶¨ÒåµÄ   
+
+
+ÍË³öµÇÂ¼£¬×¢Ïú
+auth.logout(request)
+
+
+À©Õ¹auth_user±í
 1¡¢
 settings.py
-	AUTH_USER_MODEL = 'appÃû×Ö.User'
+AUTH_USER_MODEL = 'Ó¦ÓÃ×Ö.User'
 
 2¡¢
-Ä£ĞÍÀïÃæ¼Ì³ĞAbstractUserÀà
 from django.contrib.auth.models import AbstractUser
-
-# Create your models here.
 class User(AbstractUser):
+        # Ö»Ìí¼Ó¶îÍâµÄ×Ö¶Î¾ÍĞĞ£¬Ô­±¾ÓĞµÄ½¨Òé²»Òª¸²¸Ç
 
-Ğ´ÈëÊı¾İ¿â£¬ÃÜÂë×Ô¶¯Ç©Ãû£¨¼ÓÃÜ£©
-user = User.objects.create_user(username=username, password=password)
+À©Õ¹Ç°²»ÄÜÖ´ĞĞÇ¨ÒÆ£¬²»È»»áÉú³Éauth_user±í£¬Ä£ĞÍÀï¼Ì³ĞAbstractUser³éÏóÀà
+Ö´ĞĞÇ¨ÒÆÊ±½«²»»á²»»áÉú³Éauth_user±í
 
-¼Ç×¡ÓÃ»§µÇÂ¼×´Ì¬,½«user¸³Öµ¸ørequest
-login(request, user)
-
-ÍË³öµÇÂ¼
-logout(request)
-
-ÅĞ¶ÏÊÇ·ñµÇÂ¼	
-if authenticate(request)
-
- # Â·ÓÉ±£»¤£¬Î´µÇÂ¼£¬Ìø×ªÏÂÃæµÄÂ·ÓÉ
-@login_required(login_url='user:login')
-
-ĞèÒªµ¼ÈëµÄ¿â(views.py)
-from django.contrib.auth import authenticate, login, logout   # ²éÊı¾İ¿âÑéÖ¤£¬ µÇÂ¼£¬ ÍË³öµÇÂ¼
-from django.contrib.auth.decorators import login_required  # Â·ÓÉ±£»¤×°ÊÎÆ÷
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 djangoºóÌ¨¹ÜÀí
@@ -421,29 +756,22 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(Data, DataAdmin)
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+settings.py
+ÅäÖÃÓÃ»§ÉÏ´«ÎÄ¼ş´æ´¢µÄÎ»ÖÃ
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')         # ÓÃ»§ÉÏ´«µÄËùÓĞÎÄ¼ş¶¼»á·ÅÔÚÕâ¸öÎÄ¼ş¼ĞÏÂÃæ£¬×Ô¶¯´´½¨mediaÎÄ¼ş¼Ğ£¬²»Ó°ÏìÊı¾İ¿âµÄÂ·¾¶
 
-djangoÖĞ¼ä¼ş
+ÅäÖÃ±©Â¶ºó¶ËÖ¸¶¨ÎÄ¼ş¼Ğ×ÊÔ´£¬Ê¹ÔÚä¯ÀÀÆ÷ÊäÈëurlÄÜÖ±½Ó·ÃÎÊ£¬ÈçÍ¼Æ¬×ÊÔ´£º
+ÔÚurls.pyÏÂ
+from django.views.static import serve
+from ÏîÄ¿ import settings
+xxxx = [
+    url('^media/(?P<path>.*)', serve, {'doument_root': settings.MEDIA_ROOT})        # Ã÷È·Òª±©Â¶µÄ×ÊÔ´
+]
 
-1¡¢ÔÚapp»òÄÄÀï¶¨ÒåÖĞ¼äµÄ.pyÎÄ¼ş£¬ÔÚÀïÃæ×Ô¶¨ÒåÖĞ¼ä¼şÀà
-µ¼°ü
-from django.utils.deprecation import MiddlewareMixin  # ×Ô¶¨ÒåÖĞ¼ä¼şÒª¼Ì³ĞµÄ¸¸Àà
 
-¶¨ÒåÀà£¬ÏÂÃæµÄÈı¸ö·½·¨±È½Ï³£ÓÃ£¨¿ÉÊµÏÖ£ºÍ³¼Æ¡¢ºÚÃûµ¥¡¢°×Ãûµ¥¡¢½çÃæÓÑºÃ»¯£¨Ö»ÓĞ±¾µØµÇÂ¼²ÅÄÜ¿´µ½Òì³££©£©
-class MyMiddieware(MiddlewareMixin):
-     # ÔÚÃ¿¸öÇëÇóÇ°µ÷ÓÃ
-     def process_request(self, request):
-	 
-     # Ã¿¸öÏìÓ¦·µ»Øä¯ÀÀÆ÷Ö®Ç°µ÷ÓÃ()
-     def process_response(self, request, response):
-                 return response
-	 
-      # ÊÓÍ¼Å×³öÒì³£Ê±Ö´ĞĞ£¬·µ»ØNone»òHttpResponse¶ÔÏó
-     def process_exception(self, request, response):
-	 
-2¡¢ÔÚsettingsÀïÃæ×¢²á×Ô¶¨ÒåÖĞ¼ä¼ş£¬Ò»°ã·ÅÔÚ×îºóÃæ
-# ×Ô¶¨ÖĞ¼ä¼ş
-     Â·¾¶        .pyÎÄ¼ş          ×Ô¶¨ÒåµÄÀà  
-    'user.MyMiddieware.MyMiddieware',
+----------------------------------------------------------------------------------------------------
+Í¼Æ¬·ÀµÁ£º
+¼òµ¥·ÀµÁ£ºÇëÇóÍ¼Æ¬µÄÊ±ºòÅĞ¶ÏÊÇ·ñÊÇ´Ó±¾ÍøÕ¾£¬ÇëÇóÍ·ÀïµÄReferer²ÎÊı
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 django»º´æ£¬ÊÊÓÃÓÚÒ³Ãæ¾­³£±»·ÃÎÊ£¬µ«Ò³ÃæÊı¾İ²»»á¾­³£¸Ä±äµÄµØ·½
@@ -460,7 +788,9 @@ CACHES = {
 }
 
 2¡¢
-# redis×ö»º´æ
+# redis×ö»º´æ£¬session»º´æ
+°²×°£ºpip install django-redis
+ÅäÖÃ
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -468,6 +798,11 @@ CACHES = {
         # 'LOCATION': 'redis://ÃÜÂë@IP:¶Ë¿ÚºÅ/2',  # redisµØÖ·£¨ÓĞÃÜÂë£©£¬ºóÃæ±íÊ¾Ê¹ÓÃµÚ¶ş¸öÊı¾İ¿â
     }
 }
+
+redis»º´æsession£º
+1¡¢
+2¡¢settings.pyÅäÖÃ
+    
 
 from django.views.decorators.cache import cache_page 
 # Ò³Ãæ»º´æ
@@ -621,11 +956,17 @@ send_mail('ÕËºÅ¼¤»î', 'ÄÚÈİ£¨¿Õ£©', '¼Ä¼şÈË', ['ÊÕ¼şÈËÁĞ±í'], html_message=html)
     user.is_active = 1
     user.save()
     return redirect(reverse('user:login'))  # ¼¤»î³É¹¦£¬ÖØ¶¨Ïòµ½µÇÂ¼Ò³Ãæ
+
+-----------------------------------------------------------------------------------------------------
+XSS¹¥»÷£º
+ÔÚ¸»ÎÄ±¾¿òÊéĞ´js´úÂë£¬µ¼ÖÂÒ³Ãæ±»ĞŞ¸Ä¡£
+½â¾ö£ºÊ¹ÓÃbs4Ä£¿é£¬°Ñ<script>±êÇ©É¾³ı
+pip install beautifulsoup4
 	
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-celeryÒì²½·¢ËÍÓÊ¼ş£º
-1¡¢ÈÎÎñ·¢³öÕß£¨·¢ÓÊ¼ş£©£¬ 
-2¡¢ÈÎÎñ¶ÓÁĞ£¨redis£©£¬ 
+celeryÒì²½£º
+1¡¢ÈÎÎñ·¢³öÕß£¨·¢ÓÊ¼ş£© 
+2¡¢ÈÎÎñ¶ÓÁĞ£¨redis£©
 3¡¢ÈÎÎñ´¦ÀíÕß£¨worker£©
 
 1¡¢
@@ -663,6 +1004,7 @@ def send_register_active_emial(to_emial, username, token):
     send_mail('ÕËºÅ¼¤»î','', EMAIL_FROM, [to_emial], html_message=html)
 		
 ÊÓÍ¼ÀïÃæ·¢ËÍÓÊ¼ş£ºsend_register_active_emial.delay(request.POST.get('emial'), username, token)
+
 2¡¢
 ´¦ÀíÕß£¨worker£©Ò²ÒªÒ»·ÖÏîÄ¿´úÂë£¬´úÂë¿´ÉÏÃæ×¢ÊÍ
 	
@@ -670,324 +1012,6 @@ def send_register_active_emial(to_emial, username, token):
 ÔÚwindowsÏÂÒª°²×°£ºpip install eventlet, Æô¶¯£ºcelery -A celery_tasks.tasks worker -l info -P eventlet
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-djangoÇ°ºó¶Ë·ÖÀë£º  drf
-°²×°£ºpip install djangorestframework
-ÔÚsettings.py ÏÂ×¢²áapp£ºrest_framework
-
-ÔÚappÏÂ¶¨ÒåĞòÁĞ»¯serializers.pyÎÄ¼ş£¬×Ô¶¨ÒåĞòÁĞ»¯Àà£¬ÎªÁË½«ÔÚÊı¾İ¿â²éÑ¯³öÀ´µÄ¶ÔÏó×ª»»³ÉjsonÊı¾İ·µ»Ø¸øÇ°¶Ë£¬¼ò»¯ÁËÊÖ¶¯×ª»»µÄ²½Öè
-from rest_framework import serializers  # ĞòÁĞ»¯Æ÷
-
-# ×Ô¶¨ÒåĞòÁĞ»¯Æ÷
-class QbSerializers(serializers.Serializer):
-    id = serializers.IntegerField()
-    text = serializers.CharField()
-
-# Í¨¹ıÄ£ĞÍÉú³ÉĞòÁĞ»¯Æ÷
-from app.models import Data
-
-# ×Ô¶¨ÒåÑéÖ¤×Ö¶Îº¯Êı
-def text_yanzheng(value):
-    if len(value) < 3:
-        raise serializers.ValidationError('×ÖÊı²»ÄÜÉÙÓÚÈı¸ö')
-
-class QbSerializers(serializers.ModelSerializer):
-
-    # µ÷ÓÃ×Ô¶¨ÒåÑéÖ¤×Ö¶Îº¯Êı,ÑéÖ¤text×Ö¶Î£¬×¢Òâ£º×Ö¶Î±ØĞë¸úÄ£ĞÍÀïµÄ×Ö¶ÎÃûÒ»ÖÂ
-    text = serializers.CharField(validators=[text_yanzheng])
-
-    class Meta:
-        model = Data       # Ä£ĞÍÀà
-        # fields = '__all__'            # ËùÓĞ×Ö¶Î
-        # fields = ['id', 'text']       # ×Ô¶¨ÒåĞèÒªµÄ×Ö¶Î£¬Ê¹ÓÃÁĞ±í»òÔª×é£º fields = ('id', 'text')
-        exclude = ['id']         # ÅÅ³ıµÄ×Ö¶Î
-
-    # µ¥×Ö¶ÎÑéÖ¤£ºvalidate_×Ö¶ÎÃû£¬valueÎª×Ö¶ÎĞÎ²Î
-    def validate_text(self, value):
-        # ÑéÖ¤
-        if len(value) < 2:
-            # ·µ»Ø´íÎóĞÅÏ¢
-            raise serializers.ValidationError('×ÖÊı²»ÄÜÉÙÓÚÁ½¸ö')
-        return value
-
-    # ÑéÖ¤¶à¸ö×Ö¶Î£¬attrsÎª×Ö¶Î¼¯
-    def validate(self, attrs):
-        # ÑéÖ¤
-        if attrs['text'] == '0':
-            raise serializers.ValidationError('²»ÄÜÊäÈë0')
-        if re.search(r'·´Õş¸®', attrs['text']):  # Èç¹ûÓĞ²»ÔÊĞíµÄ×ÖÑù£¬Å×Òì³£
-            raise serializers.ValidationError('ÓĞ²»ÔÊĞíµÄ×Ö')
-        return attrs
-	
-views.pyÏÂ
-
-from rest_framework.generics import GenericAPIView  # ÀàÊÓÍ¼Òª¼Ì³ĞµÄ¸¸Àà
-from app.models import Data  # Êı¾İ±íÄ£ĞÍ
-from app.serializers import QbSerializers  # ×Ô¶¨ÒåµÄĞòÁĞºÅÀà
-from rest_framework.response import Response  # ÏìÓ¦
-
-# ´ÓÊı¾İ¿â²éÑ¯£¬×ª»»³ÉjsonÊı¾İ´«µİ¸øÇ°¶Ë£¨ĞòÁĞ»¯£©
-class InfoView(GenericAPIView):
-    # ÒªÓĞ²éÑ¯¼¯
-    queryset = Data.objects.all()
-
-    # ´¦ÀígetÇëÇó
-    def get(self, request, did=0):
-        # ²éÑ¯ËùÓĞ¶Î×ÓĞÅÏ¢
-        # duanzi = Data.objects.all()
-        # ĞòÁĞ»¯£º½«¶ÔÏó»òquerysetÖ±½Ó×ª»»³É×Öµä»òÁĞ±íÌ××Öµä
-        #                     ²éÑ¯µÄ¶ÔÏó
-        # ds = QbSerializers(instance=self.queryset.all(), many=True)  # ¶à¸ö¶ÔÏóÔò:many=True
-        # print(ds.data)
-        # return Response(ds.data)  # ·µ»Ø£¬Ç°¶Ë»áÊÕµ½jsonÊı¾İ
-		
-		
-        # ÅĞ¶Ï²éÑ¯È«²¿»¹ÊÇÒ»ÌõÊı¾İ
-        if did < 1:
-            return self.find_all(request, did)
-        return self.find_one(request, did)
-
-    # ²éÑ¯ËùÓĞ
-    def find_all(self, request, did=0):
-        ds = QbSerializers(instance=self.queryset.all(), many=True)  # ¶à¸ö¶ÔÏóÔò:many=True
-        return Response(ds.data)  # ·µ»Ø£¬Ç°¶Ë»áÊÕµ½jsonÊı¾İ
-
-    # ²éÑ¯Ò»Ìõ
-    def find_one(self, request, did):
-        # ²éÑ¯Ò»¸ö
-        duanzi = self.queryset.get(id=did)
-        # ĞòÁĞ»¯
-        ds = QbSerializers(instance=duanzi)
-        # ÒÔjson¸ñÊ½·µ»Ø¸øÇ°¶Ë
-        return Response(ds.data)
-
-# ½ÓÊÜÇ°¶Ë´«¹ıÀ´µÄjsonÊı¾İ£¬×ª»»³É¶ÔÏó´æÈëÊı¾İ¿â£¨·´ĞòÁĞ»¯£©£¬ÕâÀïĞèÒªÓÃµ½ÑéÖ¤
-class AddView(GenericAPIView):
-    queryset = Data.objects.all()
-    serializer_class = QbSerializers
-
-    def post(self, request):
-        # ½«Ç°¶Ë´«¹ıÀ´µÄÊı¾İ·´ĞòÁĞ»¯£¬json×Ö·û´®×ª»»³É¶ÔÏó
-        ds = QbSerializers(data=request.data)
-
-        # ÑéÖ¤Êı¾İ
-        if ds.is_valid():
-
-            # ÑéÖ¤Í¨¹ı£¬±£´æµ½Êı¾İ¿â
-            ds.save()  # µ÷ÓÃµÄÊÇcreate£¬Ö±½Ó´´½¨²¢±£´æ
-            return Response({"code": 1, 'msg': 'ok'})
-        else:
-            # Ã»Í¨¹ı£¬·µ»Ø´íÎóĞÅÏ¢
-            return Response({'code': 0,'msg': ds.errors})
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-rest_frameworkÑéÖ¤¡¢È¨ÏŞ¡¢½ÚÁ÷
-
-ÑéÖ¤
-myAuthentications.py
-
-from rest_framework.authentication import BaseAuthentication
-from rest_framework.exceptions import AuthenticationFailed
-
-# ×Ô¶¨ÒåÑéÖ¤Àà,Éí·İÑéÖ¤±¾Éí²»»áÔÊĞí»ò²»ÔÊĞí´«ÈëµÄÇëÇó£¬ËüÖ»»á±êÊ¶·¢³öÇëÇóµÄÆ¾¾İ,¸æËßÄãÑéÖ¤ÊÇ·ñÍ¨¹ı£¬ÆäËû»¹»á¼ÌĞøÖ´ĞĞ
-class MyAuthentications(BaseAuthentication):
-    # ±ØĞëÖØĞ´authenticate·½·¨
-    def authenticate(self, request):
-        # »ñÈ¡token
-        token = request.query_params.get('token')  # query_paramsµÈÓÚGET
-        # ÑéÖ¤token
-        if token == 'abcd':
-            print('ÑéÖ¤³É¹¦')
-            return None  # ±ØĞë·µ»ØÒ»¸öÔª×é,µÚ¶ş¸ö²ÎÊı¿ÉÒÔÊÇNone
-        else:
-            print('ÑéÖ¤²»³É¹¦')
-            # ÑéÖ¤²»³É¹¦Ö±½Ó·µ»Ø
-            raise AuthenticationFailed('ÑéÖ¤²»³É¹¦')
-            # Èç¹ûreturn NoneÔò»á¼ÌĞøÖ´ĞĞÇëÇó
-            # return None
-
-È«¾ÖÑéÖ¤ĞèÒªÔÚsettingsÀïÅäÖÃÒÔÏÂ
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # ×Ô¶¨ÒåµÄÑéÖ¤,¿ÉÒÔ¶à¸ö
-        'app.myAuthentications.MyAuthentications',
-    ]
-}	
-	
-¾Ö²¿ÑéÖ¤Ö»ÒªÔÚÏà¶ÔÓ¦µÄÀàÊÓÍ¼¼ÓÉÏÒÔÏÂ
-# ¶ÔÌØ¶¨µÄÊÓÍ¼½øĞĞÑéÖ¤£¬ºóÃæÊÇÒ»¸öÔª×é£¬¿ÉÒÔÓĞ¶à¸öÑéÖ¤Àà
-authentication_classes = (MyAuthentications,)
-
-
-È¨ÏŞ
-myPermissions.py
-
-from rest_framework.permissions import BasePermission
-
-# ×Ô¶¨ÒåÈ¨ÏŞÀà
-class MyPerssion(BasePermission):
-    # ¶ÔÊÓÍ¼
-    def has_permission(self, request, view):
-        print('È¨ÏŞ')
-        return True  # ·µ»ØTrueÔòÍ¨¹ı£¬·µ»ØFalseÔò²»Í¨¹ı
-
-        # Èç¹ûµÇÂ¼ÁË£¬ÔòÍ¨¹ı
-        # return request.user
-
-    def has_object_permission(self, request, view, obj):
-		 '''È¨ÏŞ¹æÔò×Ô¶¨'''
-        return True  # Í¬ÉÏ
-	
-ÔÚ»ùÓÚÀàµÄÊÓÍ¼Àï¼ÓÉÏ
- # È¨ÏŞÅĞ¶Ï
- permission_classes = (MyPerssion,)
- 
- 
- ½ÚÁ÷
- from rest_framework.throttling import SimpleRateThrottle
-
-×Ô¶¨Òå½ÚÁ÷
-class MyThrottle(SimpleRateThrottle):
-    '''('s', 'sec', 'm', 'min', 'h', 'hour', 'd', 'day')£¬Ãë£¬·Ö£¬Ê±£¬Ìì'''
-    rate = '3/m'  # ÇëÇó´ÎÊı/Ê±¼ä£¨·Ö£©
-    # scope = 'anon'  # ·¶Î§£ºÄäÃûÓÃ»§
-    def get_cache_key(self, request, view):
-        # ¸ù¾İÓÃ»§idÓÃ»§Ãû£¬µÇÂ¼²»ÏŞÖÆ£¬²»µÇÂ¼ÔòÏŞÖÆÃ¿·ÖÖÓÇëÇó´ÎÊı
-        if request.user and request.user.id:
-            return None  # ·µ»ØNone±íÊ¾²»ÏŞÖÆ
-        else:
-            return 1  # ·µ»ØÆäËû£¬ÓĞÏŞÖÆ
-
-		
-ÔÚÊÓÍ¼ÀàÀï¾Ö²¿½ÚÁ÷
-throttle_classes = (MyThrottle,)
-
-
-ÔÚsettingsÀïÃæÉèÖÃÈ«¾Ö½ÚÁ÷
-# rest_frameworkÈ«¾Ö½ÚÁ÷£¬ÈÏÖ¤¸úÈ¨ÏŞµÄÈ«¾ÖÅäÖÃ»ù±¾ÏàÍ¬
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        # ×Ô¶¨Òå½ÚÁ÷Àà
-        # 'app.myThrottle.MyThrottle',
-
-        # ¿ò¼ÜµÄÀà, ĞèÒªÔÚÏÂÃæ¶¨ÒåÏŞÖÆÆµÂÊ
-        'rest_framework.throttling.AnonRateThrottle',
-    ],
-    # ½ÚÁ÷µÄÈ«¾ÖÉèÖÃ,ÔÚÀàÀïÃæ¶¨ÒåÁË£¬ÕâÀï¾Í²»ÓÃ¶¨ÒåÁË
-    'DEFAULT_THROTTLE_RATES': {
-         'anon': '2/m',  # ÄäÃûÓÃ»§
-         'user': '1000/day',  # ÒÑµÇÂ¼ÓÃ»§
-     }
-}
-
---------------------------------------------------------------------------------------------------------------------------------
-rest_framework·ÖÒ³
-
-ÊÓÍ¼ÀàÀïÃæ¾Ö²¿·ÖÒ³
-from rest_framework.pagination import PageNumberPagination  # ·ÖÒ³Àà
-from app.myPagination import MyPage  # ×Ô¶¨ÒåµÄ·ÖÒ³Àà
-
-# ·ÖÒ³
-class DataView(GenericAPIView):  # ¼Ì³ĞListAPIView¿ÉÒÔ¿ìËÙÊµÏÖ·ÖÒ³
-    queryset = Data.objects.all()  # ²éÑ¯¼¯£¨±ØĞë£©
-    serializer_class = QbSerializers  # ĞòÁĞ»¯Æ÷£¨±ØĞë£©
-
-    # ¾Ö²¿·ÖÒ³
-    # pagination_class = PageNumberPagination  # ·ÖÒ³Àà
-    # PageNumberPagination.page_size_query_param = 'page_size'  # Ê¹ÓÃÄÚÖÃ·ÖÒ³Àà±ØĞëÉùÃ÷Õâ¸ö£¬²»ÉùÃ÷Ä¬ÈÏ½ûÓÃ·ÖÒ³(None)
-    pagination_class = MyPage  # Ê¹ÓÃ×Ô¶¨ÒåµÄ·ÖÒ³Àà
-
-    # ¼Ì³ĞGenericAPIView,Èç¹û¼Ì³ĞListAPIViewÔò²»ÓÃĞ´ÏÂÃæ
-    def get(self, *args, **kwargs):
-        # ¹ıÂË½á¹û¼¯
-        queryset = self.filter_queryset(self.get_queryset())
-        # »ñÈ¡·ÖÒ³¶ÔÏó
-        page = self.paginate_queryset(queryset=queryset)
-        if page is not None:  # ·ÖÒ³¶ÔÏó´æÔÚ
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        # ²»·ÖÒ³£¬·µ»ØËùÓĞÊı¾İ
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-settingsÀïÃæÈ«¾Ö·ÖÒ³
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100,   # Ã¿Ò³µÄÊıÄ¿
-}
-
-
-×Ô¶¨Òå·ÖÒ³Àà
-from rest_framework.pagination import PageNumberPagination, OrderedDict
-from rest_framework.response import Response
-
-# ×Ô¶¨Òå·ÖÒ³Àà
-class MyPage(PageNumberPagination):
-    page_size = 5  # Ã¿Ò³ÊıÄ¿£¬Îª¿ÕÔò±íÊ¾½ûÓÃ·ÖÒ³
-    page_size_query_param = 'page_size'  # Ò³Ãæ´óĞ¡£¬¿ÉÒÔÓÉÇ°¶Ë´«¹ıÀ´
-
-    # ×Ô¶¨Òå·ÖÒ³ĞÎÊ½, ÖØĞ´get_paginated_response·½·¨
-    def get_paginated_response(self, data):
-        return Response(OrderedDict([
-            ('count', self.page.paginator.count),  # ×ÜÊı
-            ('page_range', list(self.page.paginator.page_range)),  # Ò³Âë·¶Î§
-            ('has_next', self.page.has_next()),   # ÊÇ·ñÓĞÏÂÒ»Ò³
-            ('has_prious', self.page.has_previous()),  # ÊÇ·ñÓĞÉÏÒ»Ò³
-            ('next_page_number', self.page.next_page_number()),  # ÏÂÒ»Ò³Ò³Âë
-            ('results', data)  #
-        ]))
-------------------------------------------------------------------------------------------------------------------------------
-rest_framework¹ıÂË
-pip install django-filter
-
-ÔÚsettingsÏÂapp×¢²á£º'django_filters',
-REST_FRAMEWORK = {
-   'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-}
-
-×Ô¶¨Òå¹ıÂËÀà
-from django_filters import rest_framework as filters
-from app.models import Data
-
-# ×Ô¶¨Òå¹ıÂËÀà
-class MyFilter(filters.FilterSet):
-    class Meta:
-        model = Data  # Ö¸¶¨Ä£ĞÍ
-
-        # ×Ö¶Î¹ıÂË
-        fields = {
-            # ¸úORMÔËËãÒ»Ñù
-            # http://127.0.0.1:8000/list/?id__gt=5, ¹ıÂËid´óÓÚ5µÄ
-            'id': ['exact', 'lt', 'lte', 'in'],  # µÈÓÚ£¬Ğ¡ÓÚ,Ğ¡ÓÚµÈÓÚ£¬ÔÚÀïÃæ
-            'text': ['icontains', 'startswith', 'iendswith'],  # °üº¬¡¢ÒÔÊ²Ã´¿ªÍ·£¬ÒÔÊ²Ã´½áÎ²
-        }
-
-ÔÚÊÓÍ¼Ààµ÷ÓÃ
-# ¹ıÂË
-class ListView(ListAPIView):
-    queryset = Data.objects.all()
-    serializer_class = QbSerializers
-
-    # ¹ıÂË×Ö¶Î£¨ËÑË÷¿ò£©
-    # filter_fields = ('id',)   # Ö»ÄÜÅĞµÈ
-    
-    # Ê¹ÓÃ×Ô¶¨Òå¹ıÂËÀà
-    filter_class = MyFilter
-	--------------------------------------------------------------------------------------------------------------------------------
-×Ô¶¯Éú³É½Ó¿Ú¿ª·¢ÎÄµµ
-1¡¢pip install coreapi
-2¡¢settingsÅäÖÃ
-	REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-	}
-3¡¢¸ùÂ·ÓÉurls.py
-	from rest_framework.documentation import include_docs_urls   # ½Ó¿ÚÎÄµµ
-	urlpatterns = [
-			path('docs/', include_docs_urls(title='Ê¹ÓÃcoreapiÉú³ÉµÄ½Ó¿ÚÎÄµµ')),
-]
-4¡¢ÔÚÊÓÍ¼£¨views.py£©ÏÂ£¬Ã¿¸öÀàÊÓÍ¼»òº¯ÊıÊÓÍ¼Ê¹ÓÃÈıÒıºÅĞ´ÎÄµµ
-5¡¢ä¯ÀÀÆ÷ÊäÈë£ºhttp://127.0.0.1:8000/docs/
------------------------------------------------------------------------------------------------------------------------------
 djangoÔÊĞí¿çÓòµÄ´¦Àí, ÔÚsettingsÏÂÅäÖÃ
 1¡¢pip install django-cors-headers
 

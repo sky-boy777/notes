@@ -121,3 +121,24 @@ function (msg) {
 44、windows系统按住Ctrl键拖拽文件会变成拷贝，Shift+Ctrl拖拽文件则创建链接。直接拖拽是移动文件。
 45、析构函数(destructor) 与构造函数相反，当对象结束其生命周期，如对象所在的函数已调用完毕时，系统自动执行析构函数。
        析构函数往往用来做“清理善后” 的工作（例如在建立对象时用new开辟了一片内存空间，delete会自动调用析构函数后释放内存）。
+46、前端form表单隐藏上传文件按钮，添加点击图片显示选择框
+     <form action="" id="myform">
+        <label for='myfile'>
+              <img srt="/aa/b.png" alt="" id="myimg">
+        </label>
+        <input type="file" id="myfile" name="xxx">   用jquery绑定change事件，加文件阅读器对象，可实现图片预览功能
+    </form>
+<script>
+    $("#myfile").change(function(){
+        let myFileReaderObj = new FileReader();
+        let fileObj = $(this)[0].files[0];
+        myFileReaderObj.readAsDataURL(fileObj);              这里是异步操作，也是IO操作
+        myFileReaderObj.onload = function(){                    这个等待上面文件加载完毕
+            $("#myimg").attr('src', myFileReaderObj.result);
+        }
+    })
+
+    $.each($('#myform').serializeArray(), function(index, obj){        serializeArray获取form表单所有的普通的键值对 [{}, {}, {}]，文件除外
+            alert(obj.name, obj.value);                   循环获取键值对
+     }               
+</script>

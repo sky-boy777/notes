@@ -1877,6 +1877,7 @@ ROWSID                                       描述行ID列
 模块：
 pymysql           连接mysql
 sqlite3              连接SQLite
+importlib          动态导入模块：importlib.import_module('datetime')    只能到py文件名
 
 -------------------------------------------------------------------------------
 网络编程：
