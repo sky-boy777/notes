@@ -63,6 +63,16 @@ grep "temporary password is generated" /var/log/mysqld.log   查看临时密码
 
 行：记录
 列：字段
+
+----------------------------------------------------------------------
+创建用户
+GRANT all ON blog.* TO 'byc'@'localhost' WITH GRANT OPTION;
+
+查看byc用户授权情况
+SHOW GRANTS FOR byc@localhost;
+
+授权byc用户在本地的blog数据库所有权限
+GRANT all ON blog.* TO 'byc'@'localhost' WITH GRANT OPTION;
 ----------------------------------------------------------------------------------------------
 数据类型
 enum（“男”，“女”） 枚举，下标从1开始

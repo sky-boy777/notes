@@ -191,7 +191,7 @@ zremrangebyscore  key   min   max   权值范围之间删除
 --------------------------------------------------------------------------------------------------------
 命令行：
 config get requirepass                         查看密码
-config set requirepass '123456'           设置密码
+config set requirepass '123456'           设置密码，vim /etc/redis/redis.conf    requirepass  密码
 auth 123456                                         认证
 config get dir                                        获取在哪个路径启动
 save                                                       只管保存，其余不管，全部阻塞
