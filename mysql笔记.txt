@@ -249,6 +249,7 @@ B-tree，先查看数据在哪个范围
 
 给表创建索引：
 普通索引：create index 索引名 on 表名(字段名(长度)，字段2...)；可以多个字段或单字段，针对字符类型，查询字段前几个字符，整型不用写长度
+                create index score on movie(douban_score,IMDb_score);   不用加引号
 唯一索引：create unique index 索引名 on 表名（字段）；          只是为了避免数据重复，不能提高访问速度
 主键索引：使用primary key关键字
 

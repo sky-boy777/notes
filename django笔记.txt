@@ -388,6 +388,122 @@ request.META['REMOTE_ADDR']                     获取请求的ip地址
 当process_request返回HttpResponse对象之后会直接走同级别的process_response，而不会将所有的process_response都走一遍。
 flask框架则是，只要产生响应就全部走一遍
 
+----------------------------------------------------------------------------------------------
+全文检索：
+1、安装
+pip install django-haystack     全文检索框架，支持whoosh、solr、Xaplan、Elasticsearc四种全文检索引擎
+pip install whoosh                  搜索引擎，python实现，性能较低，稳定
+pip install jieba                       中文分词工具
+
+2、在settings注册，配置
+INSTALLED_APPS = [
+    ...
+    'haystack',                   # 全文检索框架
+    ...
+]
+
+# 全文检索框架配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',  # 搜索引擎
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),  # 索引文件路径
+    }
+}
+# 数据变动时自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# 默认每页条目
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 8
+
+3、在要检索的app下面，创建固定名字search_indexes.py文件：
+from haystack import indexes
+from apps.movie_app.models import MovieModel  # 导入模型类
+
+
+class MovieModelIndex(indexes.SearchIndex, indexes.Indexable):
+    """指定对某个模型类的哪些数据建立索引"""
+    # 索引字段，use_template指定根据表中哪些字段建立索引文件，说明放在一个文件中
+    text = indexes.CharField(document=True, use_template=True)
+
+    def get_model(self):
+        """实现抽象方法"""
+        # 返回模型类
+        return MovieModel
+
+    def index_queryset(self, using=None):
+        """实现抽象方法，建立索引的数据"""
+        return self.get_model().objects.all()
+
+4、在templates下创建search/indexes下创建模型对应的应用的文件夹下创建 "模型类小写_text.txt"，固定格式
+templates/search/indexes/movie_app/moviemodel_text.txt
+内容：
+# 根据表中字段建立索引
+{{ object.title }}  # 根据电影标题建立索引
+{{ object.detail }}  # 根据电影详情建立索引
+
+4、在项目目录下建立索引
+命令：python manage.py rebuild_index
+完成后会在项目目录下whoosh_index目录下生成索引文件
+
+使用全文检索:
+前端搜索表单固定get请求， input搜索框name固定为：name="q"
+主urls.py
+urlpatterns = [
+    ...
+    path('movies/search/', include('haystack.urls')),  # 全文检索，地址为form表单的action
+    ...
+]
+搜索结果会传递给search/search.html, 需要提前创建，需要手动渲染
+{{ query }}  搜索的关键字
+{{ page }}   当前页对象，遍历获取SearchResult类的实例对象，实例对象的属性object是模型类
+
+{% for item in page %}
+    <div>{{ item.object.title }}</div>             遍历拿到数据信息
+{% endfor %}
+
+{{ paginator }}  分页对象
+
+
+更改whoosh默认分词方式：jieba
+1、env虚拟环境/Lib/site-packages/haystack/backends/目录或其它目录下新建py文件：chinese_analyzer.py，名字随意
+import jieba
+from whoosh.analysis import Tokenizer, Token
+
+
+class ChineseTokenizer(Tokenizer):
+    def __call__(self, value, positions=False, chars=False,
+                 keeporiginal=False, removestops=True,
+                 start_pos=0, start_char=0, mode='', **kwargs):
+        t = Token(positions, chars, removestops=removestops, mode=mode, **kwargs)
+        # 通过 jieba对字符串进行切分
+        seglist = jieba.cut(value, cut_all=True)
+        for w in seglist:
+            t.original = t.text = w
+            t.boost = 1.0
+            if positions:
+                t.pos = start_pos + value.find(w)
+            if chars:
+                t.startchar = start_char + value.find(w)
+                t.endchar = start_char + value.find(w) + len(w)
+            yield t
+
+
+def chinese_analyzer():
+    return ChineseTokenizer()
+
+2、拷贝一份whoosh_backend.py命名whoosh_cn_backend.py（名字随意）, 在env虚拟环境/Lib/site-packages/haystack/backends/下
+导入刚刚创建的分词器
+from xxx.chinese_analyzer import chinese_analyzer  # 导入自定义分词器
+替换原有分析器
+# analyzer=field_class.analyzer or StemmingAnalyzer()，旧
+analyzer=field_class.analyzer or chinese_analyzer(),  # 新
+
+3、在settings替换原有引擎
+'ENGINE': 'xxx.whoosh_cn_backend.WhooshEngine',   # 使用自定义whoosh_cn_backend
+
+4、重建索引
+python manage.py rebuild_index
+
 --------------------------------------------------------------------------------------------
 
 csrf跨站请求伪造：
