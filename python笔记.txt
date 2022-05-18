@@ -974,11 +974,11 @@ str、bytes、tuple
 
 collections.deque      # 双端队列，反复做先进先出操作，效率比list高
 
-集合set检查元素是否存在效率比较高，set转为检查元素做过优化
+集合set检查元素是否存在效率比较高，set为检查元素做过优化
 
 
 数组array：
-存放1000万个浮点数的话，array数组比列表效率高的多
+存放1000万个浮点数的话，array比列表效率高的多
 支持跟列表一样的操作: pop, insert, extend, append，+，+=，frombytes, tofile，等。。。
 只能存放单一类型
 from array import array
@@ -1044,12 +1044,12 @@ heapq模块：
 索引、切片、拼接、相乘
 
 索引：
-正序：1 2 3...，逆序：-1 -2 -3...
+正序：0 1 2 3...，逆序：-1 -2 -3...
 取最后一个：l[-1], l[len(l)-1]        不减1会超出索引范围
 l.append()                 追加
 l.insert(位置，'值')     指定位置插入
 l.pop(索引)                弹出，默认末尾
-l.extend(列表)           合并两个列表，修改原列表。list1 = list1 + list2则返回新列表，效率比extend低    
+l.extend(列表)           合并两个列表，修改原列表，"+="就地修改。list1 = list1 + list2则返回新列表，效率比extend低    
 l.clear()                     清空，l[:] = [ ]
 l.count（'值'）          计算值出现次数，深层列表的值不计算
 l.index（'值'）          第一次出现位置的索引
@@ -1063,7 +1063,6 @@ l.sort(key=len)          参数key是一个函数，根据长度排序，len(3)�
 列表比较：元素依次比较，数字跟字符串比较会报错，字符串按ASCII码比较
 m = max(l，[key=lambad])              找出最大值，比较，数字跟字符不能比较，最小值min(), key可选
 s = sum(l)                求和，列表内只能是数字
-x = （'21'）    排序，默认升序，reverse=True降序，数字跟字符不能比较，返回一个列表['1', '2']
 
 动态删除列表元素：
 l = len(my_list)
@@ -1072,7 +1071,7 @@ while i < l:
     if 'xx' in my_list[i]
         del my_list[i]
         l -= 1
-        continue         # 跳过加1环节，不会导致列表动态变化而发生漏删
+        continue         # 跳过加1环节，删除元素会使列表向前移位
     i += 1 
 
 切片：
@@ -1110,7 +1109,7 @@ int（*[1]）                  解包
 
 切片赋值：
 l = list('aaaa')
-l[1:1] = [2, 3, 4]     l==> [2, 3,4,a,a,a] 相当于插入操作
+l[1:1] = [2, 3, 4]     l==> [a, 2, 3,4,a,a,a] 相当于插入操作
 
 l.append(l.pop(0))   将第一个元素放到末尾  
 
@@ -1122,7 +1121,7 @@ sorted和list.sort()背后的算法是Timsort，一种自适应算法，根据�
 -----------------------------------------------------------------------------------
 元组tuple：
 不可变，存放值对应的地址，也就是指向的地址不变，值可能修改（可变类型），
-如元组里面的元素的一个列表，则只能修改列表里的值，不能修改列表本身
+如元组里面的元素是一个列表，则只能修改列表里的值，不能修改列表本身
 t.index("值")     # 返回第一个匹配的值的索引
 t.count("值")    # 计数，值出现的次数
 
@@ -1131,7 +1130,6 @@ t.count("值")    # 计数，值出现的次数
 s, y = (1, 2)              拆包
 s, *b = (1, 2, 3, 4)    拆包，b是一个列表。列表、字符串都能拆包
 x, *y = 9,                 拆包，y是一个空列表
-*y = （1，2，3）    装包
 print(*(1,2,3))          拆包
 
 t = (2)              # 是int类型，只有一个元素的时候要加逗号","
@@ -1169,7 +1167,7 @@ collections.OrderedDict
 
 字典里的键值对都是引用，存入时先做hash()运算
 
-每次启动pythno解释器都会生成一个随机盐值，是为了防止DOS攻击而采取的一种安全措施，
+每次启动python解释器都会生成一个随机盐值，是为了防止DOS攻击而采取的一种安全措施，
 str、bytes、datetime对象的散列值计算过程会多了随机加盐这一步，盐值是python进程内的
 一个常量
 
@@ -1177,7 +1175,7 @@ str、bytes、datetime对象的散列值计算过程会多了随机加盐这一�
 
 dic[key]背后散列表算法：
 python首先调用hash(key)计算key的散列值，把这个值的低几位数字当作偏移量，在散列表里查找
-表元(一个键值对为一个表元)，具体取几位，需要看散列表的大小，若找到表元为空，则抛出KeyEeeor
+表元(一个键值对为一个表元)，具体取几位，需要看散列表的大小，若找到表元为空，则抛出KeyError
 异常，否则，表元里会有一对found_key: found_value，这时候校验key == found_key是否为真
 ，相等则返回found_value。
 不相等的情况称为散列冲突，算法会在散列值中再另取几位，用特殊方法处理一下，把得到的的数字再
@@ -1185,10 +1183,10 @@ python首先调用hash(key)计算key的散列值，把这个值的低几位数�
 
 字典更新跟添加新值跟上面基本一样
 
-1、字典键必须是可散列的。支持hahs()函数，支持通过__eq__方法检测相等性，若a == b, 则hash(a) == hash(b) 也为真。
+1、字典键必须是可散列的。支持hash()函数，支持通过__eq__方法检测相等性，若a == b, 则hash(a) == hash(b) 也为真。
 2、字典在内存上开销巨大。字典使用散列表，散列表是稀疏数组(总有空白元素的数组)
 3、键查询很快
-4、键的次序却决与添加的顺序
+4、键的次序取决于添加的顺序
 5、往字典里添加新键可能会改变已有键的顺序。添加键，解释器可能做出为字典扩容的决定：新建一个更大的散列表，把字典已有的
      元素添加到新表里。过程可能发生散列冲突导致键的次序变化。一边迭代字典一边修改字典，循环可能跳过一些键，甚至是跳过字
      典中已有的键。
@@ -1230,7 +1228,7 @@ __iter__               返回迭代器
 __len__
 s.isdisjoint(z)          是否不相交
 
-for i in lenumerate(集合):                枚举，元组(0,1)（1，2） 
+for i in enumerate(集合):                枚举（索引，值），元组(0,1)（1，2） 
     print(l)  
 
 交集
@@ -1247,8 +1245,8 @@ for i in lenumerate(集合):                枚举，元组(0,1)（1，2）
 
 父子集，包含关系：
 a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
-s1.issuperset(s2)   s1是s2的父集，返回布尔值
-s1.issubset(s2)       s1是s2的子集
+s1.issuperset(s2)    判断s1是s2的父集，返回布尔值
+s1.issubset(s2)       判断s1是s2的子集
 去重后无序
 s1.isdisjoint({1,2,3})    判断，没有共同部分返回true
 
@@ -1261,16 +1259,13 @@ set、frozenseet跟字典一样，背后也是散列表，存放元素的引用
 1、集合里的元素必须是可散列的
 2、集合很消耗内存
 3、可以很高效的判断元素是否存在某个集合
-4、元素次序却决于添加顺序
+4、元素次序取决于添加顺序
 5、添加元素，可能会改变集合里已有元素的次序
-
-
-
 ---------------------------------------------------------------------------------------------
 
 可变和不可变：
 可变：dict，list，set                                                地址不变，里面内容改变
-不可变：int，str，tuple，float，frozenset             内容改变，地址必须改变
+不可变：int，str，tuple，float，frozenset                 内容改变，地址必须改变
 
 类型转换：
 str   转     int，list，set，tuple
@@ -1286,12 +1281,6 @@ assert a==1, '错误信息'            # a不等于1则呈现报错，后面是�
 File "C:/Users/gg/PycharmProjects/lianxi/lianxi.py", line 8, in <module>
     assert a==1, '错误信息'
 AssertionError: 错误信息
-
-for else：
-for 或 while：
-    ......
-else：
-    在循环正常结束时执行else
 
 
 文件操作：
@@ -1321,7 +1310,7 @@ f.writelines(['xxx\n', 'yyy'])         迭代写入，需要手动写入'\n'换�
 
 f.close()                                                                关闭文件
 
-with open(file, mode='r', encode='utf8') as f:     打开文件方式二，自动释放资源
+with open(file, mode='r', encode='utf8') as f:     打开文件方式二，上下文管理器，自动释放资源
     with open(file, 'r') as f2:
 
 文件复制原理：读取一个文件内容到缓存，再写入到另一个文件
@@ -1359,35 +1348,35 @@ print('日志', file=log)          # 将print结果写入文件，默认自带�
 os模块：
 操作系统接口模块
 import os
-os.path.dirname(__file__)   当前所在的文件目录路径，绝对路径，str类型
+os.path.dirname(__file__)   当前文件目录路径，绝对路径，str类型
 os.getcwd()                        同上
 os.path.join(os.path.dirname(__file__), '图片'，'图片2'，'aa.jpg')      路径拼接，可以多个
 os.path.isabs('xxx/xx/x.jpg')                                    判断是否是绝对路径
 os.path.abspath('a.txt')                                           获取文件的绝对路径，传入__file__当前文件绝对路径
-os.path.split('xx/xx/aa.jpg')                                     将文件路径和文件名切割
+os.path.split('xx/xx/aa.jpg')                                     将文件路径和文件名切割，('xx/xx', 'aa.jpg')
 os.path.splitext('xx/xx/aa.jpg')                                将文件路径和扩展名切割，('xx/xx/aa', ".jpg")
 os.path.getsize('xx/xx/aa.jpg')                                返回文件大小，单位：字节
 os.path.isfile()          是否是文件
 os.path.isdir()           是否是路径
 
-os.listdir(目录)                      返回目录下的所有文件，列表
+os.listdir(目录)                      返回目录下的所有文件夹或文件的名字，列表
 os.mkdir(目录)                      在目录下创建文件夹
-os.rmdir(目录)                       删除目录下的文件夹，只能删除空目录
+os.rmdir(目录)                      删除目录下的文件夹，只能删除空目录
 os.path.exists(r'c:')                判断是否是一个目录
 os.removedirs(目录)             只能删除空目录
-os.remove('xx/aa.txt')          删除文件
-os.chdir(r'd:')                        切换目录到D:\\盘
+os.remove('xx/aa.txt')           删除文件
+os.chdir(r'd:')                       切换目录到D:\\盘
 
 os.system('/usr/bin/a.py')         # 执行a.py
-os.startfile('C:\aa.exe')                # windows特有，执行aa.exe
+os.startfile('C:\aa.exe')              # windows特有，执行aa.exe
 
 删除非空文件夹：
 flist = os.listdir(目录)        列出文件夹下的所有文件，然后删除所有文件，再删除空目录
 for f in flist:
-    path1 = os.path.join(目录，文件名)       拼接文件
+    path1 = os.path.join(目录，文件名)        拼接文件
     os.path.remove(path1)                          删除文件
 else:
-    os.rmdir(目录)                                         删除空文件夹
+    os.rmdir(目录)                                       删除空文件夹
 
 
 import webbrowser
@@ -1403,7 +1392,7 @@ from collections import deque                # deque双端队列
 sys模块：
 python自身的运行环境
 import sys
-sys.path               模块搜索路径，先从当前项目下，最后的第三方包site-packages
+sys.path               模块搜索路径，先从当前项目下，最后到第三方包site-packages
 sys.version           python版本
 sys.argv               一个列表，终端运行python xxx.py aa bb，将后面的参数放入这个列表  
 sys.path.append('xxx/xx/x')   告诉解释器还可以去哪里找模块
@@ -1417,7 +1406,7 @@ test = importlib.reload(test)    # 重新导入一次test模块，替换原来�
 
 time模块：
 import time
-time.asctime(元组)                 将当前实际转换为str：Mon Jan 24 21:03:51 2022
+time.asctime(元组)                将当前时间转换为str类型：'Mon Jan 24 21:03:51 2022'
 t = time.time()                      时间戳
 time.sleep(3)                         睡眠3秒
 time.strftime('%Y-%m-%d %H:%M:%S')        输出格式转换：'2021-06-15 17:08:53'
@@ -1475,7 +1464,7 @@ for i in range(4):
 
 hashlib模块：
 哈希加密，不可逆
-m5 = hashlib.md5('xxxxx'.encode('utf-8'))        md5加密，字符串要先编码
+m5 = hashlib.md5('xxxxx'.encode('utf-8'))           md5加密，字符串要先编码
 m5.hexdigest()                                                   查看加密结果，32位
 sha1                 40位
 sha224             56位
@@ -1488,17 +1477,17 @@ re模块：
 import re
 r = re.match(r'^xx$'， '字符串')      从开头开始匹配，没有返回None
 r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
-r = re.findall('^xx$'， '字符串')       匹配全部，找到全部
+r = re.findall('^xx$'， '字符串')       匹配全部，找到全部, 返回列表
 r = re.finditer('^xx$'， '字符串')      跟findall一样，不过返回迭代器
 r = re.sub(正则, '新内容'，'str')        替换
 r = re.split(正则，字符串)                根据正则匹配到的切割，返回列表
 com = re.compile(正则)                  创建模式对象，提高匹配效率。com.search(字符串)
 escape('www.baidu.com')               www\\.baidu\\.com  对字符串中的正则表达式特殊字符都进行转义
 
-r.group([group1, ...])                      提取匹配到的内容, 除0外，还有最多99个编组
+r.group([group1, ...])                     提取匹配到的内容, 除0外，还有最多99个编组
 r.start([group])                             起始索引
 r.end([group])                              结束索引+1
-r.span([group])                             开始跟结束索引
+r.span([group])                            开始跟结束索引
 
 贪婪匹配：尽可能多的匹配字符
 
@@ -1521,9 +1510,7 @@ r.span([group])                             开始跟结束索引
 re.match(rb'\d+', b'\xd2\ffd3')             # rb匹配字节序列
 
 
-第三方模块：
-pip install 模块名
-pillow    处理图片
+pillow模块    处理图片
 ----------------------------------------------------------------------------------------------------
 函数：
 申请内存空间保存函数体代码，内存地址绑定函数名，定义会检测语法
@@ -1532,7 +1519,7 @@ func(1, 3) * 10        # 函数的返回值乘10
 func(func(1, 2), 3)   # 函数当参数
 
 关键字参数：key=value，位置参数放在关键字参数前面，不能重复传参数
-默认参数在函数定义阶段赋值：def func(a=3)  而列表做参数会改变
+默认参数在函数定义阶段赋值：def func(a=3)  ，列表做参数会改变
 默认参数不应该使用可变类型，如列表
 可变长参数：*与**，*args是元组格式、**kwargs字典格式，*args放在**kwargs前面
 解包：*[1,2,3]<==>1 2 3  ，*'hello'<==>h e l l o，单个*号解包字典只获得key，*{1：2，3：4}  <==>1 2
@@ -1540,11 +1527,6 @@ def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1
 fun(**字典)           解包字典，传给形参**kwargs再封包
 
 高阶函数：接受函数作为参数，或者把函数作为返回结果的函数是高阶函数。如map、filter、reduce
-
-函数注解：
-提示参数类型，参数有默认值，注解放在参数和等号=之间
-def fun(s:str, text:'int > 0'=20) -> str:              
-    pass
 
 解包，拆包：
 x, *y，z = 1, 2, 3            任何可迭代对象, y始终是一个列表：[ 2 ]
@@ -1559,8 +1541,12 @@ fun(1, 2)
 方式二：res = (lambda x:x+1)(2)   相当于立即执行函数
 方式三：[lambda x: x+1 for i in range(10)]
 
-类型提示：
+函数注解：
 def fun(name:str, age:int)->int:        
+    pass
+
+提示参数类型，参数有默认值，注解放在参数和等号=之间
+def fun(s:str, text:'int > 0'=20) -> str:              
     pass
 ------------------------------------------------------
 def func():
