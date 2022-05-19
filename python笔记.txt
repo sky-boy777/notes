@@ -1573,7 +1573,7 @@ nonlocal：非局部作用域的修改，不是本地，在当前层的外一层
 有点像类
 
 缺点：
-作用域每那么直观，变量不会被垃圾回收，所以有一定的内存占用问题
+作用域没那么直观，变量不会被垃圾回收，所以有一定的内存占用问题
 
 作用：
 可以使用同级作用域，读取其它函数内部变量，延长作用域
@@ -1582,7 +1582,7 @@ nonlocal：非局部作用域的修改，不是本地，在当前层的外一层
 闭包看似优化了变量，原来需要类对象完成的工作，闭包也可以完成
 由于闭包引用了外部函数的局部变量，则外部函数的局部变量没有及时释放，消耗内存
 闭包的好处是使代码变得简洁，便于阅读
-闭包的理解装饰器的基础
+闭包的理解是装饰器的基础
 
 def fun(a):
     c = 10
@@ -1597,7 +1597,7 @@ my_fun(2)                         执行fun2函数
 my_fun.__code__.co_freevars  ==> ('a', 'c' )         # 存储外层变量a, c的地方
 my_fun.__closure__[0].cell_contents                     # 存储a的值的地方，索引1是c的值
 
-以上，闭包是一种函数，他会保留定义函数时存在的自由变量的绑定，调用函数时，虽然定义的作用域
+闭包是一种函数，他会保留定义函数时存在的自由变量的绑定，调用函数时，虽然定义的作用域
 不可用了，但是依然可以使用那些绑定。
 
 nonlocal的作用是把变量标记为自由变量，nonlocal a, c
@@ -1605,13 +1605,13 @@ nonlocal的作用是把变量标记为自由变量，nonlocal a, c
 
 装饰器(decorate)：
 不改变原代码，改变原函数的指向，还是原来的调用方式，在它执行的前后加功能
-在闭包基础上，传入**函数作为参数**
+在闭包基础上，传入函数作为参数
 
 特性：
 1、能把被装饰的函数替换成其它函数
 2、装饰器在加载模块时立即执行
 
-***先执行装饰器，再执行被装饰的函数
+先执行装饰器，再执行被装饰的函数
 
 @decorate            等价于：func = decorate(func)
 def func():
@@ -1631,7 +1631,7 @@ def f1(func):                                   # 参数是一个函数对象
          return res
     return wrapper
 
-@f1          #  指向改变test = f1(test) <==> wrapper， f1的返回值是一个函数引用，"@f1"叫语法糖，因为更简洁了
+@f1          #  指向改变，test = f1(test) <==> wrapper， f1的返回值是一个函数引用，"@f1"叫语法糖，因为更简洁了
 test()
 
 其它两个装饰器：
@@ -1643,9 +1643,9 @@ functools.singledispatch
 加载顺序：自下而上
 执行顺序：自上而下
 
-@f1            # fun = f1(fun = f2(fun))
-@f2            # fun = f2(fun)
-def fun()     # 先执行@f2
+@f1            # 3、fun = f1(fun = f2(fun))
+@f2            # 2、fun = f2(fun)
+def fun()     # 1、先执行@f2
     pass
 
 等价于：
@@ -1687,14 +1687,13 @@ except 异常类型 as 别名：
     print(别名)
 except(TypeError, ValueError, ZeroDivisionError) as e:     # 同时包含多种
     print(e)    
-except：     # 不知道任何异常类，将捕获所有异常
+except：     # 不添加任何异常类，将捕获所有异常
     pass
 else：
-    没有捕获到异常时执行else这里
-          
-......
+    没有捕获到异常时执行这里
 finally:
     最后执行这里
+
 
 try结合return使用：
 def fun():
@@ -1708,7 +1707,6 @@ def fun():
         ....
         return 33   # 这里有return，则try跟except里面的return不会执行，
                              没有return，则执行这里的语句后，才执行上面try或except里面的return
-fun()
 
 while True：
     try:
@@ -1716,7 +1714,7 @@ while True：
     except:
        pass
     else:
-        break    # 循环，指定没有捕获到错误
+        break    # 循环，直到没有捕获到错误
 
 主动抛出异常，raise语句：
 raise Exception('这是异常信息')
@@ -1762,11 +1760,11 @@ from 包 import *：   该包中的内容(模块)是不能访问的，需要在_
 
 在模块中使用__all__ = ['通过* 可以访问的模块']，可以限制在使用from aa import *导入的内容就是__all__里的内容
 
-python动态导入模块方式：ss = __import__("变量")
+python动态导入模块方式：ss = __import__("模块名")
 
 if __name__ == '__main__'
 在当前模块打印__nam__的值是__main__
-在其它模块导入执行时__name__的值的模块名
+在其它模块导入执行时__name__的值是模块名
 
 绝对导入：从包开始
 相对导入：从当前位置开始，不能超出包的位置
@@ -1786,7 +1784,7 @@ print(__file__)  # 当前文件的绝对路径
 r'\'不能单独出现,或在末尾出现
 if 1：a += 2         可以这样写，后面只能一条语句
 
-格式化输出：print(f'{name}')
+格式化输出：print(f'xxxxx{name}各家各户')
 
 LEGB：
 L：local 本地 局部变量
@@ -1813,8 +1811,8 @@ DateError                              与数据相关的问题，如值不在�
 OperatinalError                     数据库操作内部错误
 IntegrityError                        关系完整性遭到破坏，如键未通过检查
 InternalError                         数据库内部的错误，如游标无效
-ProgrammingError                用户编程错误，如为找到数据库表
-NotSupportedError               请求不支持的功能，如会滚
+ProgrammingError                用户编程错误，如未找到数据库表
+NotSupportedError               请求不支持的功能，如回滚
 
 连接和游标：
 connect的常用参数
@@ -1908,7 +1906,7 @@ Tidy模块，修复html的工具
 XHTML解析模块
 beautifulsoup4模块，解析html
 
-启动一个简易web服务器，在浏览器输入http://http://127.0.0.1:8000/，提供所在目录的文件
+启动一个简易web服务器，在浏览器输入http://127.0.0.1:8000/，提供所在目录的文件
 # python -m http.server --cgi  
 
 python web框架：
