@@ -910,11 +910,11 @@ s.split('字符'，次数)                      切割成列表，默认空格�
 s.replace('aa', 'bb', 次数)              aa替换为bb
 s.isdigit()                                      判断字符串是否由纯数字组成，阿拉伯数字。isnumeric()能识别'4'、'四'、'IV'
 s.find('abc'，2, 5)                         查找，返回第一个字符a的索引，否则返回 -1，指定起始位置2，5，左闭右开
+s.rfind()                                        从右边开始
 s.index('值')                                 返回索引, rindex()
 s.count('值')                                值出现的次数
 s.isalpha（）                               是否是字母
 s.center(10, '#')                            居中，两边填充#号。左对齐ljust，右对齐rjust
-s.rfind()
 s.lower('A#%A')                            字母转为小写，upper()  ,istitle()如果开头大写，title(), islower()如果全部小写
 s.isidentifier()                               判断是否为有效标识符（变量）
 
@@ -1040,7 +1040,7 @@ heapq模块：
 让用户把可变序列当作  堆队列  或  优先队列  使用
 
 
-列表list：
+列表数据类型list：
 索引、切片、拼接、相乘
 
 索引：
