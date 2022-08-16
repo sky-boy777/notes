@@ -579,9 +579,6 @@ crontab [选项]               -e编辑crontab定时任务，-l查询crontab任�
 
 0 5 1,15 * * /sbin/shutdown -r now     每月1号和15号凌晨5点0分执行重启命令
 
-# 每周一凌晨五点执行爬虫
-1 5 * * 1 cd /app/movie_spider/ && /usr/local/bin/scrapy crawl dytt8 > /app/movie_spider/scrapy_and_insert.log 2>&1
-
 日志管理：
 /var/log/xxx         日志存放目录
 lastb                     查看二进制文件
