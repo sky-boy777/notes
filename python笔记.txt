@@ -1974,9 +1974,30 @@ setup(name='hello', version='1.0')     hello.py文件与版本
 3、在命令行中向程序传递的开关和参数
 
 logging模块：
+记录日志
 import logging
-logging.basicConfig(level=logging.INFO, filename='my_log.log')
-logging.info('日志')    # 写入日志文件my_log.log
+
+# 配置
+logging.basicConfig(
+    level=logging.DEBUG,       # 级别
+    filename='log.txt',             # 写入的文件
+    filemode='a',                      # 默认追加方式
+    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'  # 格式
+)
+
+logging.info('info')   # 记录info级别信息，下同
+try:
+    logging.debug('debug')
+    1/0
+except Exception as e:
+    logging.error('error')
+    logging.critical('严重%s' % e)
+
+输出：
+2022-08-17 21:55:26,394 test.py[line:64] INFO info
+2022-08-17 21:55:26,394 test.py[line:66] DEBUG debug
+2022-08-17 21:55:26,394 test.py[line:69] ERROR error
+2022-08-17 21:55:26,394 test.py[line:71] CRITICAL 严重division by zero
 
 
 pygame模块：
