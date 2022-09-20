@@ -149,6 +149,21 @@ http协议：请求和应答
 
 封装、继承、多态：python可以多继承
 
+
+算法时间复杂度的排序比较：
+O(1)<O(log*n)<O(n)<O(n log n)<O(n方)<O(c n次方)<O(n!)<O(n n次方)
+平均时间：
+list：追加，取值，赋值都是O(1), 插入删除某个元素则是O(n)
+set:   x in s 为O(1)
+dict:  修改删除元素的值为O(1), 迭代操作为O(n)
+
+
+循环的优化：
+尽量减少循环过程中的计算量，多重循环下尽量将内存的计算提到上一层
+1、减少内部循环的计算
+2、将显示循环改为隐式循环
+3、在循环中尽量引用局部变量，局部变量优先搜索，j = json.dump, v = v1[i]
+
 GIL：
 全局解释器锁
 Cpython，互斥锁，同一进程下多个线程不能同时执行，无法利用多核优势
@@ -1426,8 +1441,13 @@ print(a)                   # 精度较高的计时器
 timeit模块：
 测量代码执行时间
 
-profile模块：
-分析代码效率
+
+memory_profiler模块:
+内存分析，在需要内存分析的代码之前用@profile进行装饰，再命令行: python -m memory_profiler xxx.py
+输出：行号、 内存使用情况、  内存增长情况、  Occurrences、  对应的内容
+
+objgraph模块:
+统计、定位和过滤对象、遍历和显示对象图
 
 trace模块：
 代码覆盖率分析
@@ -1932,10 +1952,23 @@ PyChecker和PyLint：
 # pychecker my.py          从命令行运行检查文件
 # pylint module               检查模块或包
 
-性能分析：
-import profile, cProfile          #  标准库
+性能分析模块：
+import profile, cProfile          #  标准库，后一个是c语言实现的(推荐)
 profile.run("fun(3, 4)")
 cProfile.run('range(10)'，'a.txt')   # 第二个参数将结果放到一个文件
+
+ncalls         函数被调用次数
+tottime      函数总计运行时间，不含调用的函数运行时间
+percall       函数运行一次的平均时间，等于tottime/ncalls
+cumtime    函数总计运行时间，含调用的函数运行时间
+percall       函数运行一次的平均时间，等于cumtime/ncalls
+filename:lineno(function)   函数所在的文件名、函数的行号、函数名
+
+按函数的占用时间排序：
+ import cProfile, pstats
+    cProfile.run('test.run()', 'a.txt')     # 性能分析， 结果写入文件
+    p = pstats.Stats('a.txt')
+    p.sort_stats('time').print_stats()
 
 ------------------------------------------------------------------------------
 扩展python：

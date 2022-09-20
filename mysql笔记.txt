@@ -33,13 +33,12 @@ delete删除数据可以恢复，大量数据删除可能会报磁盘空间不�
 
 外键降低表更新、删除的效率
 
-导出：mysqldump -uroot -p 数据库名 >  文件名.sql
-
-导出所有数据库并锁住所有表，防止操作时有数据修改(导入时不需要指定数据库)：
+导出方式一、：mysqldump -uroot -p 数据库名 >  文件名.sql
+导出方式二、所有数据库并锁住所有表，防止操作时有数据修改(导入时不需要指定数据库)：
 mysqldump -uroot -p --all-databases --lock-all-tables  >  文件名.sql
 
-导入： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
-导入2：>>source back.sql;
+导入方式一： mysql -uroot -p  数据库名（提前创建）<  文件名.sql
+导入方式二：>>source back.sql;
 
 安装：
 centos安装MySQL  官方安装指南：https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/#repo-qg-yum-fresh-install
@@ -64,9 +63,17 @@ grep "temporary password is generated" /var/log/mysqld.log   查看临时密码
 行：记录
 列：字段
 
+-------------------------------------------------------------------------
+windows安装
+1、压缩包下载地址：https://downloads.mysql.com/archives/community/
+2、进入bin目录执行: mysqld --initialize --console, 得到密码
+3、进入bin目录执行：mysqld --install [mysqld]，安装
+4、mysql -uroot -p，登录
+5、alter user'root'@'localhost' identified with mysql_native_password by '你的密码';
 ----------------------------------------------------------------------
+
 创建用户
-GRANT all ON blog.* TO 'byc'@'localhost' WITH GRANT OPTION;
+GRANT all ON blog.* TO 'byc'@'localhost' IDENTIFIED BY '密码';
 
 查看byc用户授权情况
 SHOW GRANTS FOR byc@localhost;
