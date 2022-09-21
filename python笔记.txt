@@ -744,6 +744,11 @@ isinstance(list1, Iterable)              # 判断对象是否是可迭代的
 
 for i in list:     背后隐式调用iter(list), 这个函数背后则是list.__iter__()方法, 前提是list里面实现了__iter__()方法
 
+关系大到小：
+可迭代对象：包含有__getitem__()或__iter__()方法
+迭代器：包含next()方法和__iter__()方法
+生成器：包含有yield语句的函数
+
 iterable：可迭代的
 iterator：迭代器
 
@@ -1029,6 +1034,8 @@ rotate(n)                    # 旋转n个元素，从一段放到另一端，n>0
 __setitem__(p, e)         # s[p] = e
 队满添加元素会挤掉另一边的元素
 
+元素数量出现巨变时，deque比list要好，list扩大或减少会新建一个列表，然后拷贝全部元素过去，再删除现在的列表。
+
 
 queue模块：
 线程安全的队列，同步
@@ -1211,6 +1218,8 @@ python首先调用hash(key)计算key的散列值，把这个值的低几位数�
 背后是散列表
 集合中的对象必须是可散列的
 set本身不可散列，但frozenset（不可变集合）可以
+
+交 &、 并 |、 差 -、对称差 ^
 
 方法：
 s1.discard('xx')         删除元素
