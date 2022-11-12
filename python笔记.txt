@@ -187,7 +187,7 @@ b = 'abc'
 a is b                # 返True，这是CPython的一种优化措施，共享字符串字面量，称为驻留，一些小的整数也是 
                            这样，为了防止重复创建常用的数字
 
-+=、*= 这类，如何左边变量是不可变对象，则会创建一个新对象，否则就地修改
++=、*= 这类，如果左边变量是不可变对象，则会创建一个新对象，否则就地修改
 
 deepcopy能解决循环引用：
 a = [1,2]
@@ -210,14 +210,17 @@ windows下创建进程会导入包含了目标函数的脚本文件，要在if _
 linux下是重新拷贝一份代码运行，不会出现这种问题
 
 创建进程：
-from multiprocessing import Process
-p = Process(target=fun, args=(a,))
-p.start()           # 告诉操作系统创建进程
-p.join()            # 主进程等待子进程执行结束才继续运行
-p.terminate()  # 杀死当前进程
-p.is_alive()      # 判断进程是否存活
-p.daemo = True  # 设置为守护进程
-p.run()            # 只是执行了任务，没有创建进程
+大于两个以上的进程间通信，使用Queue，两个进程则用Pipe效率快
+
+from multiprocessing import Process，Pipe，Queue
+if __name__ == '__main__':
+  p = Process(target=fun, args=(a,))
+  p.start()           # 告诉操作系统创建进程
+  p.join()            # 主进程等待子进程执行结束才继续运行
+  p.terminate()  # 杀死当前进程
+  p.is_alive()      # 判断进程是否存活
+  p.daemo = True  # 设置为守护进程
+  p.run()            # 只是执行了任务，没有创建进程
 
 自定义类然后继承自Process也可以创建进程，重写run方法
 os.getpid()  # 查看当前进程的进程号
@@ -336,7 +339,7 @@ ORM：
 解决不用手写SQL
 
 is：比较对象的地址值(id())
-==：比较l两个对象的值，a.__eq__(b), object对象的__eq__方法同is一样比较id值，但其它内置类型覆盖了这个方法
+==：比较两个对象的值，a.__eq__(b), object对象的__eq__方法同is一样比较id值，但其它内置类型覆盖了这个方法
 
 元组中不可变的是元素的id，而元素引用的对象可以是可变的
 
@@ -359,8 +362,8 @@ class AA([父类]):                                  # 定义类，驼峰命名
     def __init__(self，age, name):           # 初始化方法，双下划线开头结尾：魔法方法
 
         super.__init__(name)                      # 方法一，调用父类__init__初始化方法
-        super.(AA, self).__init__(name)       # 方法二
-        父类.__init(self, name)                    # 方法三，使用父类名直接调用
+        # super.(AA, self).__init__(name)       # 方法二
+        # 父类.__init(self, name)                    # 方法三，使用父类名直接调用
 
         self.age = age                           # 实例属性
         self.__xxx = xxx                          # 私有
@@ -429,7 +432,7 @@ import collections         模块
 类能向上找到元类,对象不能向上找到元类
 
 魔法方法：
-双下划线开头和结尾，满足某种条件会自动调用: __init__(self)读作：双下-init, 双下方法
+双下划线开头和结尾，满足某种条件会自动调用: __init__(self)读作：双下init, 双下方法
 一般只有python的解释器会频繁直接调用魔法方法
 80几个魔法方法
 
@@ -461,7 +464,7 @@ print(t)                        # t变成(1, 2, [3, 4, 55])，并且会抛出：
 t[2].extend([33,44])     # 则不会抛出以上异常
 
 import dis
-dis.dis('s[a] += b')            # 在控制台中输入背后的字节码
+dis.dis('s[a] += b')            # 在控制台中输出背后的字节码
 
 序列和映射                                     
 __getitem__(self, key)                     字典d['key'] 背后就是__getitem__方法：d.__getitem__('key')    
@@ -498,7 +501,7 @@ property：特性都是类属性，但是特性管理的其实是实例属性
 property是类
 class B:
     def get_name(self):
-        return 'b'
+        return self.name
 
     def set_name(self, name):
         self.name = name
@@ -910,7 +913,7 @@ def sum(n):
 
 数字类型int与float：
 int(1.23) <=> 1
-int('1.23') 会报错，不能直接将字符串小数之间转为整型
+int('1.23') 会报错，不能直接将字符串小数转为整型
 float('1') <=> 1.0
 bin(10)  转二进制
 oct（10） 转八进制 0o33
@@ -925,13 +928,13 @@ hex（10）转十六进制 0xd
 成员运算in 与 not in
 s.strip('#')                                  去除左右两边字符，默认空格，可以多个，s.lstrip（''）左边空格、s.rstrip（''）右边空客
 s.split('字符'，次数)                      切割成列表，默认空格分割，s.rsplit('xx')   从右边切割
-判断开头结尾：startswith('xx')、endswih('xx')
+判断开头结尾：startswith('xx')、endswith('xx')
 ''.join(列表)                                   拼接，只能是字符
-s.replace('aa', 'bb', 次数)              aa替换为bb
+s.replace('a', 'b', 次数)                a替换为b
 s.isdigit()                                      判断字符串是否由纯数字组成，阿拉伯数字。isnumeric()能识别'4'、'四'、'IV'
 s.find('abc'，2, 5)                         查找，返回第一个字符a的索引，否则返回 -1，指定起始位置2，5，左闭右开
 s.rfind()                                        从右边开始
-s.index('值')                                 返回索引, rindex()
+s.index('值')                                 返回索引, rindex()从右边开始
 s.count('值')                                值出现的次数
 s.isalpha（）                               是否是字母
 s.center(10, '#')                            居中，两边填充#号。左对齐ljust，右对齐rjust
@@ -956,20 +959,17 @@ s = '{name[1]}---{obj.name}'.format(name=['1', '2']，obj=obj)   使用列表，
 
 转换标志s、r、a表示用str、repr、ascii 进行转换：
 s = '{name!r}{name!a}{name!s}'.format(name='5')     输出：'5''5'5
-s = '{name:$<10}'.format(name='aa')   指定宽度，'aa        '，字符串左对齐，数字右对齐，<,>,^分别表示左中右对齐，$为指定的填充字符，默认空格
+s = '{name:$<10}'.format(name='aa')   指定宽度，'aa$$$$$$$$'，字符串左对齐，数字右对齐，<,>,^分别表示左右中对齐，$为指定的填充字符，默认空格
 s = '{num:10.2f}'.format(num=3)      同时指定宽度和小数位数
 s = '{name:,}'.format(name=500000)  逗号为千位分隔符：500,000
 s = '{name:#b}'.format(name=34)      #号，0b100010，会加上类型的前缀
-
-s = '{name}'.foramt_map({'name': '张三'})         format_map()可以隐射字典
- 
-f'{name}'                                                                                        name是一个变量
+s = '{name}'.format_map({'name': '张三'})         format_map()可以隐射字典，输出 '张三'
+s = f'{name}'             name是一个变量
 
 bytes和bytesarray：
 b'abc'， b'ca\xc3\xa9', \n, \r
 都能使用字符串的方法: endswith、replace、strip、 upper等
-my_bytes[1]        获取的是一个0-255的整数
-my_bytes[0: 1]     得到的是一个长度为1的bytes对象
+bytes(1)      转换为字节
 
 b = 'abc'.encode('utf-8', errors='replace')          # 编码: b'abc',  无法编码的字符替换成？问号
 b'\xe9al'.decode('utf-8', errors='replace')          # 解码 ，无法解码则替换为问号：�al
@@ -1048,7 +1048,7 @@ SimpleQueue
 
 multiprocessing模块：
 Queue
-oinableQueue
+JoinableQueue
 
 
 asyncio模块：
@@ -1099,11 +1099,11 @@ while i < l:
 切片：
 [开始：结束：方向步长]           负数为逆向
 l[1:3:2]       正向
-l[-3:-1]       逆向
+l[-3:-1]       正向
 l[-1: :-2]     逆向
 l[-5:]          从-5开始正向取，能取到-5，-4、.....-1
 l[:len(l)]      全部，或l[:], 或l[:None]
-l[:4], l[4:]    两个不重复的部分
+l[:4], l[4:]    两个不重复的部分，左闭右开
 my_list[start:stop:step]       会调用 my_list.__getitem__(slice(start, stop, setp))
 
 l[3::2] = [11, 22]          # 切片赋值，不允许：l[2: 3] = 20  这种操作
@@ -1147,8 +1147,8 @@ sorted和list.sort()背后的算法是Timsort，一种自适应算法，根据�
 t.index("值")     # 返回第一个匹配的值的索引
 t.count("值")    # 计数，值出现的次数
 
-可以：切片（返回元组）、max、min、sum、len，in、*、+、is、>、<、=、、!=、sorted（元组）会返回一个排序的列表
-(1，2）* 2 == （1，2，1，2）
+可以：切片（返回元组）、max、min、sum、len，in、*(拆包）、+、is、>、<、=、、!=、sorted(元组）会返回一个排序的列表
+(1，2）* 2 == （1，2，1，2）  重新生成一个元组
 s, y = (1, 2)              拆包
 s, *b = (1, 2, 3, 4)    拆包，b是一个列表。列表、字符串都能拆包
 x, *y = 9,                 拆包，y是一个空列表
@@ -1167,7 +1167,7 @@ key=value，key不可变，不重复
 len(d)                                        项的个数
 in、not in                                  成员运算，针对key
 'xxx' in d                                   xxx是否在d的key中
-d = dict.fromkeys(列表，值)       初始化字典，列表的元素作为key，value为值。或{}.fromkeys(列表，'x')         
+d = dict.fromkeys(列表，初始值)       初始化字典，列表的元素作为key，value为初始值。或{}.fromkeys(列表，'x')         
 d = dict([(1,2)])                          符合这种格式的能转成字典
 d['age'] = 18                             增加，d.__getitem__('age')
 del d['xxx']                                删除
@@ -1200,7 +1200,7 @@ python首先调用hash(key)计算key的散列值，把这个值的低几位数�
 表元(一个键值对为一个表元)，具体取几位，需要看散列表的大小，若找到表元为空，则抛出KeyError
 异常，否则，表元里会有一对found_key: found_value，这时候校验key == found_key是否为真
 ，相等则返回found_value。
-不相等的情况称为散列冲突，算法会在散列值中再另取几位，用特殊方法处理一下，把得到的的数字再
+不相等的情况称为散列冲突，算法会在散列值中再另取几位，用特殊方法处理一下，把得到的数字再
 当作索引来寻找元素，然后重复上面步骤。
 
 字典更新跟添加新值跟上面基本一样
@@ -1222,15 +1222,16 @@ set本身不可散列，但frozenset（不可变集合）可以
 交 &、 并 |、 差 -、对称差 ^
 
 方法：
+s1.add('xxx')            增加，一次添加一个，update一次可以添加多个
+s.add(元组)              增加元组，元组是不可变类型，可以添加
 s1.discard('xx')         删除元素
 s1.remove('xxx')       删除元素，不存在会报错
 s1.clear()                  清空
 s1.pop()                   删除，返回值，没有则报错，一般删除第一个元素
 s1.update({1,2,3})     更新，无则添加
-s1.copy()                   浅拷贝
+s1.copy()                  浅拷贝
 
-s1.add('xxx')            添加，一次添加一个，update一次可以添加多个
-s.add(元组)              元组是不可变类型，可以添加
+
 
 支持的符号：len、in、not in、set1 == set2   判等或不等!=，不支持加"+"号
 __ior__
@@ -1241,8 +1242,8 @@ __le__                 <=, s.issubset(z), 是否为z的子集
 __lt__                  <
 __gt__                 >
 __ge__                >=
-__eq__
-__ne__
+__eq__                 =
+__ne__                 !=
 __and__              交集，s & b
 __or__                 并集，s | b,  s.union(it, ...)
 __sub__               差集，s - b
@@ -1250,10 +1251,10 @@ __xor__               对称差集，s ^ b，s.symmetric_difference(it)
 __contains__       in 操作
 __iter__               返回迭代器
 __len__
-s.isdisjoint(z)          是否不相交
+s.isdisjoint(z)       是否不相交
 
-for i in enumerate(集合):                枚举（索引，值），元组(0,1)（1，2） 
-    print(l)  
+for i in enumerate(集合):                枚举（索引，值），元组(0, 1)（1，2） 
+    print(i)  
 
 交集
 集合内元素：不可变类型，无序，不重复
@@ -1269,12 +1270,12 @@ for i in enumerate(集合):                枚举（索引，值），元组(0,1
 
 父子集，包含关系：
 a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
-s1.issuperset(s2)    判断s1是s2的父集，返回布尔值
-s1.issubset(s2)       判断s1是s2的子集
+s1.issuperset(s2)    判断s1是否是s2的父集，返回布尔值
+s1.issubset(s2)       判断s1是否是s2的子集
 去重后无序
 s1.isdisjoint({1,2,3})    判断，没有共同部分返回true
 
-fset = frozenset({1,3})            不可变集合
+fset = frozenset({1,3})            不可变集合，没有pop，add等方法
 fset = frozenset(range(10))
 
 s = {1，2，3} 效率比 s = set([1,2,3])这样创建效率要高，前者利用一个专门的叫做BUILD_SET的字节码来创建集合
@@ -1320,7 +1321,7 @@ U
 
 f = open(file, mode='r', encode='utf8')              打开文件，返回一个流
 读：
-content = f.read(3)                       读取三个字符或字节(二进制）, 默认读全部
+content = f.read(3)                       读取三个字符或字节(二进制）, 无参数则读全部
 f.readable()                                  判断是否可读取
 f.readline(3)                                  读取一行中的3个字符或字节，默认读取一行
 f.readlines()                                  读取多行，返回一个列表
@@ -1366,7 +1367,7 @@ with open('a.tt') as f:
     a, b, c = f                    # 解包，左边跟右边行需要相同，否则报错
 
 f=open('a.tt', 'w')
-print('日志', file=log)          # 将print结果写入文件，默认自带换行符‘\n’
+print('日志', file='log.txt')          # 将print结果写入文件，默认自带换行符‘\n’
 
 ----------------------------------------------------------------------------------------
 os模块：
@@ -1374,19 +1375,19 @@ os模块：
 import os
 os.path.dirname(__file__)   当前文件目录路径，绝对路径，str类型
 os.getcwd()                        同上
-os.path.join(os.path.dirname(__file__), '图片'，'图片2'，'aa.jpg')      路径拼接，可以多个
+os.path.join(os.path.dirname(__file__), '目录1'，'下级目录'，'aa.jpg')      路径拼接，可多个，最终拼接成一个路径
 os.path.isabs('xxx/xx/x.jpg')                                    判断是否是绝对路径
 os.path.abspath('a.txt')                                           获取文件的绝对路径，传入__file__当前文件绝对路径
 os.path.split('xx/xx/aa.jpg')                                     将文件路径和文件名切割，('xx/xx', 'aa.jpg')
 os.path.splitext('xx/xx/aa.jpg')                                将文件路径和扩展名切割，('xx/xx/aa', ".jpg")
 os.path.getsize('xx/xx/aa.jpg')                                返回文件大小，单位：字节
 os.path.isfile()          是否是文件
-os.path.isdir()           是否是路径
+os.path.isdir()           判断是否是一个目录
+os.path.exists(r'c:')     判断是否是一个目录
 
 os.listdir(目录)                      返回目录下的所有文件夹或文件的名字，列表
 os.mkdir(目录)                      在目录下创建文件夹
 os.rmdir(目录)                      删除目录下的文件夹，只能删除空目录
-os.path.exists(r'c:')                判断是否是一个目录
 os.removedirs(目录)             只能删除空目录
 os.remove('xx/aa.txt')           删除文件
 os.chdir(r'd:')                       切换目录到D:\\盘
@@ -1397,8 +1398,8 @@ os.startfile('C:\aa.exe')              # windows特有，执行aa.exe
 删除非空文件夹：
 flist = os.listdir(目录)        列出文件夹下的所有文件，然后删除所有文件，再删除空目录
 for f in flist:
-    path1 = os.path.join(目录，文件名)        拼接文件
-    os.path.remove(path1)                          删除文件
+    path1 = os.path.join(目录，文件名i)        拼接文件
+    os.remove(path1)                                  删除文件
 else:
     os.rmdir(目录)                                       删除空文件夹
 
@@ -1422,10 +1423,10 @@ sys.argv               一个列表，终端运行python xxx.py aa bb，将后�
 sys.path.append('xxx/xx/x')   告诉解释器还可以去哪里找模块
 
 
-import importlib
-import test
+import importlib   动态导入模块
+import abc
 print('-----------')
-test = importlib.reload(test)    # 重新导入一次test模块，替换原来的
+abc = importlib.reload(abc)    # 重新导入一次test模块，替换原来的
 
 
 time模块：
@@ -1433,7 +1434,7 @@ import time
 time.asctime(元组)                将当前时间转换为str类型：'Mon Jan 24 21:03:51 2022'
 t = time.time()                      时间戳
 time.sleep(3)                         睡眠3秒
-time.strftime('%Y-%m-%d %H:%M:%S')        输出格式转换：'2021-06-15 17:08:53'
+time.strftime('%Y-%m-%d %H:%M:%S')        输出系统时间，格式转换为：'2021-06-15 17:08:53'
 time.ctime(t)                        时间戳转换成日期：'Tue Jun 15 17:01:48 2021'
 a = time.localtime(元组)       时间戳转为元组形式：time.struct_time(tm_year=2021, tm_mon=6, tm_mday=15, 
                                         tm_hour=17, tm_min=1, tm_sec=13, tm_wday=1, tm_yday=166, tm_isdst=0)
@@ -1452,7 +1453,7 @@ timeit模块：
 
 
 memory_profiler模块:
-内存分析，在需要内存分析的代码之前用@profile进行装饰，再命令行: python -m memory_profiler xxx.py
+内存分析，在需要内存分析的代码之前用@profile进行装饰，在命令行: python -m memory_profiler xxx.py
 输出：行号、 内存使用情况、  内存增长情况、  Occurrences、  对应的内容
 
 objgraph模块:
@@ -1468,9 +1469,9 @@ fileinput模块：
 
 datetime模块：
 import datetime
-datetime.date.today()             返回今天日期
-datetime.datetime.now()        返回现在日期时间
-datetime.timedelta(week=3)  返回3周后，可以加减的时间         
+datetime.date.today()             返回今天日期+时间
+datetime.datetime.now()        返回现在日期+时间
+datetime.timedelta()  可以加减的时间         
 
 random模块：
 import random
@@ -1489,6 +1490,7 @@ for i in range(4):
     r3 = chr(random.randint(97, 122))          小写字母
 
     code += random.choice([r1, r2, r3])
+print(code)
 
 
 hashlib模块：
@@ -1508,8 +1510,8 @@ r = re.match(r'^xx$'， '字符串')      从开头开始匹配，没有返回No
 r = re.search('^xx$'， '字符串')      匹配整个字符串，匹配到第一个返回，建议开头结尾^$
 r = re.findall('^xx$'， '字符串')       匹配全部，找到全部, 返回列表
 r = re.finditer('^xx$'， '字符串')      跟findall一样，不过返回迭代器
-r = re.sub(正则, '新内容'，'str')        替换
-r = re.split(正则，字符串)                根据正则匹配到的切割，返回列表
+r = re.sub(正则, '新内容'，'字符串')        替换
+r = re.split(正则，'字符串')                根据正则匹配到的切割，返回列表
 com = re.compile(正则)                  创建模式对象，提高匹配效率。com.search(字符串)
 escape('www.baidu.com')               www\\.baidu\\.com  对字符串中的正则表达式特殊字符都进行转义
 
@@ -1545,29 +1547,25 @@ pillow模块    处理图片
 申请内存空间保存函数体代码，内存地址绑定函数名，定义会检测语法
 
 func(1, 3) * 10        # 函数的返回值乘10
-func(func(1, 2), 3)   # 函数当参数
+func(func(1, 2), 3)   # 函数返回值当参数
 
 关键字参数：key=value，位置参数放在关键字参数前面，不能重复传参数
-默认参数在函数定义阶段赋值：def func(a=3)  ，列表做参数会改变
+默认参数在函数定义阶段赋值：def func(a=3) 
 默认参数不应该使用可变类型，如列表
 可变长参数：*与**，*args是元组格式、**kwargs字典格式，*args放在**kwargs前面
 解包：*[1,2,3]<==>1 2 3  ，*'hello'<==>h e l l o，单个*号解包字典只获得key，*{1：2，3：4}  <==>1 2
-def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v：x=1,y=2
+def fun(a,b,*,x,y)  # *后面的参数为命名关键字参数，传值k-v，如x=1,y=2
 fun(**字典)           解包字典，传给形参**kwargs再封包
 
 高阶函数：接受函数作为参数，或者把函数作为返回结果的函数是高阶函数。如map、filter、reduce
-
-解包，拆包：
-x, *y，z = 1, 2, 3            任何可迭代对象, y始终是一个列表：[ 2 ]
 
 lambda匿名函数：
 lambda 参数：返回值
 精简，用在临时使用一次的场景
 方式一：fun = lambda x, y：x + y          或者 lambda *args：print（args）,不能使用**kwargs
 fun(1, 2)
-返回：3
 
-方式二：res = (lambda x:x+1)(2)   相当于立即执行函数
+方式二：res = (lambda x: x+1)(2)   相当于立即执行函数
 方式三：[lambda x: x+1 for i in range(10)]
 
 函数注解：
@@ -1619,7 +1617,7 @@ def fun(a):
         print(a+b+c)
     return fun2
 
-my_fun = fun(1)               my_fun得到fun的返回值fun2的函数引用
+my_fun = fun(1)               my_fun得到fun的返回值fun2的函数引用，变量 a，c 延长
 my_fun(2)                         执行fun2函数
 输出：13
 
@@ -1642,10 +1640,9 @@ nonlocal的作用是把变量标记为自由变量，nonlocal a, c
 
 先执行装饰器，再执行被装饰的函数
 
-@decorate            等价于：func = decorate(func)
+@decorate            语法糖，等价于：func = decorate(func)，执行结果返回给func，所以说是加载模块时执行
 def func():
     pass
-
 
 通用装饰器：有返回值，有不定参数：
 import functools
@@ -1653,15 +1650,18 @@ import functools
 def f1(func):                                   # 参数是一个函数对象
     print('先执行这一行')
     @functools.wraps(func)            # 这一句可以将__doc__的内容跟__name__还是原来被装饰函数的内容 
-    def wrapper(*args, **kwargs):   # 跟被装饰的函数参数跟返回值要一样，封包
+    def wrapper(*args, **kwargs):    # 跟被装饰的函数参数跟返回值要一样，封包
          ....
          res = func(*args, **kwargs)  # 这里将*args、**kwargs拆包
          .....
          return res
     return wrapper
 
-@f1          #  指向改变，test = f1(test) <==> wrapper， f1的返回值是一个函数引用，"@f1"叫语法糖，因为更简洁了
-test()
+@f1          #  指向改变，test = f1(test) 执行返回 wrapper函数引用， f1的返回值是一个函数引用
+def test():
+    pass
+
+test()     # 相当于执行wrapper函数
 
 其它两个装饰器：
 functools.lru_cache(maxsize, True)
@@ -1672,14 +1672,13 @@ functools.singledispatch
 加载顺序：自下而上
 执行顺序：自上而下
 
-@f1            # 3、fun = f1(fun = f2(fun))
+@f1            # 3、fun = f1( f2(fun) )
 @f2            # 2、fun = f2(fun)
 def fun()     # 1、先执行@f2
     pass
 
 等价于：
 fun = f1(f2(fun))
-
 
 带参数装饰器：
 最外层作为函数调用，返回一个装饰器
@@ -1710,7 +1709,7 @@ test()
 异常：
 try:
     可能发生异常的代码
-except Exception：
+except Exception：    # 异常类型
     print(Exception)
 except 异常类型 as 别名：
     print(别名)
