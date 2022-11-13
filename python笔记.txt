@@ -1803,16 +1803,12 @@ if __name__ == '__main__'
 2、将导入语句放在其它地方，比如函数里面（推荐）
 3、把导入语句放到最后
 
-print(__file__)  # 当前文件的绝对路径
-
 模块.__file__     # 模块的绝对路径
 
 ----------------------------------------------------------------------------------
 
-r'\'不能单独出现,或在末尾出现
+r'\'不能单独出现, 或在末尾出现
 if 1：a += 2         可以这样写，后面只能一条语句
-
-格式化输出：print(f'xxxxx{name}各家各户')
 
 LEGB：
 L：local 本地 局部变量
@@ -1829,7 +1825,7 @@ apilevel                    使用的python DB API版本
 threadsafety             模块的线程安全程度如何
 paramstyle               在SQL查询中使用哪种参数风格
 
-pytho DB API指定的异常：
+python DB API指定的异常：
 StandardError                        所有异常超类
 Warning                                发生非致命问题时引发
 Error                                     所有错误条件的超类
@@ -2022,7 +2018,7 @@ import logging
 logging.basicConfig(
     level=logging.DEBUG,       # 级别
     filename='log.txt',             # 写入的文件
-    filemode='a',                      # 默认追加方式
+    filemode='a',                     # 默认追加方式
     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'  # 格式
 )
 
@@ -2043,9 +2039,3 @@ except Exception as e:
 
 pygame模块：
 游戏
-
-
-
-
-
-
