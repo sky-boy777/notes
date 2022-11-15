@@ -25,8 +25,8 @@ def xxx(self, request):
 
 -----------------------------------------------------------------------------------------------------------------------------
  uwsgiÆô¶¯£ºuwsgi uwsgi.ini
- ¹Ø±Õ£ºuwsgi  --stop   uwsgi.ini   »ò kill  -9   ½ø³Ìid
- ÖØÆô£ºuwsgi --reload uwsgi.pid
+ ¹Ø±Õ£ºuwsgi  --stop   uwsgi.pid   »ò kill  -9   ½ø³Ìid
+ ÖØÆô£ºuwsgi --reload uwsgi.ini
  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Ä£ĞÍ£º
@@ -123,7 +123,7 @@ import os
 import sys
 if __name__ == '__main__':
     import django
-    diango.setup()
+    django.setup()
 
 
 ²éÑ¯£º
@@ -190,7 +190,7 @@ class Book(models.Model):
 
 µÚÈıÕÅ±í
 class Xxx(models.Model):
-    user = models.ManyToManyFiled(to='User')             ¹ØÁª±í, orm»á×Ö¶Î½«Êı¾İ¿â×Ö¶Î¸ÄÎª: user_id
+    user = models.ManyToManyFiled(to='User')             ¹ØÁª±í, orm»á×Ô¶¯½«Êı¾İ¿â×Ö¶Î¸ÄÎª: user_id
     book = models.ManyToManyFiled(to='Book')           
     
 
@@ -597,7 +597,7 @@ request.session.get('username')                                  # »ñÈ¡session
 request.session.has_key()                                            # ÅĞ¶ÏÊÇ·ñÓĞÖµ
 
 É¾³ısession
-request.session.delect()                     # É¾³ıµ±Ç°»á»°£¬Ö»É¾³ı·şÎñµÄ
+request.session.delete()                     # É¾³ıµ±Ç°»á»°£¬Ö»É¾³ı·şÎñµÄ
 request.session.clear()                       #Çå³ıËùÓĞsessionÖµ²¿·Ö£¬²»Çå³ısessionid
 request.session.flush()                       # Çå³ıËùÓĞsession¼üÖµ¶Ô£¬Á¬Êı¾İ¿âÀïÃæµÄÒ²Çå³ı£¨ÍÆ¼ö£©
 del request.session['username']         # Çå³ıÖ¸¶¨session¼üÖµ¶Ô
@@ -610,7 +610,7 @@ django²Ù×÷sessionĞèÒªÄ¬ÈÏµÄÒ»ÕÅ±ídjango_session, Ç¨ÒÆ×Ô¶¯Éú³É£¬´æ´¢¼ü£¬Öµ£¬¹ıÆÚÊ
 1¡¢Éú³ÉÒ»¸öËæ»ú×Ö·û´®
 2¡¢×Ô¶¯½«Ëæ»ú×Ö·û´®ºÍ¶ÔÓ¦Êı¾İ´æ´¢µ½django_session±íÖĞ
      2.1ÏÈÔÚÄÚ´æÖĞ²úÉú²Ù×÷Êı¾İµÄ»º´æ
-     2.2ÔÙÏìÓ¦½á¹ûdjangoÖĞ¼ä¼şµÄÊ±ºò²ÅÕæÕı²Ù×÷Êı¾İ¿â
+     2.2ÔÚÏìÓ¦½á¹ûdjangoÖĞ¼ä¼şµÄÊ±ºò²ÅÕæÕı²Ù×÷Êı¾İ¿â
 3¡¢½«²úÉúµÄËæ»ú×Ö·û´®·µ»Ø¸ø¿Í»§¶Ë±£´æ£ºsessionid£ºËæ»ú×Ö·û´®
 
 django_session±íµÄÊı¾İ£¬Ò»¸öä¯ÀÀÆ÷Ö»¶ÔÓ¦Ò»Ìõ£¬ÉèÖÃÁË¶à¸ösessionÖµ»á·ÅÔÚrequest.session¶ÔÏó
@@ -659,7 +659,7 @@ class Login(View):
 1¡¢ pip install  django-simple-captcha
  
  settings.py:
-2¡¢Ìí¼Ócaptchaµ½INSTALLED_APPSÄúµÄsettings.py
+2¡¢Ìí¼Ócaptchaµ½INSTALLED_APPS£¬settings.py
 3¡¢Éú³ÉÇ¨ÒÆ£ºpython manage.py migrate
 
  4¡¢# Í¼ÏñÑéÖ¤ÂëÅäÖÃ
@@ -830,7 +830,7 @@ if request.user.cheak_password(passwd)£º                     # ×Ô¶¯¼ÓÃÜ¶Ô±ÈÃÜÂë£
               request.user.save()                                           # ±£´æĞŞ¸Ä
 
 È¨ÏŞÈÏÖ¤£º
-from django.contrib.auth.decorators import login_required         # Â·ÓÉ±£»¤×°ÊÎÆ÷, ×°ÊÎÆ÷£¬µÇÂ¼ºó²ÅÄÜ·ÃÎÊ
+from django.contrib.auth.decorators import login_required         # Â·ÓÉ±£»¤×°ÊÎÆ÷£¬µÇÂ¼ºó²ÅÄÜ·ÃÎÊ
 
 @login_required(login_url='user:login')              # Î´µÇÂ¼£¬Ìø×ªµ½Ö¸¶¨url                                     
 def xxx(request):
@@ -1076,7 +1076,7 @@ send_mail('ÕËºÅ¼¤»î', 'ÄÚÈİ£¨¿Õ£©', '¼Ä¼şÈË', ['ÊÕ¼şÈËÁĞ±í'], html_message=html)
 -----------------------------------------------------------------------------------------------------
 XSS¹¥»÷£º
 ÔÚ¸»ÎÄ±¾¿òÊéĞ´js´úÂë£¬µ¼ÖÂÒ³Ãæ±»ĞŞ¸Ä¡£
-½â¾ö£ºÊ¹ÓÃbs4Ä£¿é£¬°Ñ<script>±êÇ©É¾³ı
+½â¾ö£ºÊ¹ÓÃbs4Ä£¿é£¬°Ñ<script>±êÇ©É¾³ı£¬»òÕß<>Ìæ»»&lt;
 pip install beautifulsoup4
 	
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1146,7 +1146,7 @@ djangoÔÊĞí¿çÓòµÄ´¦Àí, ÔÚsettingsÏÂÅäÖÃ
 # ´¦Àí¿çÓòÇëÇó
 CORS_ALLOW_CREDENTIALS = True  # ÔÊĞí½«cookie°üº¬ÔÚ¿çÕ¾µãHTTPÇëÇóÖĞ¡£Ä¬ÈÏÎªFalse¡£
 # ÒÔÏÂÁ½¸ö¶şÑ¡Ò»¾ÍĞĞ
-# 1¡¢CORS_ORIGIN_ALLOW_ALL = True  # ÎªTrue±íÊ¾ÔÊĞíËùÓĞÖ÷»ú£¬½«²»Ê¹ÓÃ°×Ãûµ¥,Ä¬ÈÏÎªFalse
+# 1¡¢CORS_ORIGIN_ALLOW_ALL = True  # ÎªTrue±íÊ¾ÔÊĞíËùÓĞÖ÷»ú£¬½«²»Ê¹ÓÃ°×Ãûµ¥, Ä¬ÈÏÎªFalse
 
 # 2¡¢¿çÓòÇëÇó°×Ãûµ¥(¿ÉÒÔ¿çÓòÇëÇóµÄÖ÷»ú»òÓòÃû)
 CORS_ORIGIN_WHITELIST = [  
