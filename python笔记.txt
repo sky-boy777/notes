@@ -461,7 +461,7 @@ try:
 except:
     pass
 print(t)                        # t变成(1, 2, [3, 4, 55])，并且会抛出：TypeError: 'tuple' object does not support item assignment，元组不支持项赋值
-t[2].extend([33,44])     # 则不会抛出以上异常
+t[2].extend([33, 44])     # 则不会抛出以上异常
 
 import dis
 dis.dis('s[a] += b')            # 在控制台中输出背后的字节码
@@ -711,8 +711,10 @@ vars(obj)                                  指定obj，返回obj对象的__dict_
 res = sorted(dic, key=lambda k: dic[k])     # 按照关键字key排序，任何可迭代对象，不可变元组做参数，都返回一个新列表
 res = sorted(list, key=len， resverse=True)    # 按照元素长度降序排序，sorted是稳定排序
 
+
 bisect模块：实现了二分查找法
-bisect.insort(有序列表， 4)           # 将4插入列表，并保持列表有序
+bisect.bisect(有序列表, 2)               # 返回2在序列的位置，从1开始
+bisect.insort(有序列表， 4)            # 将4插入列表，并保持列表有序
 
 
 垃圾回收机制：引用计数、标记清除、分代回收
@@ -838,7 +840,7 @@ def fun():
 print(list(fun()))             # ['a', 'b', '1', '2']
 
 句法：
-sum(i for i in range(10))     # 求和，内部不需要小括号，函数有其它参数则必须要加
+sum(i for i in range(10))     # 求和，只有一个参数，则内部不需要小括号，函数有其它参数则必须要加
 
 for i in 可迭代对象，循环调用__iter__()得到迭代器对象，每次调用__next___()返回一个值给i
 
@@ -996,21 +998,22 @@ collections.deque      # 双端队列，反复做先进先出操作，效率比l
 
 集合set检查元素是否存在效率比较高，set为检查元素做过优化
 
+memoryview内置类，内存视图：
 
-数组array：
+
+内置数组模块array：
 存放1000万个浮点数的话，array比列表效率高的多
 支持跟列表一样的操作: pop, insert, extend, append，+，+=，frombytes, tofile，等。。。
 只能存放单一类型
 from array import array
 arr = array('d'，[1,2,3,4,5])    # 类型码 'd' 代表有类型的字符，指定底层C语言应该存放什么数据类型
-arr.tofile(file)                       #  放入文件
-arr.fromfile(file, 1000)          # 将1000个从文件读出
+arr.tofile(file)                       # 放入文件
+arr.fromfile(file, 1000)         # 将1000个从文件读出
 arr[-1]                                 # 数组最后的元素
 
 
 双端队列：
-collections.deque类
-是线程安全，可以快速从两端添加或删除元素
+collections.deque类，是线程安全，可以快速从两端添加或删除元素的数据类型
 dq = collections.deque(range(10), maxlen=10)    # 队列多存放10个元素
 实现了列表大部分操作：
 +=
@@ -1037,7 +1040,7 @@ __setitem__(p, e)         # s[p] = e
 元素数量出现巨变时，deque比list要好，list扩大或减少会新建一个列表，然后拷贝全部元素过去，再删除现在的列表。
 
 
-queue模块：
+queue内置模块：
 线程安全的队列，同步
 Queue
 LifoQueue
@@ -1047,18 +1050,20 @@ SimpleQueue
 
 
 multiprocessing模块：
-Queue
+Queue       # 进程间通信使用
 JoinableQueue
 
 
-asyncio模块：
+asyncio模块：python3.4
 Queue
 LifoQueue
 PriorityQueue
 JoinableQueue
+为异步编程里的任务管理提供了专门的便利
 
 
 heapq模块：
+方法：heappush, heappop
 让用户把可变序列当作  堆队列  或  优先队列  使用
 
 
@@ -1097,7 +1102,8 @@ while i < l:
     i += 1 
 
 切片：
-[开始：结束：方向步长]           负数为逆向
+
+[开始：结束：方向步长]        # 内部调用：seq.__getitem__(slice(start, stop, step)),  负数为逆向
 l[1:3:2]       正向
 l[-3:-1]       正向
 l[-1: :-2]     逆向
@@ -1140,6 +1146,8 @@ reversed()   返回一个反向迭代序列，不是列表，不能用切片
 sorted和list.sort()背后的算法是Timsort，一种自适应算法，根据原始数据的顺序
 特点交替使用插入排序和归并排序。以达到最佳效率。
 
+print((...))   # 输出：Ellipsis，省略号在python是一个符号，是ellipsis类的单一实例，跟bool是小写，而它的两个实例True跟False是异曲同工
+
 -----------------------------------------------------------------------------------
 元组tuple：
 不可变，存放值对应的地址，也就是指向的地址不变，值可能修改（可变类型），
@@ -1157,6 +1165,14 @@ print(*(1,2,3))          拆包
 t = (2)              # 是int类型，只有一个元素的时候要加逗号","
 
 2*(4+2,)  ==> (6, 6)
+(1,)+(2,)  # 调用 __add__ 得到一个新的元组
+
+元组使用+=，*= 会得到一个新元组，调用__add__, __mul__, 而可变序列 list 会调用 __iadd__, __imul__ 就地加、乘法，修改自身
+不可变序列使用+=，*=效率会很低，会重复新建，str做了优化，初始化会留有扩展空间
+
+一个“+=”的秘密
+t = (1, 2, [30, 40])
+t[2] += [50, 60]           # 运算结果抛出TypeError错误，并且t变为(1, 2, [30, 40, 50, 60]) 
 
 ------------------------------------------------------------------------------------------
 字典类型dict:
@@ -1973,6 +1989,11 @@ filename:lineno(function)   函数所在的文件名、函数的行号、函数�
     cProfile.run('test.run()', 'a.txt')     # 性能分析， 结果写入文件
     p = pstats.Stats('a.txt')
     p.sort_stats('time').print_stats()
+
+
+NumPy和SciPy库：
+数字处理
+科学计算
 
 ------------------------------------------------------------------------------
 扩展python：
