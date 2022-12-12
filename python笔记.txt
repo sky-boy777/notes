@@ -1,4 +1,7 @@
-﻿安装：pip install -r requirements.txt
+﻿python之禅：
+在终端输入import this
+
+安装：pip install -r requirements.txt
 导出：pip freeze > requirements.txt
 
 pip download -r requirement.txt -i https://pypi.douban.com/simple/      下载whl文件到当前目录
@@ -973,7 +976,8 @@ b'abc'， b'ca\xc3\xa9', \n, \r
 都能使用字符串的方法: endswith、replace、strip、 upper等
 bytes(1)      转换为字节
 
-b = 'abc'.encode('utf-8', errors='replace')          # 编码: b'abc',  无法编码的字符替换成？问号
+处理编解码错误的方式：UnicodeEncodeError、 UnicodeDecodeError
+b = 'abc'.encode('utf-8', errors='replace')          # 编码: b'abc',  无法编码的字符替换成 '?'问号
 b'\xe9al'.decode('utf-8', errors='replace')          # 解码 ，无法解码则替换为问号：�al
 
 utf-8, u8, U8, utf8, utf_8           # utf-8的几种表示方式
@@ -1180,6 +1184,14 @@ t[2] += [50, 60]           # 运算结果抛出TypeError错误，并且t变为(1
 可散列对象：调用hash()函数不报错
 key=value，key不可变，不重复
 
+创建字典的方法：
+d = dict(one=1, tow=2)
+d = {'one': 1, 'two': 2}
+d = dict(zip(['one', 'two'], [1, 2]))
+d = dict([('one', 1), ('two', 2)])
+d = dict({'one': 1, 'two': 2})
+字典推导
+
 len(d)                                        项的个数
 in、not in                                  成员运算，针对key
 'xxx' in d                                   xxx是否在d的key中
@@ -1205,9 +1217,8 @@ collections.OrderedDict
 
 字典里的键值对都是引用，存入时先做hash()运算
 
-每次启动python解释器都会生成一个随机盐值，是为了防止DOS攻击而采取的一种安全措施，
-str、bytes、datetime对象的散列值计算过程会多了随机加盐这一步，盐值是python进程内的
-一个常量
+python3.3开始，每次启动python解释器都会生成一个随机盐值，是为了防止DOS攻击而采取的一种安全措施，
+str、bytes、datetime对象的散列值计算过程会多了随机加盐这一步，盐值是python进程内的一个常量
 
 如果有一个整型对象，而且它能被存进一个机器字中，那么它的散列值就是它本身。hash(1)==1
 
@@ -1219,8 +1230,19 @@ python首先调用hash(key)计算key的散列值，把这个值的低几位数�
 不相等的情况称为散列冲突，算法会在散列值中再另取几位，用特殊方法处理一下，把得到的数字再
 当作索引来寻找元素，然后重复上面步骤。
 
-字典更新跟添加新值跟上面基本一样
+散列表其实是一个稀疏数组，总是有空白元素的数据组，散列表里面的元素叫表元，dict中每一对键值占用一个表元
+每个表元有两个部门，一个是对键的引用，一个是对值的引用，因为所有的表元大小一致，所以可以通过偏移量来
+读取某个元素。
+python设法保证还有三分之一的表元是空的，在快要达到这个阈值的时候，就会复制到一个更大的空间里面。
 
+插入
+
+以上出自《流畅的python》
+
+字典更新跟添加新值跟上面基本一样，只不过一个找到会替换，后者发现空表元时会放入一个新元素。
+插入操作会按照散列表拥挤程度决定是否要重新分配内存为他扩容。
+
+字典的实现及导致的结果：
 1、字典键必须是可散列的。支持hash()函数，支持通过__eq__方法检测相等性，若a == b, 则hash(a) == hash(b) 也为真。
 2、字典在内存上开销巨大。字典使用散列表，散列表是稀疏数组(总有空白元素的数组)
 3、键查询很快
@@ -1229,6 +1251,9 @@ python首先调用hash(key)计算key的散列值，把这个值的低几位数�
      元素添加到新表里。过程可能发生散列冲突导致键的次序变化。一边迭代字典一边修改字典，循环可能跳过一些键，甚至是跳过字
      典中已有的键。
 
+元组里面有可变类型，也不能作为字典的key，因为不可散列，hash(t)会报错
+
+所以用户自定义的对象默认都是可散列的，因为他们的散列值用id()来获取。而且他们都是不相等的。
 --------------------------------------------------------------------------------------------------------
 集合set：
 背后是散列表
@@ -1240,14 +1265,44 @@ set本身不可散列，但frozenset（不可变集合）可以
 方法：
 s1.add('xxx')            增加，一次添加一个，update一次可以添加多个
 s.add(元组)              增加元组，元组是不可变类型，可以添加
-s1.discard('xx')         删除元素
+s1.discard('xx')         如果s1里有xx这个元素，则删除
 s1.remove('xxx')       删除元素，不存在会报错
 s1.clear()                  清空
 s1.pop()                   删除，返回值，没有则报错，一般删除第一个元素
 s1.update({1,2,3})     更新，无则添加
 s1.copy()                  浅拷贝
+s = s1.intersection(集合)    返回两个集合的交集作为一个新集合。 
+s.isdisjoint()            如果两个集合有空交集，则返回True。
+s.__iter__()               返回s的迭代器
 
+交集
+集合内元素：不可变类型，无序，不重复
+空集合s = set()  ，s={1}集合， s = {}是空字典
+类型转换：s = set('hellooo') == {'h', 'e', 'l', 'o'}，转换的类型里不能有可变类型，如列表嵌套列表
+转换字典只是得到字典的key
 
+方法里面都会先把iter转换成set，再求集，语法糖不行
+
+内置方法(关系运算)：
+交集：set1 & set2             # set1.intersection(iter, ...)   iter转换为集合后求交集
+并集：set1 | set2               # set1.union(iter, ...)
+差集：set1 - set2               # set1.difference(iter, ...), 有先后顺序，得到set1在set2中没有的
+对称差集：set1 ^ set2       # set1.symmetric_difference(iter, ...), 并集中去掉交集部分
+ s ^= z                           # set1.symmetric_difference_update(iter, ...)    # 就地求差集，就地更新set1
+
+s.intersection_update(z, ...)     # s &= z 就地修改集合s
+s.update(z, ..)                         # s |= z 就地修改s，并集
+s.difference_update(z, ...)             # 就地修改  s -= z,  差集
+
+父子集，包含关系：
+a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
+s1.issuperset(s2)    判断s1是否是s2的父集，返回布尔值
+s1.issubset(s2)       判断s1是否是s2的子集
+去重后无序
+
+s1.isdisjoint({1,2,3})    判断，是否不相交，返回布尔类型
+s1.issubset(it)             # 转换it为集合，判断s1是否为it的子集， s1 <= it
+s1.issuperset(it)          # 同上相反，it是否为s1的父集
 
 支持的符号：len、in、not in、set1 == set2   判等或不等!=，不支持加"+"号
 __ior__
@@ -1272,36 +1327,22 @@ s.isdisjoint(z)       是否不相交
 for i in enumerate(集合):                枚举（索引，值），元组(0, 1)（1，2） 
     print(i)  
 
-交集
-集合内元素：不可变类型，无序，不重复
-空集合s = set()  ，s={1}集合， s = {}是空字典
-类型转换：s = set('hellooo') == {'h', 'e', 'l', 'o'}，转换的类型里不能有可变类型，如列表嵌套列表
-转换字典只是得到字典的key
-
-内置方法(关系运算)：
-交集：set1 & set2             # set1.intersection(set2)
-并集：set1 | set2               # set1.union(set2)
-差集：set1 - set2               # set1.difference(set2), 有先后顺序，得到set1在set2中没有的
-对称差集：set1 ^ set2       # set1.symmetric_difference(set2), 并集中去掉交集部分
-
-父子集，包含关系：
-a包含b, 比较a大于b，a有b的全部元素，还有不是b的元素
-s1.issuperset(s2)    判断s1是否是s2的父集，返回布尔值
-s1.issubset(s2)       判断s1是否是s2的子集
-去重后无序
-s1.isdisjoint({1,2,3})    判断，没有共同部分返回true
-
-fset = frozenset({1,3})            不可变集合，没有pop，add等方法
-fset = frozenset(range(10))
-
 s = {1，2，3} 效率比 s = set([1,2,3])这样创建效率要高，前者利用一个专门的叫做BUILD_SET的字节码来创建集合
 
-set、frozenseet跟字典一样，背后也是散列表，存放元素的引用
+set、frozenseet跟字典一样，背后也是散列表，但是存放的是元素的引用，就像字典只有key一样。
+总结如下：
 1、集合里的元素必须是可散列的
 2、集合很消耗内存
 3、可以很高效的判断元素是否存在某个集合
 4、元素次序取决于添加顺序
 5、添加元素，可能会改变集合里已有元素的次序
+
+不可变集合frozen：
+fset = frozenset({1,3})            不可变集合，没有pop，add等方法
+fset = frozenset(range(10))
+
+
+实验结果：集合的in操作比字典快一点点可忽略不计，背后都是散列表，交集& 操作最快，列表in最慢。
 ---------------------------------------------------------------------------------------------
 
 可变和不可变：
@@ -1344,6 +1385,7 @@ f.readlines()                                  读取多行，返回一个列表
 f.seek()
 f.seekable()
 f.name                                          返回打开的文件名
+f.encoding                                  查看文件的编码
 
 写：
 count = f.write('xxx')                 返回3，返回写入的字符或字节（二进制）数，默认没有换行
@@ -1410,6 +1452,8 @@ os.chdir(r'd:')                       切换目录到D:\\盘
 
 os.system('/usr/bin/a.py')         # 执行a.py
 os.startfile('C:\aa.exe')              # windows特有，执行aa.exe
+
+os.stat('a.txt').st_size                返回文件有多少字符
 
 删除非空文件夹：
 flist = os.listdir(目录)        列出文件夹下的所有文件，然后删除所有文件，再删除空目录
@@ -1605,6 +1649,15 @@ def func()
     x = 222
 func()
 报错，在定义前使用x，作用域
+
+函数是一等对象：
+满足下述条件被成为一等对象
+1、在运行时创建
+2、能赋值给变量或数据结构中的元素
+3、能作为参数传给函数
+4、能作为函数返回结果
+
+整数、字符串、字典都是一等对象
 ----------------------------------------------------------------------------------------------------
 global：全局作用域，用在改变不同作用域的不可变类型
 nonlocal：非局部作用域的修改，不是本地，在当前层的外一层开始，修改闭包的外部函数的值
