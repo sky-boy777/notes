@@ -170,10 +170,18 @@ dict:  修改删除元素的值为O(1), 迭代操作为O(n)
 
 GIL：
 全局解释器锁
+CPython解释器本身就不是线程安全的，因此有GIL，一次只允许使用一个线程执行python字节码，因此一个
+python进程通常不能同时使用多个cpu核心。--流畅的python
 Cpython，互斥锁，同一进程下多个线程不能同时执行，无法利用多核优势
 GIL锁跟Cpython解释器有关，跟python语言无关，Cpython使同一时刻只能有一
 个线程在cpu执行（上锁）只能是并发。多核cpu使用进程就是并行
 进入IO，GIL会自动释放。如time.sleep()会释放GIL。
+
+标准库中所有执行阻塞型I/O操作的函数，在等待操作系统返回结果时都会释放GIL，意味着在python语言这个层次上
+可以使用多线程，而I/O密集型python程序能从中受益，一个线程等待网络响应时，阻塞型I/O函数会释放GIL，再
+运行一个线程。
+
+目前最快的python解释器PyPy也有GIL。--流畅的python
 
 python线程在I/O密集型应用中能发挥作用
 
